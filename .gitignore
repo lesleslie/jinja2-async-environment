@@ -1,0 +1,10 @@
+# Created by .ignore support plugin (hsz.mobi)
+.idea
+/.pdm-python
+/.pdm.toml
+/build/
+/__pypackages__/
+/dist/
+/.mypy_cache/
+/.ruff_cache/
+/.jinja2-async-environment-config.yaml

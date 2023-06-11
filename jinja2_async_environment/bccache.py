@@ -17,7 +17,7 @@ class AsyncRedisBytecodeCache(AsyncRedis, BytecodeCache):
 
     async def load_bytecode(self, key_bucket: Bucket) -> bytes | None:
         code = await self.get(self.get_bucket_name(key_bucket.key))
-        if code is not None:
+        if code:
             return key_bucket.bytecode_from_string(code)
 
     async def dump_bytecode(self, key_bucket: Bucket) -> None:

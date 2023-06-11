@@ -30,7 +30,9 @@ class AsyncBaseLoader:
 
     async def get_source(
         self, environment: "AsyncEnvironment", template: AsyncPath
-    ) -> t.Tuple[t.Any, t.Optional[AsyncPath], t.Any] | t.NoReturn:
+    ) -> t.Tuple[
+        str, t.Optional[AsyncPath], t.Optional[t.Callable[[], bool]]
+    ] | t.NoReturn:
         if not self.has_source_access:
             raise RuntimeError(
                 f"{type(self).__name__} cannot provide access to the source"
@@ -49,12 +51,15 @@ class AsyncBaseLoader:
     ) -> "Template":
         if env_globals is None:
             env_globals = {}
+        code: t.Any = None
+        bucket: t.Any = None
         source, path, uptodate = await self.get_source(environment, AsyncPath(name))
         bcc = environment.bytecode_cache
-        bucket = await bcc.get_bucket(environment, name, path, source)
-        code = bucket.code
+        if bcc:
+            bucket = await bcc.get_bucket(environment, name, path, source)
+            code = bucket.code
         if not code:
-            code = environment.compile(source, name, path.name)
+            code = environment.compile(source, name, path.name)  # type: ignore
         if bcc and not bucket.code:
             bucket.code = code
             await bcc.set_bucket(bucket)
@@ -160,6 +165,7 @@ class PackageLoader(AsyncBaseLoader):
         self, environment: "AsyncEnvironment", template: AsyncPath
     ) -> t.Tuple[str, AsyncPath, t.Optional[t.Coroutine[t.Any, t.Any, bool]]]:
         path = self._template_root / template
+        # up_to_date: t.Optional[t.Callable[[], bool]] | None
         if self._archive:
             if not path.is_file():
                 raise TemplateNotFound(path.name)
@@ -167,7 +173,7 @@ class PackageLoader(AsyncBaseLoader):
             mtime = (await path.stat()).st_mtime
 
             async def up_to_date() -> bool:
-                return path.is_file() and (await path.stat()).st_mtime == mtime
+                return await path.is_file() and (await path.stat()).st_mtime == mtime
 
         else:
             # Package is a zip file.
@@ -175,8 +181,8 @@ class PackageLoader(AsyncBaseLoader):
                 source = self._loader.get_data(str(path))  # type: ignore
             except OSError as e:
                 raise TemplateNotFound(path.name) from e
-            up_to_date = None
-        return source.decode(self.encoding), path, up_to_date
+            up_to_date = None  # type: ignore
+        return source.decode(self.encoding), path, up_to_date  # type: ignore
 
     async def list_templates(self) -> list[AsyncPath]:
         results: list[AsyncPath] = []
