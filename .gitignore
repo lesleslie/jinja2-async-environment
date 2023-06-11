@@ -7,4 +7,4 @@
 /dist/
 /.mypy_cache/
 /.ruff_cache/
-/.jinja2-async-environment-config.yaml
+/.jinja2_async_environment-config.yaml

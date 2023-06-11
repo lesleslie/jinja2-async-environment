@@ -39,7 +39,7 @@ pythonVersion = "3.11"
 
 [project]
 name = "jinja2-async-environment"
-version = "0.1.5"
+version = "0.1.6"
 description = ""
 dependencies = [
     "jinja2>=3.1.2",

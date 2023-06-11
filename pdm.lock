@@ -174,7 +174,7 @@ summary = "Cross-platform colored terminal text."
 
 [[package]]
 name = "crackerjack"
-version = "0.2.10"
+version = "0.2.12"
 requires_python = ">=3.11"
 summary = "Crackerjack code formatting style."
 dependencies = [
@@ -1059,9 +1059,9 @@ content_hash = "sha256:d39b8cac10c7d3f9283a4f895d8da417867857a572115718df0c03828
     {url = "https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {url = "https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
 ]
-"crackerjack 0.2.10" = [
-    {url = "https://files.pythonhosted.org/packages/6a/a9/14bce588a134ebcf7683ec7ee27dc950f9e2825a811eb75070160a199912/crackerjack-0.2.10-py3-none-any.whl", hash = "sha256:8b16f7f169112516712e6eafa7d9242b16a8f2b8d69d3bbe7e8fede02ff12f8b"},
-    {url = "https://files.pythonhosted.org/packages/99/38/1ce0ead613018fc42e82fe07678c11d4feb7967bcbcc8740165172bbb1c8/crackerjack-0.2.10.tar.gz", hash = "sha256:f21ce072a075390ac79654318f828e0d06cebfe4275a30d7ae7cc40b056acace"},
+"crackerjack 0.2.12" = [
+    {url = "https://files.pythonhosted.org/packages/8d/7e/8cdfbac3326801e33c16edb262330fcd25ab5e5be551c2b31fda45cf8587/crackerjack-0.2.12-py3-none-any.whl", hash = "sha256:bd2e224fec35b66921acc796371d068e216c5e1b29e087db5bc3f41187ed5277"},
+    {url = "https://files.pythonhosted.org/packages/a8/1e/c6ffbd1a277231e5a41759ba90e413d936bd51f8fe955165a092524cfaec/crackerjack-0.2.12.tar.gz", hash = "sha256:b9ba6757065fa6768114d5c049b591a10086c907d863ad9ea902762653938276"},
 ]
 "cryptography 40.0.2" = [
     {url = "https://files.pythonhosted.org/packages/0d/91/b2efda2ffb30b1623016d8e8ea6f59dde22b9bc86c0883bc12d965c53dca/cryptography-40.0.2-cp36-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:4df2af28d7bedc84fe45bd49bc35d710aede676e2a4cb7fc6d103a2adc8afe4d"},

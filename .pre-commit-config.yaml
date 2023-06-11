@@ -27,7 +27,7 @@ repos:
       - id: creosote
         args:
           - --venv=__pypackages__/3.11/lib
-          - --paths=jinja2-async-environment
+          - --paths=jinja2_async_environment
   #          - --deps-file=pyproject.toml
   #          - --sections=project.dependencies
   - repo: https://github.com/ikamensh/flynt/
