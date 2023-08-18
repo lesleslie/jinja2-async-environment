@@ -1,8 +1,8 @@
 [tool.pdm.dev-dependencies]
 dev = [
-    "pre-commit>=3.3.2",
-    "types-redis>=4.5.5.2",
-    "crackerjack>=0.3.0",
+    "pre-commit>=3.3.3",
+    "types-redis>=4.6.0.4",
+    "crackerjack>=0.3.13",
 ]
 
 [tool.ruff]
@@ -29,6 +29,11 @@ target-version = [
 [tool.refurb]
 enable_all = true
 
+[tool.pyanalyze]
+paths = [
+    "jinja2_async_environment",
+]
+
 [tool.pyright]
 include = [
     "jinja2_async_environment",
@@ -39,11 +44,11 @@ pythonVersion = "3.11"
 
 [project]
 name = "jinja2-async-environment"
-version = "0.1.7"
+version = "0.1.9"
 description = ""
 dependencies = [
     "jinja2>=3.1.2",
-    "redis>=4.5.5",
+    "redis>=5.0.0",
 ]
 requires-python = ">=3.11"
 readme = "README.md"
