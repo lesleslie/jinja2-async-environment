@@ -7,8 +7,6 @@
 /dist/
 /.mypy_cache/
 /.ruff_cache/
-/.pyanalyze-report.json
-/.pyanalyze-report.md
 /.pdm-build/
 /tmp/
 /__pycache__/
