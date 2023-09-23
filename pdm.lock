@@ -319,7 +319,7 @@ files = [
 
 [[package]]
 name = "crackerjack"
-version = "0.4.11"
+version = "0.4.15"
 requires_python = ">=3.11"
 summary = "Crackerjack code style"
 dependencies = [
@@ -331,11 +331,10 @@ dependencies = [
     "inflection>=0.5.1",
     "pdm-bump>=0.7.3",
     "pydantic>=2.3.0",
-    "pyright>=1.1.327",
 ]
 files = [
-    {file = "crackerjack-0.4.11-py3-none-any.whl", hash = "sha256:2733820c99e8e83f8296ecdd88a80ad8ac7be28721d6662d02044d5c50dc2c62"},
-    {file = "crackerjack-0.4.11.tar.gz", hash = "sha256:a73074227a04b9b2ecf0763132588bf9681777c8b97316da09c15ab48f734270"},
+    {file = "crackerjack-0.4.15-py3-none-any.whl", hash = "sha256:d52bea8c61f778949300d0d5d499fdf4316c65f514bd04ea61d214d9fd42dbc6"},
+    {file = "crackerjack-0.4.15.tar.gz", hash = "sha256:cfe80bda21de929e551e62366289a10436956dd7080c4afcc1713f143da11a6f"},
 ]
 
 [[package]]
@@ -925,19 +924,6 @@ files = [
 ]
 
 [[package]]
-name = "pyright"
-version = "1.1.327"
-requires_python = ">=3.7"
-summary = "Command line wrapper for pyright"
-dependencies = [
-    "nodeenv>=1.6.0",
-]
-files = [
-    {file = "pyright-1.1.327-py3-none-any.whl", hash = "sha256:3462cda239e9140276238bbdbd0b59d77406f1c2e14d8cb8c20c8e25639c6b3c"},
-    {file = "pyright-1.1.327.tar.gz", hash = "sha256:ba74148ad64f22020dbbed6781c4bdb38ecb8a7ca90dc3c87a4f08d1c0e11592"},
-]
-
-[[package]]
 name = "python-dateutil"
 version = "2.8.2"
 requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
@@ -1135,15 +1121,15 @@ files = [
 
 [[package]]
 name = "types-redis"
-version = "4.6.0.5"
+version = "4.6.0.7"
 summary = "Typing stubs for redis"
 dependencies = [
     "cryptography>=35.0.0",
     "types-pyOpenSSL",
 ]
 files = [
-    {file = "types-redis-4.6.0.5.tar.gz", hash = "sha256:5f179d10bd3ca995a8134aafcddfc3e12d52b208437c4529ef27e68acb301f38"},
-    {file = "types_redis-4.6.0.5-py3-none-any.whl", hash = "sha256:4f662060247a2363c7a8f0b7e52915d68960870ff16a749a891eabcf87ed0be4"},
+    {file = "types-redis-4.6.0.7.tar.gz", hash = "sha256:28c4153ddb5c9d4f10def44a2454673c361d2d5fc3cd867cf3bb1520f3f59a38"},
+    {file = "types_redis-4.6.0.7-py3-none-any.whl", hash = "sha256:05b1bf92879b25df20433fa1af07784a0d7928c616dc2ebf9087618db77ccbd0"},
 ]
 
 [[package]]

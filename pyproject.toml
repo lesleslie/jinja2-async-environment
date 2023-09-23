@@ -1,3 +1,9 @@
+[tool.pdm.options]
+config = [
+    "python.use_venv",
+    "true",
+]
+
 [tool.pdm.dev-dependencies]
 dev = [
     "pre-commit>=3.4.0",
@@ -29,22 +35,20 @@ target-version = [
 [tool.refurb]
 enable_all = true
 
-[tool.pyanalyze]
-paths = [
-    "jinja2_async_environment",
-]
-
 [tool.pyright]
 include = [
     "jinja2_async_environment",
 ]
 reportMissingImports = true
 reportMissingTypeStubs = false
+reportOptionalMemberAccess = false
+reportOptionalCall = false
+reportGeneralTypeIssues = "warning"
 pythonVersion = "3.11"
 
 [project]
 name = "jinja2-async-environment"
-version = "0.1.12"
+version = "0.1.13"
 description = ""
 dependencies = [
     "jinja2>=3.1.2",
