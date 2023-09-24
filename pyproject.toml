@@ -39,16 +39,19 @@ enable_all = true
 include = [
     "jinja2_async_environment",
 ]
-reportMissingImports = true
+typeCheckingMode = "strict"
 reportMissingTypeStubs = false
 reportOptionalMemberAccess = false
 reportOptionalCall = false
-reportGeneralTypeIssues = "warning"
+reportUnknownMemberType = false
+reportUnknownVariableType = false
+reportUnknownArgumentType = false
+reportPrivateUsage = "warning"
 pythonVersion = "3.11"
 
 [project]
 name = "jinja2-async-environment"
-version = "0.1.13"
+version = "0.2.0"
 description = ""
 dependencies = [
     "jinja2>=3.1.2",
