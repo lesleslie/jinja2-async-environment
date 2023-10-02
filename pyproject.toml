@@ -6,7 +6,6 @@ config = [
 
 [tool.pdm.dev-dependencies]
 dev = [
-    "pre-commit>=3.4.0",
     "types-redis>=4.6.0.5",
     "crackerjack>=0.4.11",
 ]
@@ -35,6 +34,17 @@ target-version = [
 [tool.refurb]
 enable_all = true
 
+[tool.bandit]
+target = [
+    "jinja2_async_environment",
+]
+skips = [
+    "B113",
+    "B403",
+    "B404",
+    "B603",
+]
+
 [tool.pyright]
 include = [
     "jinja2_async_environment",
@@ -51,7 +61,7 @@ pythonVersion = "3.11"
 
 [project]
 name = "jinja2-async-environment"
-version = "0.2.0"
+version = "0.2.1"
 description = ""
 dependencies = [
     "jinja2>=3.1.2",
