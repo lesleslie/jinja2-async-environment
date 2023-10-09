@@ -28,9 +28,7 @@ class AsyncBaseLoader:
         if not isinstance(searchpath, abc.Iterable):
             self.searchpath = [searchpath]
 
-    async def get_source(
-        self, environment: "AsyncEnvironment", template: AsyncPath
-    ) -> t.Any:
+    async def get_source(self, template: AsyncPath) -> t.Any:
         if not self.has_source_access:
             raise RuntimeError(
                 f"{type(self).__name__} cannot provide access to the source"
@@ -51,7 +49,7 @@ class AsyncBaseLoader:
             env_globals = {}
         code: t.Any = None
         bucket: t.Any = None
-        source, path, uptodate = await self.get_source(environment, AsyncPath(name))
+        source, path, uptodate = await self.get_source(AsyncPath(name))
         bcc = environment.bytecode_cache
         if bcc:
             bucket = await bcc.get_bucket(environment, name, path, source)
@@ -77,9 +75,7 @@ class FileSystemLoader(AsyncBaseLoader):
         self.encoding = encoding
         self.followlinks = followlinks
 
-    async def get_source(
-        self, environment: "AsyncEnvironment", template: AsyncPath
-    ) -> t.Any:
+    async def get_source(self, template: AsyncPath) -> t.Any:
         # split_template_path(template)
         for searchpath in self.searchpath:  # type: ignore
             path = searchpath / template
@@ -159,9 +155,7 @@ class PackageLoader(AsyncBaseLoader):
 
         self._template_root = template_root
 
-    async def get_source(
-        self, environment: "AsyncEnvironment", template: AsyncPath
-    ) -> t.Any:
+    async def get_source(self, template: AsyncPath) -> t.Any:
         path = self._template_root / template
         # up_to_date: t.Optional[t.Callable[[], bool]] | None
         if self._archive:
@@ -214,9 +208,7 @@ class DictLoader(AsyncBaseLoader):
         super().__init__(searchpath)
         self.mapping = mapping
 
-    async def get_source(
-        self, environment: "AsyncEnvironment", template: AsyncPath
-    ) -> t.Any:
+    async def get_source(self, template: AsyncPath) -> t.Any:
         if template.name in self.mapping:
             source = self.mapping[template.name]
             return source, None, lambda: source == self.mapping.get(template.name)
@@ -235,9 +227,7 @@ class FunctionLoader(AsyncBaseLoader):
         super().__init__(searchpath)
         self.load_func = load_func
 
-    async def get_source(
-        self, environment: "AsyncEnvironment", template: str | AsyncPath
-    ) -> t.Any:
+    async def get_source(self, template: str | AsyncPath) -> t.Any:
         path = AsyncPath(template)
         source = self.load_func(path)
         if source is None:
@@ -258,12 +248,10 @@ class ChoiceLoader(AsyncBaseLoader):
         super().__init__(searchpath)
         self.loaders = loaders
 
-    async def get_source(
-        self, environment: "AsyncEnvironment", template: AsyncPath
-    ) -> t.Any:
+    async def get_source(self, template: AsyncPath) -> t.Any:
         for loader in self.loaders:
             with suppress(TemplateNotFound):
-                return await loader.get_source(environment, template)
+                return await loader.get_source(template)
         raise TemplateNotFound(template.name)
 
     async def list_templates(self) -> t.Any:

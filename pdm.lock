@@ -6,18 +6,16 @@ groups = ["default", "dev"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:47025235f3ef81839adacab5c6cb55a7307d9e513e827bcd68adef8cd16d2c2b"
+content_hash = "sha256:f85ee09dd1195d620b5542903c3cfb3d698c1c13c8720e62f7e5fca474a3fc08"
 
 [[package]]
 name = "acb"
-version = "0.2.9"
+version = "0.2.14"
 requires_python = ">=3.11"
 summary = "Asynchronous Code Base"
 dependencies = [
     "aiopath>=0.6.11",
     "arrow>=1.3.0",
-    "async-lru>=2.0.4",
-    "asyncio-atexit>=1.0.1",
     "bevy>=2.0.1",
     "blake3>=0.3.3",
     "dill>=0.3.7",
@@ -27,15 +25,14 @@ dependencies = [
     "loguru>=0.7.2",
     "msgspec[toml]>=0.18.3",
     "nest-asyncio>=1.5.8",
-    "pluginbase>=1.0.1",
     "pydantic-settings>=2.0.3",
     "pydantic>=2.4.0",
     "python-ulid>=2.2.0",
     "sqlalchemy>=2.0.11",
 ]
 files = [
-    {file = "acb-0.2.9-py3-none-any.whl", hash = "sha256:03b6652230448f9a3b995a54ebf5ca81fd6fbdd9bf53dfa117d71792c158e0ba"},
-    {file = "acb-0.2.9.tar.gz", hash = "sha256:662bf725da32528a8fdb86b82f51659e9c0078f827544c874795e2e27a9a37e0"},
+    {file = "acb-0.2.14-py3-none-any.whl", hash = "sha256:d48d6d278ccbd3ca295f3c5e445e4747512d7de062bcacca4e9738a4064ceb32"},
+    {file = "acb-0.2.14.tar.gz", hash = "sha256:212617af7b82c5f13bda378db58179d0900f07fdb9b930ea446720591043e29b"},
 ]
 
 [[package]]
@@ -126,16 +123,6 @@ files = [
 ]
 
 [[package]]
-name = "async-lru"
-version = "2.0.4"
-requires_python = ">=3.8"
-summary = "Simple LRU cache for asyncio"
-files = [
-    {file = "async-lru-2.0.4.tar.gz", hash = "sha256:b8a59a5df60805ff63220b2a0c5b5393da5521b113cd5465a44eb037d81a5627"},
-    {file = "async_lru-2.0.4-py3-none-any.whl", hash = "sha256:ff02944ce3c288c5be660c42dbcca0742b32c3b279d6dceda655190240b99224"},
-]
-
-[[package]]
 name = "async-timeout"
 version = "4.0.3"
 requires_python = ">=3.7"
@@ -143,16 +130,6 @@ summary = "Timeout context manager for asyncio programs"
 files = [
     {file = "async-timeout-4.0.3.tar.gz", hash = "sha256:4640d96be84d82d02ed59ea2b7105a0f7b33abe8703703cd0ab0bf87c427522f"},
     {file = "async_timeout-4.0.3-py3-none-any.whl", hash = "sha256:7405140ff1230c310e51dc27b3145b9092d659ce68ff733fb0cefe3ee42be028"},
-]
-
-[[package]]
-name = "asyncio-atexit"
-version = "1.0.1"
-requires_python = ">=3.6"
-summary = "Like atexit, but for asyncio"
-files = [
-    {file = "asyncio-atexit-1.0.1.tar.gz", hash = "sha256:1d0c71544b8ee2c484d322844ee72c0875dde6f250c0ed5b6993592ab9f7d436"},
-    {file = "asyncio_atexit-1.0.1-py3-none-any.whl", hash = "sha256:d93d5f7d5633a534abd521ce2896ed0fbe8de170bb1e65ec871d1c20eac9d376"},
 ]
 
 [[package]]
@@ -333,11 +310,11 @@ files = [
 
 [[package]]
 name = "crackerjack"
-version = "0.6.14"
+version = "0.6.19"
 requires_python = ">=3.11"
 summary = "Crackerjack code style"
 dependencies = [
-    "acb>=0.2.7",
+    "acb>=0.2.11",
     "aioconsole>=0.6.2",
     "aiopath>=0.6.11",
     "autotyping>=23.3.0",
@@ -349,8 +326,8 @@ dependencies = [
     "pytest>=7.4.2",
 ]
 files = [
-    {file = "crackerjack-0.6.14-py3-none-any.whl", hash = "sha256:5a34dca3d4c2cd23cdefeb513ccd0dfc17419257730c9f3c903a1a1c6cc0a7ea"},
-    {file = "crackerjack-0.6.14.tar.gz", hash = "sha256:d3f18ffaff1301d82f093d608f08ba154a5fee31731100a0f857439763a24a05"},
+    {file = "crackerjack-0.6.19-py3-none-any.whl", hash = "sha256:353d96f564d61c1cfe634ca09a381cbe363e4621af2aab161678b8a72d7925e7"},
+    {file = "crackerjack-0.6.19.tar.gz", hash = "sha256:44f0f1e1836fb928182b34c310b19e78aa0e27bf407a8a5e9fa1218f1136161a"},
 ]
 
 [[package]]
@@ -841,14 +818,6 @@ summary = "plugin and hook calling mechanisms for python"
 files = [
     {file = "pluggy-1.3.0-py3-none-any.whl", hash = "sha256:d89c696a773f8bd377d18e5ecda92b7a3793cbe66c87060a6fb58c7b6e1061f7"},
     {file = "pluggy-1.3.0.tar.gz", hash = "sha256:cf61ae8f126ac6f7c451172cf30e3e43d3ca77615509771b3a984a0730651e12"},
-]
-
-[[package]]
-name = "pluginbase"
-version = "1.0.1"
-summary = "PluginBase is a module for Python that enables the development of flexible plugin systems in Python."
-files = [
-    {file = "pluginbase-1.0.1.tar.gz", hash = "sha256:ff6c33a98fce232e9c73841d787a643de574937069f0d18147028d70d7dee287"},
 ]
 
 [[package]]

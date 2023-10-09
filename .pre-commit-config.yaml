@@ -4,7 +4,7 @@ repos:
     hooks:
       - id: pdm-lock-check
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: trailing-whitespace
         name: trailing-whitspace
@@ -22,20 +22,19 @@ repos:
       - id: black
         language_version: python3.11
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.291
+    rev: v0.0.292
     hooks:
       - id: ruff
   - repo: https://github.com/fredrikaverpil/creosote
-    rev: v2.6.3
+    rev: v3.0.0
     hooks:
       - id: creosote
-        args: [--paths, "jinja2_async_environment", --exclude-deps, "pdm-bump", "autotyping", "python-ulid", "pre-commit", "pytest"]
   - repo: https://github.com/ikamensh/flynt/
     rev: '1.0.1'
     hooks:
       - id: flynt
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.5
+    rev: v2.2.6
     hooks:
       - id: codespell
         additional_dependencies:
@@ -69,7 +68,7 @@ repos:
       - id: bandit
         args: ["-c", "pyproject.toml"]
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.329
+    rev: v1.1.330.post0
     hooks:
       - id: pyright
   #  - repo: https://github.com/pdoc3/pdoc
@@ -83,7 +82,7 @@ repos:
   #        types: [ python ]
   #        always_run: true
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.291
+    rev: v0.0.292
     hooks:
       - id: ruff
   - repo: https://github.com/psf/black
