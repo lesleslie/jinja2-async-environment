@@ -38,8 +38,8 @@ deps-file = "pyproject.toml"
 exclude-deps = [
     "pdm-bump",
     "autotyping",
-    "pre-commit",
     "pytest",
+    "pre-commit",
 ]
 
 [tool.refurb]
@@ -50,15 +50,19 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
+    "B113",
     "B404",
     "B603",
-    "B113",
     "B403",
 ]
 
 [tool.pyright]
+verboseOutput = true
 include = [
     "jinja2_async_environment",
+]
+extraPaths = [
+    "__pypackages__/3.12/lib/",
 ]
 typeCheckingMode = "strict"
 reportMissingTypeStubs = false
@@ -69,10 +73,11 @@ reportUnknownVariableType = false
 reportUnknownArgumentType = false
 reportPrivateUsage = "warning"
 pythonVersion = "3.12"
+pythonPlatform = "Darwin"
 
 [project]
 name = "jinja2-async-environment"
-version = "0.3.0"
+version = "0.4.0"
 description = ""
 dependencies = [
     "jinja2>=3.1.2",

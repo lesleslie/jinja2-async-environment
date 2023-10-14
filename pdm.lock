@@ -20,7 +20,7 @@ files = [
 
 [[package]]
 name = "acb"
-version = "0.3.3"
+version = "0.3.5"
 requires_python = ">=3.12"
 summary = "Asynchronous Code Base"
 dependencies = [
@@ -42,11 +42,12 @@ dependencies = [
     "pydantic-settings>=2.0.3",
     "pydantic>=2.4.0",
     "pyfiglet>=1.0.2",
+    "pyyaml>=6.0.1",
     "ulid-py>=1.1.0",
 ]
 files = [
-    {file = "acb-0.3.3-py3-none-any.whl", hash = "sha256:6fec24f0af9b24048daf9f4839eb078fdb18957c0e005f1158e62764b8ec4e5b"},
-    {file = "acb-0.3.3.tar.gz", hash = "sha256:f4e26782918611bd3efa1df4b7de21c10e722020bbc0f56270fd33700eb0c054"},
+    {file = "acb-0.3.5-py3-none-any.whl", hash = "sha256:6e05f13d299d929474787a3bb2ec34463748e7375600fcdc73c6b0ef546dd2d9"},
+    {file = "acb-0.3.5.tar.gz", hash = "sha256:31186104c66d7c7faf6606b434ca16ed4143f0293ab915fe36e0f871afa14571"},
 ]
 
 [[package]]
@@ -320,11 +321,11 @@ files = [
 
 [[package]]
 name = "crackerjack"
-version = "0.7.4"
+version = "0.7.6"
 requires_python = ">=3.12"
 summary = "Crackerjack code style"
 dependencies = [
-    "acb>=0.3.3",
+    "acb>=0.3.4",
     "aioconsole>=0.6.2",
     "aiopath>=0.7.5",
     "autotyping>=23.3.0",
@@ -336,8 +337,8 @@ dependencies = [
     "pytest>=7.4.2",
 ]
 files = [
-    {file = "crackerjack-0.7.4-py3-none-any.whl", hash = "sha256:cb934a9ee35f1eaec0e482af672d663b3e2097c2a9a970b66247efb79a9066e6"},
-    {file = "crackerjack-0.7.4.tar.gz", hash = "sha256:ddae23221b279ac78803b050dcd674904cf85eee25f79e2af02ccc6f340cf159"},
+    {file = "crackerjack-0.7.6-py3-none-any.whl", hash = "sha256:407ade5721c12a984f2d01ba4acfe55a7aee4cfabac7385b3061791172af36d8"},
+    {file = "crackerjack-0.7.6.tar.gz", hash = "sha256:4e636c3c814df97203354a9001446d784a48eb4e24abd9320c5227143aaab4c7"},
 ]
 
 [[package]]

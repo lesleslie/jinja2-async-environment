@@ -41,10 +41,10 @@ class AsyncBaseLoader:
     @internalcode
     async def load(
         self,
-        environment: "AsyncEnvironment",
+        environment: AsyncEnvironment,
         name: str,
         env_globals: t.Optional[t.MutableMapping[str, t.Any]] = None,
-    ) -> "Template":
+    ) -> Template:
         if env_globals is None:
             env_globals = {}
         code: t.Any = None
