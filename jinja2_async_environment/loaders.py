@@ -164,7 +164,7 @@ class PackageLoader(AsyncBaseLoader):
             source = await path.read_bytes()
             mtime = (await path.stat()).st_mtime
 
-            async def up_to_date() -> bool:
+            async def uptodate() -> bool:
                 return await path.is_file() and (await path.stat()).st_mtime == mtime
 
         else:
@@ -173,8 +173,8 @@ class PackageLoader(AsyncBaseLoader):
                 source = self._loader.get_data(str(path))  # type: ignore
             except OSError as e:
                 raise TemplateNotFound(path.name) from e
-            up_to_date = None  # type: ignore
-        return source.decode(self.encoding), path, up_to_date  # type: ignore
+            uptodate = None  # type: ignore
+        return source.decode(self.encoding), path, uptodate  # type: ignore
 
     async def list_templates(self) -> t.Any:
         results: list[AsyncPath] = []
