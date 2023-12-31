@@ -6,7 +6,7 @@ config = [
 
 [tool.pdm.dev-dependencies]
 dev = [
-    "crackerjack>=0.7.4",
+    "crackerjack>=0.7.17",
 ]
 
 [tool.ruff]
@@ -36,10 +36,11 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
-    "pdm-bump",
     "autotyping",
     "pytest",
     "pre-commit",
+    "pdm",
+    "pdm-bump",
 ]
 
 [tool.refurb]
@@ -50,8 +51,8 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
-    "B113",
     "B404",
+    "B113",
     "B603",
     "B403",
 ]
@@ -74,6 +75,11 @@ reportUnknownArgumentType = false
 reportPrivateUsage = "warning"
 pythonVersion = "3.12"
 pythonPlatform = "Darwin"
+
+[tool.codespell]
+skip = "*/data/*"
+quiet-level = 3
+ignore-words-list = "crate,uptodate"
 
 [project]
 name = "jinja2-async-environment"
