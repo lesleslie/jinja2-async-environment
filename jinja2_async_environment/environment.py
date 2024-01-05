@@ -34,7 +34,9 @@ class AsyncEnvironment(Environment):
         cache_key = (ref(self.loader), name)
         if self.cache is not None:
             template = self.cache.get(cache_key)
-            if template and (not self.auto_reload or template.is_up_to_date):
+            if template and (
+                not self.auto_reload or await template.is_up_to_date  # type: ignore
+            ):
                 if globals:
                     template.globals.update(globals)
                 return template
