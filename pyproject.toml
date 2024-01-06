@@ -36,11 +36,11 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
+    "pdm-bump",
     "pytest",
-    "pdm",
     "pre-commit",
     "autotyping",
-    "pdm-bump",
+    "pdm",
 ]
 
 [tool.refurb]
@@ -53,8 +53,8 @@ target = [
 skips = [
     "B403",
     "B113",
-    "B404",
     "B603",
+    "B404",
 ]
 
 [tool.pyright]
@@ -83,7 +83,7 @@ ignore-words-list = "crate,uptodate"
 
 [project]
 name = "jinja2-async-environment"
-version = "0.4.1"
+version = "0.4.2"
 description = ""
 dependencies = [
     "jinja2>=3.1.2",
