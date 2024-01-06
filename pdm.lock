@@ -3,10 +3,9 @@
 
 [metadata]
 groups = ["default", "dev"]
-cross_platform = true
-static_urls = false
-lock_version = "4.3"
-content_hash = "sha256:464af36cea45bea0b16aed8b8187fe3106e043ca3c246040fa9df18b931342e0"
+strategy = ["cross_platform"]
+lock_version = "4.4.1"
+content_hash = "sha256:5a23dd35fbe84f29f21efbb2c21e3b6037f0fd8848a883a82583c19c05c15fc9"
 
 [[package]]
 name = "about-time"
@@ -325,7 +324,7 @@ files = [
 
 [[package]]
 name = "crackerjack"
-version = "0.7.17"
+version = "0.7.19"
 requires_python = ">=3.12"
 summary = "Crackerjack code style"
 dependencies = [
@@ -342,8 +341,8 @@ dependencies = [
     "pytest>=7.4.3",
 ]
 files = [
-    {file = "crackerjack-0.7.17-py3-none-any.whl", hash = "sha256:e4783a3a183583d5190a0e8592954f6c5cca1679506f0288db274a884535de23"},
-    {file = "crackerjack-0.7.17.tar.gz", hash = "sha256:86b0d9f011a477f220da4b1cdf192a11a1b06369141b1a36ae84c17128e86436"},
+    {file = "crackerjack-0.7.19-py3-none-any.whl", hash = "sha256:ac5be88880f5c5bd0a78d250a472f7456a4149e215a05529bf076839e051d1ac"},
+    {file = "crackerjack-0.7.19.tar.gz", hash = "sha256:fbdff29a3d5786813673cc0c61a8e6c0806117efb19ca8b151663d3ce82d8b25"},
 ]
 
 [[package]]
@@ -973,12 +972,12 @@ files = [
 
 [[package]]
 name = "redis"
-version = "5.0.1"
+version = "5.0.0"
 requires_python = ">=3.7"
 summary = "Python client for Redis database and key-value store"
 files = [
-    {file = "redis-5.0.1-py3-none-any.whl", hash = "sha256:ed4802971884ae19d640775ba3b03aa2e7bd5e8fb8dfaed2decce4d0fc48391f"},
-    {file = "redis-5.0.1.tar.gz", hash = "sha256:0dab495cd5753069d3bc650a0dde8a8f9edde16fc5691b689a566eda58100d0f"},
+    {file = "redis-5.0.0-py3-none-any.whl", hash = "sha256:06570d0b2d84d46c21defc550afbaada381af82f5b83e5b3777600e05d8e2ed0"},
+    {file = "redis-5.0.0.tar.gz", hash = "sha256:5cea6c0d335c9a7332a460ed8729ceabb4d0c489c7285b0a86dbbf8a017bd120"},
 ]
 
 [[package]]
