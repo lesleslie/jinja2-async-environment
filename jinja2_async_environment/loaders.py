@@ -4,6 +4,7 @@ import zipimport
 from collections import abc
 from contextlib import suppress
 from importlib import import_module
+from pathlib import Path
 
 from aiopath import AsyncPath
 from jinja2.environment import Template
@@ -137,14 +138,14 @@ class PackageLoader(AsyncBaseLoader):
             # One element for regular packages, multiple for namespace
             # packages, or None for single module file.
             if spec.submodule_search_locations:
-                roots.extend([AsyncPath(s) for s in spec.submodule_search_locations])
+                roots.extend([Path(s) for s in spec.submodule_search_locations])
             # A single module file, use the parent directory instead.
             elif spec.origin is not None:
-                roots.append(AsyncPath(spec.origin))
+                roots.append(Path(spec.origin))
             for root in roots:
                 path = root / package_path
                 if path.is_dir():
-                    template_root = root
+                    template_root = AsyncPath(root)
                     break
 
         if not template_root:
