@@ -14,15 +14,15 @@ line-length = 88
 target-version = "py312"
 fix = true
 show-fixes = true
-show-source = true
+output-format = "full"
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 force-single-line = true
 
-[tool.ruff.mccabe]
+[tool.ruff.lint.mccabe]
 max-complexity = 10
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"
 
 [tool.black]
@@ -36,11 +36,11 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
-    "pytest",
-    "autotyping",
     "pdm-bump",
-    "pre-commit",
+    "pytest",
     "pdm",
+    "pre-commit",
+    "autotyping",
 ]
 
 [tool.refurb]
@@ -51,10 +51,10 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
-    "B404",
     "B403",
-    "B603",
     "B113",
+    "B603",
+    "B404",
 ]
 
 [tool.pyright]
@@ -83,7 +83,7 @@ ignore-words-list = "crate,uptodate"
 
 [project]
 name = "jinja2-async-environment"
-version = "0.4.5"
+version = "0.5.0"
 description = ""
 dependencies = [
     "jinja2>=3.1.2",

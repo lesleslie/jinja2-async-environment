@@ -56,7 +56,7 @@ class AsyncBaseLoader:
             bucket = await bcc.get_bucket(environment, name, path, source)
             code = bucket.code
         if not code:
-            code = environment.compile(source, name, path.name)  # type: ignore
+            code = environment.compile(source, name, path)
         if bcc and not bucket.code:
             bucket.code = code
             await bcc.set_bucket(bucket)
@@ -85,7 +85,7 @@ class FileSystemLoader(AsyncBaseLoader):
         else:
             raise TemplateNotFound(template.name)
         try:
-            resp = await path.read_text()
+            resp = await path.read_bytes()
         except FileNotFoundError:
             raise TemplateNotFound(path.name)
         mtime = (await path.stat()).st_mtime

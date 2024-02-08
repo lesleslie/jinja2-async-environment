@@ -324,7 +324,7 @@ files = [
 
 [[package]]
 name = "crackerjack"
-version = "0.7.22"
+version = "0.7.23"
 requires_python = ">=3.12"
 summary = "Crackerjack code style"
 dependencies = [
@@ -335,14 +335,14 @@ dependencies = [
     "click>=8.1.7",
     "inflection>=0.5.1",
     "pdm-bump>=0.7.3",
-    "pdm>=2.11.1",
+    "pdm>=2.12.3",
     "pre-commit>=3.6.0",
     "pydantic>=2.5.3",
     "pytest>=7.4.3",
 ]
 files = [
-    {file = "crackerjack-0.7.22-py3-none-any.whl", hash = "sha256:6dca9483daa62bb2542ff78cda7bab5a824a954813918a473cc24003a7a902d8"},
-    {file = "crackerjack-0.7.22.tar.gz", hash = "sha256:441c0ab899d4b218a3865c334c0af529be9ca7e5dcedd302bb4a3b08d2dc7b9d"},
+    {file = "crackerjack-0.7.23-py3-none-any.whl", hash = "sha256:b9dd3de47f3ae611b7d3a8b1ac06c49344d7a3947582e1809e8354c159d6d455"},
+    {file = "crackerjack-0.7.23.tar.gz", hash = "sha256:aeba773500c7d4513fc3ea44df1cfb7835be889e92e01a76758a037b8e21615e"},
 ]
 
 [[package]]
@@ -707,7 +707,7 @@ files = [
 
 [[package]]
 name = "pdm"
-version = "2.11.1"
+version = "2.12.3"
 requires_python = ">=3.8"
 summary = "A modern Python package and dependency manager supporting the latest PEP standards"
 dependencies = [
@@ -731,8 +731,8 @@ dependencies = [
     "virtualenv>=20",
 ]
 files = [
-    {file = "pdm-2.11.1-py3-none-any.whl", hash = "sha256:6e18eab6f92ca7a31c68ea078d09d0a64b5f2aebf4f0e60ae81b1c5ca84a4189"},
-    {file = "pdm-2.11.1.tar.gz", hash = "sha256:b10bc4e5394856f1639ddc9bc754d9c26323ec5b828a135c6ed35f935b054b83"},
+    {file = "pdm-2.12.3-py3-none-any.whl", hash = "sha256:27eddf71434906e39db3f448d35ea5ee1f4d0f557de39fc932205f7dfc82f902"},
+    {file = "pdm-2.12.3.tar.gz", hash = "sha256:53cdab727c1469fdc196efd8d7ff8404a3ca91ee43c0a5714736f2020d0a5ddf"},
 ]
 
 [[package]]

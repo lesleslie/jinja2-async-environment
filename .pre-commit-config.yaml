@@ -21,7 +21,7 @@ repos:
     hooks:
       - id: black
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.2.0
+    rev: v0.2.1
     hooks:
       - id: ruff
   - repo: https://github.com/fredrikaverpil/creosote
@@ -67,7 +67,7 @@ repos:
       - id: bandit
         args: ["-c", "pyproject.toml"]
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.349
+    rev: v1.1.350
     hooks:
       - id: pyright
   #  - repo: https://github.com/pdoc3/pdoc
@@ -81,7 +81,7 @@ repos:
   #        types: [ python ]
   #        always_run: true
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.2.0
+    rev: v0.2.1
     hooks:
       - id: ruff
   - repo: https://github.com/psf/black
