@@ -1,6 +1,5 @@
 import typing as t
 
-from aiopath import AsyncPath
 from jinja2 import BytecodeCache
 from jinja2.bccache import Bucket
 from redis.asyncio import Redis as AsyncRedis
@@ -31,16 +30,14 @@ class AsyncRedisBytecodeCache(AsyncRedis, BytecodeCache):  # type: ignore
         self,
         environment: "AsyncEnvironment",
         name: str,
-        path: AsyncPath,
+        path: str,
         source: str,
     ) -> Bucket:
-        key = self.get_cache_key(name, path.name)
+        key = self.get_cache_key(name, path)
         checksum = self.get_source_checksum(source)
         bucket = Bucket(environment, key, checksum)
         await self.load_bytecode(bucket)
         return bucket
-
-    from .environment import AsyncEnvironment
 
     async def set_bucket(self, bucket: Bucket) -> None:  # type: ignore
         await self.dump_bytecode(bucket)

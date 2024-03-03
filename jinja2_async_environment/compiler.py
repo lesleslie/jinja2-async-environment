@@ -56,8 +56,7 @@ class AsyncCodeGenerator(CodeGenerator):
             else:
                 self.outdent()
         self.writeline(
-            f"parent_template = "
-            f"{self.choose_async('await ')}environment.get_template(",
+            "parent_template = await environment.get_template(",
             node,
         )
         self.visit(node.template, frame)
@@ -82,9 +81,7 @@ class AsyncCodeGenerator(CodeGenerator):
                 func_name = "select_template"
         elif isinstance(node.template, (nodes.Tuple, nodes.List)):
             func_name = "select_template"
-        self.writeline(
-            f"template = {self.choose_async('await ')}environment.{func_name}(", node
-        )
+        self.writeline(f"template = await environment.{func_name}(", node)
         self.visit(node.template, frame)
         self.write(f", {self.name!r})")
         if node.ignore_missing:
@@ -95,38 +92,33 @@ class AsyncCodeGenerator(CodeGenerator):
             self.outdent()
             self.writeline("else:")
             self.indent()
-        skip_event_yield = False
         if node.with_context:
             self.writeline(
-                f"{self.choose_async()}for event in template.root_render_func("
+                f"async for event in template.root_render_func("
                 "template.new_context(context.get_all(), True,"
                 f" {self.dump_local_context(frame)})):"
             )
-        elif self.environment.is_async:
+        else:
             self.writeline(
                 "for event in (await template._get_default_module_async())"
                 "._body_stream:"
             )
-        else:
-            self.writeline("yield from template._get_default_module()._body_stream")
-            skip_event_yield = True
-        if not skip_event_yield:
-            self.indent()
-            self.simple_write("event", frame)
-            self.outdent()
+        self.indent()
+        self.simple_write("event", frame)
+        self.outdent()
         if node.ignore_missing:
             self.outdent()
 
     def _import_common(
         self, node: t.Union[nodes.Import, nodes.FromImport], frame: Frame
     ) -> None:
-        self.write(f"{self.choose_async('await ')}environment.get_template(")
+        self.write("await environment.get_template(")
         self.visit(node.template, frame)
         self.write(f", {self.name!r}).")
         if node.with_context:
-            f_name = f"make_module{self.choose_async('_async')}"
+            f_name = "make_module_async)"
             self.write(
                 f"{f_name}(context.get_all(), True, {self.dump_local_context(frame)})"
             )
         else:
-            self.write(f"_get_default_module{self.choose_async('_async')}(context)")
+            self.write("_get_default_module_async(context)")

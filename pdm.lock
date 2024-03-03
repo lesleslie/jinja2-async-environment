@@ -150,6 +150,16 @@ files = [
 ]
 
 [[package]]
+name = "async-timeout"
+version = "4.0.3"
+requires_python = ">=3.7"
+summary = "Timeout context manager for asyncio programs"
+files = [
+    {file = "async-timeout-4.0.3.tar.gz", hash = "sha256:4640d96be84d82d02ed59ea2b7105a0f7b33abe8703703cd0ab0bf87c427522f"},
+    {file = "async_timeout-4.0.3-py3-none-any.whl", hash = "sha256:7405140ff1230c310e51dc27b3145b9092d659ce68ff733fb0cefe3ee42be028"},
+]
+
+[[package]]
 name = "autotyping"
 version = "23.3.0"
 requires_python = ">=3.7"
@@ -324,7 +334,7 @@ files = [
 
 [[package]]
 name = "crackerjack"
-version = "0.7.25"
+version = "0.7.27"
 requires_python = ">=3.12"
 summary = "Crackerjack code style"
 dependencies = [
@@ -341,8 +351,8 @@ dependencies = [
     "pytest>=7.4.3",
 ]
 files = [
-    {file = "crackerjack-0.7.25-py3-none-any.whl", hash = "sha256:b5fcb79a29a01f6507754fea00b16a64c3d7dc2fff27b240a7c9fd279c888445"},
-    {file = "crackerjack-0.7.25.tar.gz", hash = "sha256:5b9da08558f7b8910c4d34fa4af600abb357808784019c9f22ca040a790040c6"},
+    {file = "crackerjack-0.7.27-py3-none-any.whl", hash = "sha256:ef987103289594e6ad674d4892c58afab97360781bc32192c8c5af1997fa2cdd"},
+    {file = "crackerjack-0.7.27.tar.gz", hash = "sha256:b3d6914999c15c99c5c6df13dd3119f21fde694c09e8be77cae8c6cdff9e501e"},
 ]
 
 [[package]]
@@ -972,12 +982,15 @@ files = [
 
 [[package]]
 name = "redis"
-version = "5.0.0"
+version = "5.0.2"
 requires_python = ">=3.7"
 summary = "Python client for Redis database and key-value store"
+dependencies = [
+    "async-timeout>=4.0.3",
+]
 files = [
-    {file = "redis-5.0.0-py3-none-any.whl", hash = "sha256:06570d0b2d84d46c21defc550afbaada381af82f5b83e5b3777600e05d8e2ed0"},
-    {file = "redis-5.0.0.tar.gz", hash = "sha256:5cea6c0d335c9a7332a460ed8729ceabb4d0c489c7285b0a86dbbf8a017bd120"},
+    {file = "redis-5.0.2-py3-none-any.whl", hash = "sha256:4caa8e1fcb6f3c0ef28dba99535101d80934b7d4cd541bbb47f4a3826ee472d1"},
+    {file = "redis-5.0.2.tar.gz", hash = "sha256:3f82cc80d350e93042c8e6e7a5d0596e4dd68715babffba79492733e1f367037"},
 ]
 
 [[package]]

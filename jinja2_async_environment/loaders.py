@@ -77,7 +77,6 @@ class FileSystemLoader(AsyncBaseLoader):
         self.followlinks = followlinks
 
     async def get_source(self, template: AsyncPath) -> t.Any:
-        # split_template_path(template)
         for searchpath in self.searchpath:  # type: ignore
             path = searchpath / template
             if await path.is_file():
@@ -96,13 +95,13 @@ class FileSystemLoader(AsyncBaseLoader):
             except OSError:
                 return False
 
-        return resp, path, uptodate
+        return resp, str(path), uptodate
 
     async def list_templates(self) -> list[str]:
-        found = set()
+        results = set()
         for searchpath in self.searchpath:  # type: ignore
-            found.update([path.name async for path in searchpath.rglob("*.html")])
-        return sorted(found)
+            results.update([str(path) async for path in searchpath.rglob("*.html")])
+        return sorted(results)
 
 
 class PackageLoader(AsyncBaseLoader):
@@ -117,8 +116,6 @@ class PackageLoader(AsyncBaseLoader):
         self.package_path = package_path
         self.package_name = package_name
         self.encoding = encoding
-        # Make sure the package exists. This also makes namespace
-        # packages work, otherwise get_loader returns None.
         import_module(package_name)
         spec = importlib.util.find_spec(package_name)
         if not spec:
@@ -135,11 +132,8 @@ class PackageLoader(AsyncBaseLoader):
             template_root = AsyncPath(pkgdir) / package_path
         else:
             roots = []
-            # One element for regular packages, multiple for namespace
-            # packages, or None for single module file.
             if spec.submodule_search_locations:
                 roots.extend([Path(s) for s in spec.submodule_search_locations])
-            # A single module file, use the parent directory instead.
             elif spec.origin is not None:
                 roots.append(Path(spec.origin))
             for root in roots:
@@ -158,7 +152,6 @@ class PackageLoader(AsyncBaseLoader):
 
     async def get_source(self, template: AsyncPath) -> t.Any:
         path = self._template_root / template
-        # up_to_date: t.Optional[t.Callable[[], bool]] | None
         if self._archive:
             if not await path.is_file():
                 raise TemplateNotFound(path.name)
@@ -169,31 +162,27 @@ class PackageLoader(AsyncBaseLoader):
                 return await path.is_file() and (await path.stat()).st_mtime == mtime
 
         else:
-            # Package is a zip file.
             try:
                 source = self._loader.get_data(str(path))  # type: ignore
             except OSError as e:
                 raise TemplateNotFound(path.name) from e
             uptodate = None  # type: ignore
-        return source.decode(self.encoding), path, uptodate  # type: ignore
+        return source.decode(self.encoding), str(path), uptodate  # type: ignore
 
-    async def list_templates(self) -> t.Any:
-        results: list[AsyncPath] = []
+    async def list_templates(self) -> list[str]:
+        results = []
 
         if self._archive is None:
-            # Package is a directory.
             paths = self._template_root.rglob("*.html")
-            results.extend([p async for p in paths])
+            results.extend([str(p) async for p in paths])
         else:
             if not hasattr(self._loader, "_files"):
                 raise TypeError(
                     "This zip import does not have the required"
                     " metadata to list templates"
                 )
-            # Package is a zip file.
             prefix = self._template_root.name
             for name in self._loader._files.keys():  # type: ignore
-                # Find names under the templates directory that aren't directories.
                 if name.startswith(prefix) and (await AsyncPath(name).is_file()):
                     results.append(name)
         results.sort()
@@ -234,7 +223,7 @@ class FunctionLoader(AsyncBaseLoader):
         if source is None:
             raise TemplateNotFound(path.name)
         if isinstance(source, str):
-            return source, path, True
+            return source, str(path), True
         return source
 
 
@@ -255,7 +244,7 @@ class ChoiceLoader(AsyncBaseLoader):
                 return await loader.get_source(template)
         raise TemplateNotFound(template.name)
 
-    async def list_templates(self) -> t.Any:
+    async def list_templates(self) -> list[str]:
         found = set()
         for loader in self.loaders:
             found.update(await loader.list_templates())
