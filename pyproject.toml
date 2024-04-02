@@ -16,6 +16,11 @@ fix = true
 show-fixes = true
 output-format = "full"
 
+[tool.ruff.lint]
+ignore = [
+    "F821",
+]
+
 [tool.ruff.lint.isort]
 force-single-line = true
 
@@ -36,11 +41,11 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
-    "pdm-bump",
-    "pdm",
     "autotyping",
     "pre-commit",
     "pytest",
+    "pdm-bump",
+    "pdm",
 ]
 
 [tool.refurb]
@@ -51,10 +56,10 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
-    "B113",
-    "B603",
     "B403",
     "B404",
+    "B603",
+    "B113",
 ]
 
 [tool.pyright]
@@ -83,7 +88,7 @@ ignore-words-list = "crate,uptodate"
 
 [project]
 name = "jinja2-async-environment"
-version = "0.7.0"
+version = "0.7.1"
 description = ""
 dependencies = [
     "jinja2>=3.1.2",
