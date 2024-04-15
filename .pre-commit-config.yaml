@@ -1,10 +1,10 @@
 repos:
   - repo: https://github.com/pdm-project/pdm
-    rev: 2.13.2  # a PDM release exposing the hook
+    rev: 2.14.0  # a PDM release exposing the hook
     hooks:
       - id: pdm-lock-check
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
       - id: trailing-whitespace
         name: trailing-whitspace
@@ -17,11 +17,11 @@ repos:
       - id: check-added-large-files
         name: check-added-large-files
   - repo: https://github.com/psf/black
-    rev: '24.3.0'
+    rev: '24.4.0'
     hooks:
       - id: black
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.3.5
+    rev: v0.3.7
     hooks:
       - id: ruff
   - repo: https://github.com/fredrikaverpil/creosote
@@ -67,7 +67,7 @@ repos:
       - id: bandit
         args: ["-c", "pyproject.toml"]
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.356
+    rev: v1.1.358
     hooks:
       - id: pyright
   #  - repo: https://github.com/pdoc3/pdoc
@@ -81,10 +81,10 @@ repos:
   #        types: [ python ]
   #        always_run: true
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.3.5
+    rev: v0.3.7
     hooks:
       - id: ruff
   - repo: https://github.com/psf/black
-    rev: '24.3.0'
+    rev: '24.4.0'
     hooks:
       - id: black
