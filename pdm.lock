@@ -324,7 +324,7 @@ files = [
 
 [[package]]
 name = "crackerjack"
-version = "0.7.31"
+version = "0.7.32"
 requires_python = ">=3.12"
 summary = "Crackerjack code style"
 dependencies = [
@@ -341,8 +341,8 @@ dependencies = [
     "pytest>=7.4.3",
 ]
 files = [
-    {file = "crackerjack-0.7.31-py3-none-any.whl", hash = "sha256:9279bee5dbf70805cedce75e6d0ba47999d01b8bedf7d0b7c701a98e95ce3e11"},
-    {file = "crackerjack-0.7.31.tar.gz", hash = "sha256:17364e0cfb72335d0a9ac694eb6be1c0ce91451d5c6d9d39b3b406be8a18de2d"},
+    {file = "crackerjack-0.7.32-py3-none-any.whl", hash = "sha256:e69d917d3b65c3d990baf8d3e57c491ae81c381bf73d86a44faf8f5f7553dc1d"},
+    {file = "crackerjack-0.7.32.tar.gz", hash = "sha256:2a1eefae9592633f1657e35225483b3e3d6bdf83f16f7743dc49232eea95bdd6"},
 ]
 
 [[package]]
@@ -972,12 +972,12 @@ files = [
 
 [[package]]
 name = "redis"
-version = "5.0.3"
+version = "5.0.4"
 requires_python = ">=3.7"
 summary = "Python client for Redis database and key-value store"
 files = [
-    {file = "redis-5.0.3-py3-none-any.whl", hash = "sha256:5da9b8fe9e1254293756c16c008e8620b3d15fcc6dde6babde9541850e72a32d"},
-    {file = "redis-5.0.3.tar.gz", hash = "sha256:4973bae7444c0fbed64a06b87446f79361cb7e4ec1538c022d696ed7a5015580"},
+    {file = "redis-5.0.4-py3-none-any.whl", hash = "sha256:7adc2835c7a9b5033b7ad8f8918d09b7344188228809c98df07af226d39dec91"},
+    {file = "redis-5.0.4.tar.gz", hash = "sha256:ec31f2ed9675cc54c21ba854cfe0462e6faf1d83c8ce5944709db8a4700b9c61"},
 ]
 
 [[package]]
