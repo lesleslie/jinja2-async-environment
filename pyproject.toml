@@ -41,11 +41,11 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
-    "pytest",
-    "pdm",
-    "autotyping",
     "pre-commit",
+    "pytest",
+    "autotyping",
     "pdm-bump",
+    "pdm",
 ]
 
 [tool.refurb]
@@ -56,8 +56,8 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
-    "B404",
     "B113",
+    "B404",
     "B603",
     "B403",
 ]
