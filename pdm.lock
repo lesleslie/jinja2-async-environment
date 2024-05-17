@@ -324,7 +324,7 @@ files = [
 
 [[package]]
 name = "crackerjack"
-version = "0.7.32"
+version = "0.7.33"
 requires_python = ">=3.12"
 summary = "Crackerjack code style"
 dependencies = [
@@ -341,8 +341,8 @@ dependencies = [
     "pytest>=7.4.3",
 ]
 files = [
-    {file = "crackerjack-0.7.32-py3-none-any.whl", hash = "sha256:e69d917d3b65c3d990baf8d3e57c491ae81c381bf73d86a44faf8f5f7553dc1d"},
-    {file = "crackerjack-0.7.32.tar.gz", hash = "sha256:2a1eefae9592633f1657e35225483b3e3d6bdf83f16f7743dc49232eea95bdd6"},
+    {file = "crackerjack-0.7.33-py3-none-any.whl", hash = "sha256:5cbb9d7a4b80d8d59d9a69e63553bd694335dd1ed81b8d37c0447eadfa8a2fd4"},
+    {file = "crackerjack-0.7.33.tar.gz", hash = "sha256:148a33a47e662e2d809c7b96786dde700b1542ab7662dc193713f1a2585b84b6"},
 ]
 
 [[package]]
@@ -518,15 +518,15 @@ files = [
 
 [[package]]
 name = "jinja2"
-version = "3.1.3"
+version = "3.1.4"
 requires_python = ">=3.7"
 summary = "A very fast and expressive template engine."
 dependencies = [
     "MarkupSafe>=2.0",
 ]
 files = [
-    {file = "Jinja2-3.1.3-py3-none-any.whl", hash = "sha256:7d6d50dd97d52cbc355597bd845fabfbac3f551e1f99619e39a35ce8c370b5fa"},
-    {file = "Jinja2-3.1.3.tar.gz", hash = "sha256:ac8bd6544d4bb2c9792bf3a159e80bba8fda7f07e81bc3aed565432d5925ba90"},
+    {file = "jinja2-3.1.4-py3-none-any.whl", hash = "sha256:bc5dd2abb727a5319567b7a813e6a2e7318c39f4f487cfe6c89c6f9c7d25197d"},
+    {file = "jinja2-3.1.4.tar.gz", hash = "sha256:4a3aee7acbbe7303aede8e9648d13b8bf88a429282aa6122a993f0ac800cb369"},
 ]
 
 [[package]]
