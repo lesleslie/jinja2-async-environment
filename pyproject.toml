@@ -6,7 +6,7 @@ config = [
 
 [tool.pdm.dev-dependencies]
 dev = [
-    "crackerjack>=0.7.19",
+    "crackerjack>=0.7.34",
 ]
 
 [tool.ruff]
@@ -43,9 +43,9 @@ deps-file = "pyproject.toml"
 exclude-deps = [
     "pre-commit",
     "pdm-bump",
-    "pdm",
-    "autotyping",
     "pytest",
+    "autotyping",
+    "pdm",
 ]
 
 [tool.refurb]
@@ -56,10 +56,10 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
+    "B603",
+    "B404",
     "B403",
     "B113",
-    "B404",
-    "B603",
 ]
 
 [tool.pyright]
@@ -91,8 +91,8 @@ name = "jinja2-async-environment"
 version = "0.7.4"
 description = ""
 dependencies = [
-    "jinja2>=3.1.2",
-    "redis!=5.0.1,>=5.0.0",
+    "jinja2>=3.1.4",
+    "redis>=5.0.4",
 ]
 requires-python = ">=3.12"
 readme = "README.md"
