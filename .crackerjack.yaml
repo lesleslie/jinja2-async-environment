@@ -1,5 +1,0 @@
-python_version: "3.12"
-pre_commit_path: "/usr/local/bin/pre-commit"
-git_path: "/usr/bin/git"
-pdm_path: "/Users/les/.local/bin/pdm"
-zshenv_path: "/Users/les/.zenv"
