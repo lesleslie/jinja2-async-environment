@@ -11,4 +11,4 @@
 /tmp/
 /__pycache__/
 /*.pyc
-/.jinja2_async_environment.yaml
+/.crackerjack.yaml
