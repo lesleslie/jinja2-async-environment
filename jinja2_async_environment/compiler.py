@@ -1,9 +1,7 @@
 import typing as t
 
 from jinja2 import nodes
-from jinja2.compiler import CodeGenerator
-from jinja2.compiler import CompilerExit
-from jinja2.compiler import Frame
+from jinja2.compiler import CodeGenerator, CompilerExit, Frame
 
 
 class AsyncCodeGenerator(CodeGenerator):

@@ -4,9 +4,7 @@ from weakref import ref
 
 from jinja2 import Environment
 from jinja2.environment import Template
-from jinja2.exceptions import TemplateNotFound
-from jinja2.exceptions import TemplatesNotFound
-from jinja2.exceptions import UndefinedError
+from jinja2.exceptions import TemplateNotFound, TemplatesNotFound, UndefinedError
 from jinja2.runtime import Undefined
 from jinja2.utils import internalcode
 from .compiler import AsyncCodeGenerator

@@ -6,7 +6,7 @@ config = [
 
 [tool.pdm.dev-dependencies]
 dev = [
-    "crackerjack>=0.7.34",
+    "crackerjack>=0.8.3",
 ]
 
 [tool.ruff]
@@ -16,16 +16,35 @@ fix = true
 show-fixes = true
 output-format = "full"
 
+[tool.ruff.format]
+docstring-code-format = true
+
 [tool.ruff.lint]
 ignore = [
     "F821",
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D106",
+    "D107",
+]
+extend-select = [
+    "I",
+    "C901",
+    "D",
 ]
 
 [tool.ruff.lint.isort]
-force-single-line = true
+no-lines-before = [
+    "first-party",
+    "local-folder",
+]
 
 [tool.ruff.lint.mccabe]
-max-complexity = 10
+max-complexity = 11
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -41,11 +60,11 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
-    "autotyping",
-    "pytest",
-    "pdm",
     "pre-commit",
+    "autotyping",
+    "pdm",
     "pdm-bump",
+    "pytest",
 ]
 
 [tool.refurb]
@@ -56,10 +75,10 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
-    "B603",
-    "B403",
     "B113",
+    "B603",
     "B404",
+    "B403",
 ]
 
 [tool.pyright]
@@ -88,7 +107,7 @@ ignore-words-list = "crate,uptodate"
 
 [project]
 name = "jinja2-async-environment"
-version = "0.7.5"
+version = "0.7.6"
 description = ""
 dependencies = [
     "jinja2>=3.1.4",
