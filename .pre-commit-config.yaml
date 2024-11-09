@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pdm-project/pdm
-    rev: 2.19.2  # a PDM release exposing the hook
+    rev: 2.20.0.post1  # a PDM release exposing the hook
     hooks:
       - id: pdm-lock-check
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -17,10 +17,14 @@ repos:
       - id: check-added-large-files
         name: check-added-large-files
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.9
+    rev: v0.7.3
     hooks:
       - id: ruff-format
       - id: ruff
+  - repo: https://github.com/jendrikseipp/vulture
+    rev: 'v2.13'
+    hooks:
+      - id: vulture
   - repo: https://github.com/fredrikaverpil/creosote
     rev: v3.1.0
     hooks:
@@ -61,11 +65,11 @@ repos:
       - id: bandit
         args: ["-c", "pyproject.toml"]
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.384
+    rev: v1.1.388
     hooks:
       - id: pyright
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.9
+    rev: v0.7.3
     hooks:
       - id: ruff
       - id: ruff-format
