@@ -44,15 +44,15 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
-    "tomli-w",
-    "pyyaml",
-    "pdm-bump",
-    "uv",
     "pdm",
-    "pre-commit",
     "pyfiglet",
-    "autotyping",
+    "uv",
     "pytest",
+    "tomli-w",
+    "autotyping",
+    "pdm-bump",
+    "pre-commit",
+    "pyyaml",
 ]
 
 [tool.refurb]
@@ -64,12 +64,12 @@ target = [
 ]
 skips = [
     "B403",
-    "B602",
-    "B603",
     "B301",
-    "B607",
-    "B404",
+    "B603",
     "B311",
+    "B602",
+    "B404",
+    "B607",
 ]
 
 [tool.pyright]
@@ -99,8 +99,6 @@ skip = "*/data/*"
 quiet-level = 3
 ignore-words-list = "crate,uptodate"
 
-[tool.pdm]
-
 [tool.vulture]
 min_confidence = 84
 paths = [
@@ -109,11 +107,11 @@ paths = [
 
 [project]
 name = "jinja2-async-environment"
-version = "0.9.0"
+version = "0.9.1"
 description = ""
 dependencies = [
-    "jinja2>=3.1.4",
-    "redis>=5.2.0",
+    "jinja2>=3.1.5",
+    "redis>=5.2.1",
 ]
 requires-python = ">=3.13"
 readme = "README.md"
@@ -137,7 +135,7 @@ text = "BSD-3-Clause"
 
 [dependency-groups]
 dev = [
-    "crackerjack>=0.10.4",
+    "crackerjack>=0.10.6",
 ]
 
 [build-system]
