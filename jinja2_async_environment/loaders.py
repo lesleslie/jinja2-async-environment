@@ -21,6 +21,13 @@ class LoaderNotFound(TemplateNotFound):
     """Raised if a loader is not found."""
 
 
+# Type aliases
+SourceType: t.TypeAlias = tuple[str | bytes, str | None, t.Callable[[], bool] | None]
+LoaderFunc: t.TypeAlias = t.Callable[[AsyncPath], t.Awaitable[str | bytes | None]]
+UpToDateCallable: t.TypeAlias = t.Callable[[], t.Awaitable[bool]]
+WalkType: t.TypeAlias = t.Any  # Actual return type from AsyncPath.walk()
+
+
 class AsyncBaseLoader:
     has_source_access = True
 

@@ -5,10 +5,11 @@ dev = [
 
 [tool.ruff]
 line-length = 88
-target-version = "py312"
+target-version = "py313"
 fix = true
 show-fixes = true
 output-format = "full"
+unsafe-fixes = true
 
 [tool.ruff.format]
 docstring-code-format = true
@@ -54,13 +55,19 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
+    "tomli-w",
+    "pytest-cov",
+    "pdm",
+    "pytest-mock",
+    "google-crc32c",
+    "pyyaml",
     "pyfiglet",
     "pdm-bump",
-    "autotyping",
     "pytest",
-    "pyyaml",
+    "autotyping",
+    "pytest-asyncio",
+    "uv",
     "pre-commit",
-    "pdm",
 ]
 
 [tool.refurb]
@@ -72,12 +79,14 @@ target = [
 ]
 skips = [
     "B301",
-    "B404",
-    "B311",
-    "B607",
-    "B602",
-    "B603",
     "B403",
+    "B607",
+    "B404",
+    "B602",
+    "B311",
+    "B101",
+    "B603",
+    "B704",
 ]
 
 [tool.pyright]
@@ -89,7 +98,7 @@ exclude = [
     "scratch",
 ]
 extraPaths = [
-    "__pypackages__/3.12/lib/",
+    ".venv/lib/python3.13/site-packages/",
 ]
 typeCheckingMode = "strict"
 reportMissingTypeStubs = false
@@ -98,14 +107,27 @@ reportOptionalCall = false
 reportUnknownMemberType = false
 reportUnknownVariableType = false
 reportUnknownArgumentType = false
+reportInvalidTypeForm = false
+reportUnknownLambdaType = false
+reportUnknownParameterType = "warning"
 reportPrivateUsage = "warning"
-pythonVersion = "3.12"
+pythonVersion = "3.13"
 pythonPlatform = "Darwin"
 
 [tool.codespell]
 skip = "*/data/*"
 quiet-level = 3
 ignore-words-list = "crate,uptodate"
+
+[tool.pytest.ini_options]
+addopts = "--cov=jinja2_async_environment"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.vulture]
+min_confidence = 84
+paths = [
+    "jinja2_async_environment",
+]
 
 [project]
 name = "jinja2-async-environment"
@@ -115,14 +137,14 @@ dependencies = [
     "jinja2>=3.1.4",
     "redis>=5.0.8",
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 readme = "README.md"
 authors = [
     { name = "lesleslie", email = "les@wedgwoodwebworks.com" },
 ]
 classifiers = [
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     "Operating System :: OS Independent",
     "Framework :: FastAPI",
