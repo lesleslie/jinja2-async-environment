@@ -1,8 +1,3 @@
-[tool.pdm.dev-dependencies]
-dev = [
-    "crackerjack>=0.8.16",
-]
-
 [tool.ruff]
 line-length = 88
 target-version = "py313"
@@ -55,19 +50,19 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
-    "tomli-w",
-    "pytest-cov",
     "pdm",
-    "pytest-mock",
-    "google-crc32c",
+    "pre-commit",
     "pyyaml",
-    "pyfiglet",
-    "pdm-bump",
-    "pytest",
-    "autotyping",
     "pytest-asyncio",
     "uv",
-    "pre-commit",
+    "pytest-cov",
+    "tomli-w",
+    "pdm-bump",
+    "google-crc32c",
+    "pyfiglet",
+    "pytest",
+    "autotyping",
+    "pytest-mock",
 ]
 
 [tool.refurb]
@@ -79,14 +74,14 @@ target = [
 ]
 skips = [
     "B301",
-    "B403",
-    "B607",
-    "B404",
-    "B602",
-    "B311",
-    "B101",
-    "B603",
     "B704",
+    "B602",
+    "B403",
+    "B404",
+    "B101",
+    "B607",
+    "B603",
+    "B311",
 ]
 
 [tool.pyright]
@@ -134,8 +129,8 @@ name = "jinja2-async-environment"
 version = "0.8.0"
 description = ""
 dependencies = [
-    "jinja2>=3.1.4",
-    "redis>=5.0.8",
+    "jinja2>=3.1.6",
+    "redis>=5.2.1",
 ]
 requires-python = ">=3.13"
 readme = "README.md"
@@ -162,3 +157,8 @@ requires = [
     "pdm-backend",
 ]
 build-backend = "pdm.backend"
+
+[dependency-groups]
+dev = [
+    "crackerjack>=0.11.5",
+]

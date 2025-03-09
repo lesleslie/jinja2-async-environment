@@ -4,8 +4,44 @@ from jinja2 import nodes
 from jinja2.compiler import CodeGenerator, CompilerExit, Frame
 
 
+class AsyncFrame(Frame):
+    """Frame with async support."""
+
+    block_frame: "AsyncFrame | None"
+    block_counters: t.Mapping[str, int]
+    block_frame_id: int
+    require_output_check: bool
+    has_known_extends: bool
+    toplevel: bool
+    rootlevel: bool
+    buffer: t.Any | None
+
+    def copy(self) -> t.Self:
+        """Create a copy of the frame."""
+        rv = super().copy()
+        t.cast(AsyncFrame, rv)
+        return rv
+
+    def inspect(self, nodes: t.Any | None = None) -> None: ...
+    def push_scope(self) -> None: ...
+    def pop_scope(self) -> None: ...
+    def find_break(self) -> bool: ...
+    def find_continue(self) -> bool: ...
+
+
 class AsyncCodeGenerator(CodeGenerator):
+    """Code generator with async support."""
+
+    environment: t.Any
+    name: str
+    filename: str
+    stream: t.Any
+    extends_so_far: int
+    has_known_extends: bool
+
     def visit_Block(self, node: nodes.Block, frame: Frame) -> None:
+        """Visit a block node."""
+        frame = t.cast(AsyncFrame, frame)
         level = 0
         if frame.toplevel:
             if self.has_known_extends:
@@ -14,10 +50,12 @@ class AsyncCodeGenerator(CodeGenerator):
                 self.writeline("if parent_template is None:")
                 self.indent()
                 level += 1
+
         if node.scoped:
             context = self.derive_context(frame)
         else:
             context = self.get_context_ref()
+
         if node.required:
             self.writeline(f"if len(context.blocks[{node.name!r}]) <= 1:", node)
             self.indent()
@@ -26,6 +64,7 @@ class AsyncCodeGenerator(CodeGenerator):
                 node,
             )
             self.outdent()
+
         if not self.environment.is_async and frame.buffer is None:
             self.writeline(
                 f"yield from context.blocks[{node.name!r}][0]({context})", node
@@ -42,8 +81,14 @@ class AsyncCodeGenerator(CodeGenerator):
         self.outdent(level)
 
     def visit_Extends(self, node: nodes.Extends, frame: Frame) -> None:
+        """Visit an extends node."""
+        frame = t.cast(AsyncFrame, frame)
+        if not frame.require_output_check:
+            raise CompilerExit()
+
         if not frame.toplevel:
             self.fail("cannot use extend from a non top-level scope", node.lineno)
+
         if self.extends_so_far > 0:
             if not self.has_known_extends:
                 self.writeline("if parent_template is not None:")
@@ -53,8 +98,9 @@ class AsyncCodeGenerator(CodeGenerator):
                 raise CompilerExit()
             else:
                 self.outdent()
+
         self.writeline(
-            "parent_template = await environment.get_template(",
+            "parent_template = await environment.get_template_async(",
             node,
         )
         self.visit(node.template, frame)
@@ -63,25 +109,22 @@ class AsyncCodeGenerator(CodeGenerator):
         self.indent()
         self.writeline("context.blocks.setdefault(name, []).append(parent_block)")
         self.outdent()
+
         if frame.rootlevel:
             self.has_known_extends = True
         self.extends_so_far += 1
 
     def visit_Include(self, node: nodes.Include, frame: Frame) -> None:
+        """Visit an include node."""
+        frame = t.cast(AsyncFrame, frame)
         if node.ignore_missing:
             self.writeline("try:")
             self.indent()
-        func_name = "get_or_select_template"
-        if isinstance(node.template, nodes.Const):
-            if isinstance(node.template.value, str):
-                func_name = "get_template"
-            elif isinstance(node.template.value, (tuple, list)):
-                func_name = "select_template"
-        elif isinstance(node.template, (nodes.Tuple, nodes.List)):
-            func_name = "select_template"
-        self.writeline(f"template = await environment.{func_name}(", node)
+
+        self.writeline("template = await environment.get_template_async(", node)
         self.visit(node.template, frame)
         self.write(f", {self.name!r})")
+
         if node.ignore_missing:
             self.outdent()
             self.writeline("except TemplateNotFound:")
@@ -90,6 +133,7 @@ class AsyncCodeGenerator(CodeGenerator):
             self.outdent()
             self.writeline("else:")
             self.indent()
+
         if node.with_context:
             self.writeline(
                 f"async for event in template.root_render_func("
@@ -98,25 +142,32 @@ class AsyncCodeGenerator(CodeGenerator):
             )
         else:
             self.writeline(
-                "for event in (await template._get_default_module_async())"
+                "async for event in (await template._get_default_module_async())"
                 "._body_stream:"
             )
         self.indent()
         self.simple_write("event", frame)
         self.outdent()
+
         if node.ignore_missing:
             self.outdent()
 
     def _import_common(
-        self, node: t.Union[nodes.Import, nodes.FromImport], frame: Frame
+        self,
+        node: nodes.Import | nodes.FromImport,
+        frame: Frame,
     ) -> None:
-        self.write("await environment.get_template(")
+        """Common code for import/from import nodes."""
+        frame = t.cast(AsyncFrame, frame)
+        self.writeline("try:")
+        self.indent()
+        self.writeline("template = await environment.get_template_async(", node)
         self.visit(node.template, frame)
-        self.write(f", {self.name!r}).")
-        if node.with_context:
-            f_name = "make_module_async)"
-            self.write(
-                f"{f_name}(context.get_all(), True, {self.dump_local_context(frame)})"
-            )
-        else:
-            self.write("_get_default_module_async(context)")
+        self.write(f", {self.name!r})")
+        self.outdent()
+        self.writeline("except TemplateNotFound:")
+        self.indent()
+        self.writeline("template = await environment.get_template_async(", node)
+        self.visit(node.template, frame)
+        self.write(f", {self.name!r})")
+        self.outdent()

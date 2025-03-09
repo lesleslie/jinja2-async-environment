@@ -243,7 +243,7 @@ class TestAsyncCodeGenerator:
         code_generator.visit_Extends(extends_node, async_frame)
 
         # Verify has_known_extends was set
-        assert code_generator.has_known_extends is True
+        assert code_generator.has_known_extends
 
     def test_visit_include_ignore_missing(
         self, code_generator: AsyncCodeGenerator, async_frame: AsyncFrame

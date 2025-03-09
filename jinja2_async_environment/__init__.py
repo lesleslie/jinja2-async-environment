@@ -2,20 +2,20 @@ from .bccache import AsyncRedisBytecodeCache
 from .environment import AsyncEnvironment
 from .loaders import (
     AsyncBaseLoader,
-    ChoiceLoader,
-    DictLoader,
-    FileSystemLoader,
-    FunctionLoader,
-    PackageLoader,
+    AsyncChoiceLoader,
+    AsyncDictLoader,
+    AsyncFileSystemLoader,
+    AsyncFunctionLoader,
+    AsyncPackageLoader,
 )
 
-__all__ = [
+__all__: list[str] = [
     "AsyncEnvironment",
     "AsyncBaseLoader",
-    "FunctionLoader",
-    "FileSystemLoader",
-    "PackageLoader",
-    "DictLoader",
-    "ChoiceLoader",
+    "AsyncFunctionLoader",
+    "AsyncFileSystemLoader",
+    "AsyncPackageLoader",
+    "AsyncDictLoader",
+    "AsyncChoiceLoader",
     "AsyncRedisBytecodeCache",
 ]

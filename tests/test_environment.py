@@ -1,3 +1,4 @@
+import typing as t
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -7,6 +8,9 @@ from jinja2.runtime import Undefined
 from jinja2_async_environment.bccache import AsyncBytecodeCache
 from jinja2_async_environment.environment import AsyncEnvironment
 from jinja2_async_environment.loaders import AsyncBaseLoader
+
+# Type aliases
+GlobalsDict: t.TypeAlias = dict[str, t.Any]
 
 
 class TestAsyncEnvironment:
@@ -30,7 +34,8 @@ class TestAsyncEnvironment:
         self, mock_loader: AsyncBaseLoader, mock_bytecode_cache: AsyncBytecodeCache
     ) -> AsyncEnvironment:
         """Create an environment with mock loader and bytecode cache."""
-        env = AsyncEnvironment(loader=mock_loader, bytecode_cache=mock_bytecode_cache)
+        # Type ignore needed because AsyncEnvironment takes base classes but we're using async subclasses
+        env = AsyncEnvironment(loader=mock_loader, bytecode_cache=mock_bytecode_cache)  # type: ignore
         # Set is_async to True explicitly, as it might not be set automatically in tests
         env.is_async = True
         return env
@@ -39,7 +44,8 @@ class TestAsyncEnvironment:
         self, mock_loader: AsyncBaseLoader, mock_bytecode_cache: AsyncBytecodeCache
     ) -> None:
         """Test initialization of AsyncEnvironment."""
-        env = AsyncEnvironment(loader=mock_loader, bytecode_cache=mock_bytecode_cache)
+        # Type ignore needed because AsyncEnvironment takes base classes but we're using async subclasses
+        env = AsyncEnvironment(loader=mock_loader, bytecode_cache=mock_bytecode_cache)  # type: ignore
 
         assert env.loader is mock_loader
         assert env.bytecode_cache is mock_bytecode_cache
@@ -356,10 +362,15 @@ class TestAsyncEnvironment:
         # Setup cache and template
         environment.cache = {}
         template = MagicMock(spec=Template)
+
+        # Ensure load is properly mocked as an AsyncMock
+        # AsyncMock objects have return_value and assert_called_once_with
+        if not isinstance(mock_loader.load, AsyncMock):
+            mock_loader.load = AsyncMock()
         mock_loader.load.return_value = template
 
         # Create a globals dictionary
-        globals_dict = {"var": "value"}
+        globals_dict: GlobalsDict = {"var": "value"}
         environment.make_globals = MagicMock(return_value=globals_dict)
 
         # Mock the cache key generation

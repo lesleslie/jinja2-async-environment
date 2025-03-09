@@ -11,4 +11,5 @@
 /tmp/
 /__pycache__/
 /*.pyc
-/.jinja2_async_environment.yaml
+/tests/__pycache__/
+/.coverage

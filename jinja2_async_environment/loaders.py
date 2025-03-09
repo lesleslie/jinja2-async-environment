@@ -21,13 +21,6 @@ class LoaderNotFound(TemplateNotFound):
     """Raised if a loader is not found."""
 
 
-# Type aliases
-SourceType: t.TypeAlias = tuple[str | bytes, str | None, t.Callable[[], bool] | None]
-LoaderFunc: t.TypeAlias = t.Callable[[AsyncPath], t.Awaitable[str | bytes | None]]
-UpToDateCallable: t.TypeAlias = t.Callable[[], t.Awaitable[bool]]
-WalkType: t.TypeAlias = t.Any  # Actual return type from AsyncPath.walk()
-
-
 class AsyncBaseLoader:
     has_source_access = True
 
@@ -72,7 +65,7 @@ class AsyncBaseLoader:
         )
 
 
-class FileSystemLoader(AsyncBaseLoader):
+class AsyncFileSystemLoader(AsyncBaseLoader):
     def __init__(
         self,
         searchpath: AsyncPath | t.Sequence[AsyncPath],
@@ -111,7 +104,7 @@ class FileSystemLoader(AsyncBaseLoader):
         return sorted(results)
 
 
-class PackageLoader(AsyncBaseLoader):
+class AsyncPackageLoader(AsyncBaseLoader):
     def __init__(
         self,
         package_name: str,
@@ -196,7 +189,7 @@ class PackageLoader(AsyncBaseLoader):
         return results
 
 
-class DictLoader(AsyncBaseLoader):
+class AsyncDictLoader(AsyncBaseLoader):
     def __init__(
         self,
         mapping: t.Mapping[str, str],
@@ -215,7 +208,7 @@ class DictLoader(AsyncBaseLoader):
         return sorted(self.mapping)
 
 
-class FunctionLoader(AsyncBaseLoader):
+class AsyncFunctionLoader(AsyncBaseLoader):
     def __init__(
         self,
         load_func: t.Callable[[AsyncPath], t.Any],
@@ -234,7 +227,7 @@ class FunctionLoader(AsyncBaseLoader):
         return source
 
 
-class ChoiceLoader(AsyncBaseLoader):
+class AsyncChoiceLoader(AsyncBaseLoader):
     loaders: list[AsyncBaseLoader] = []
 
     def __init__(
