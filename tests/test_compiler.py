@@ -59,7 +59,7 @@ class TestAsyncCodeGenerator:
     def environment(self) -> MagicMock:
         """Create a mock environment."""
         env = MagicMock()
-        env.is_async = True
+        env.enable_async = True
         return env
 
     @pytest.fixture
@@ -110,7 +110,7 @@ class TestAsyncCodeGenerator:
         # Setup
         code_generator.has_known_extends = False
         code_generator.extends_so_far = 0
-        code_generator.environment.is_async = True
+        code_generator.environment.enable_async = True
         code_generator.derive_context = MagicMock()
         code_generator.writeline = MagicMock()
         code_generator.indent = MagicMock()

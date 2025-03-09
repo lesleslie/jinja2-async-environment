@@ -65,7 +65,7 @@ class AsyncCodeGenerator(CodeGenerator):
             )
             self.outdent()
 
-        if not self.environment.is_async and frame.buffer is None:
+        if not self.environment.enable_async and frame.buffer is None:
             self.writeline(
                 f"yield from context.blocks[{node.name!r}][0]({context})", node
             )

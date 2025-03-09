@@ -36,8 +36,8 @@ class TestAsyncEnvironment:
         """Create an environment with mock loader and bytecode cache."""
         # Type ignore needed because AsyncEnvironment takes base classes but we're using async subclasses
         env = AsyncEnvironment(loader=mock_loader, bytecode_cache=mock_bytecode_cache)  # type: ignore
-        # Set is_async to True explicitly, as it might not be set automatically in tests
-        env.is_async = True
+        # Set enable_async to True explicitly, as it might not be set automatically in tests
+        env.enable_async = True
         return env
 
     def test_init(
@@ -49,9 +49,9 @@ class TestAsyncEnvironment:
 
         assert env.loader is mock_loader
         assert env.bytecode_cache is mock_bytecode_cache
-        # Set is_async explicitly before testing it
-        env.is_async = True
-        assert env.is_async is True
+        # Set enable_async explicitly before testing it
+        env.enable_async = True
+        assert env.enable_async
 
     def test_get_template_not_implemented(self, environment: AsyncEnvironment) -> None:
         """Test that get_template raises NotImplementedError."""

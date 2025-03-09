@@ -17,7 +17,7 @@ class AsyncEnvironment(Environment):
     code_generator_class: t.Type[CodeGenerator] = AsyncCodeGenerator
     loader: t.Any | None = None
     bytecode_cache: AsyncBytecodeCache | None = None
-    is_async: t.Literal[True] = True
+    enable_async = True  # Changed from t.Literal[True] to allow setting it in tests
 
     @internalcode
     def get_template(

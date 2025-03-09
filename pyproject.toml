@@ -50,19 +50,19 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
-    "pytest",
-    "pyfiglet",
-    "google-crc32c",
-    "tomli-w",
     "autotyping",
-    "uv",
-    "pytest-mock",
-    "pytest-asyncio",
-    "pdm",
-    "pdm-bump",
-    "pytest-cov",
     "pyyaml",
+    "pytest-cov",
+    "pytest",
+    "tomli-w",
+    "pdm-bump",
+    "pyfiglet",
+    "uv",
     "pre-commit",
+    "google-crc32c",
+    "pytest-mock",
+    "pdm",
+    "pytest-asyncio",
 ]
 
 [tool.refurb]
@@ -73,15 +73,15 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
-    "B704",
-    "B404",
-    "B311",
-    "B301",
-    "B602",
     "B607",
-    "B101",
-    "B403",
     "B603",
+    "B301",
+    "B404",
+    "B101",
+    "B602",
+    "B311",
+    "B704",
+    "B403",
 ]
 
 [tool.pyright]
@@ -126,7 +126,7 @@ paths = [
 
 [project]
 name = "jinja2-async-environment"
-version = "0.10.1"
+version = "0.10.2"
 description = ""
 dependencies = [
     "jinja2>=3.1.6",
