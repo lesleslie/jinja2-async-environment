@@ -50,19 +50,19 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
-    "autotyping",
     "pyyaml",
-    "pytest-cov",
+    "pre-commit",
+    "pytest-mock",
+    "uv",
     "pytest",
+    "autotyping",
+    "pytest-asyncio",
+    "google-crc32c",
+    "pdm",
+    "pytest-cov",
+    "pyfiglet",
     "tomli-w",
     "pdm-bump",
-    "pyfiglet",
-    "uv",
-    "pre-commit",
-    "google-crc32c",
-    "pytest-mock",
-    "pdm",
-    "pytest-asyncio",
 ]
 
 [tool.refurb]
@@ -73,15 +73,15 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
-    "B607",
-    "B603",
-    "B301",
-    "B404",
-    "B101",
-    "B602",
     "B311",
-    "B704",
+    "B607",
+    "B602",
+    "B301",
+    "B101",
+    "B404",
+    "B603",
     "B403",
+    "B704",
 ]
 
 [tool.pyright]
@@ -105,7 +105,7 @@ reportUnknownArgumentType = false
 reportInvalidTypeForm = false
 reportUnknownLambdaType = false
 reportUnknownParameterType = "warning"
-reportPrivateUsage = "warning"
+reportPrivateUsage = false
 pythonVersion = "3.13"
 pythonPlatform = "Darwin"
 
@@ -119,18 +119,22 @@ addopts = "--cov=jinja2_async_environment"
 asyncio_default_fixture_loop_scope = "function"
 
 [tool.vulture]
-min_confidence = 84
+min_confidence = 86
 paths = [
     "jinja2_async_environment",
+]
+ignore_names = [
+    "cls",
 ]
 
 [project]
 name = "jinja2-async-environment"
-version = "0.10.2"
+version = "0.10.3"
 description = ""
 dependencies = [
     "jinja2>=3.1.6",
     "redis>=5.2.1",
+    "aiopath>=0.7.7",
 ]
 requires-python = ">=3.13"
 readme = "README.md"
@@ -152,13 +156,13 @@ classifiers = [
 [project.license]
 text = "BSD-3-Clause"
 
+[project.optional-dependencies]
+dev = [
+    "crackerjack>=0.14.0",
+]
+
 [build-system]
 requires = [
     "pdm-backend",
 ]
 build-backend = "pdm.backend"
-
-[dependency-groups]
-dev = [
-    "crackerjack>=0.11.5",
-]

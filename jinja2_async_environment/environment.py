@@ -12,12 +12,10 @@ from .compiler import AsyncCodeGenerator, CodeGenerator
 
 
 class AsyncEnvironment(Environment):
-    """Async environment for Jinja2 templates."""
-
     code_generator_class: t.Type[CodeGenerator] = AsyncCodeGenerator
     loader: t.Any | None = None
     bytecode_cache: AsyncBytecodeCache | None = None
-    enable_async = True  # Changed from t.Literal[True] to allow setting it in tests
+    enable_async = True
 
     @internalcode
     def get_template(
@@ -26,7 +24,6 @@ class AsyncEnvironment(Environment):
         parent: str | Template | None = None,
         globals: t.MutableMapping[str, t.Any] | None = None,
     ) -> Template:
-        """Get a template by name."""
         raise NotImplementedError("Use get_template_async instead")
 
     @internalcode
@@ -36,13 +33,10 @@ class AsyncEnvironment(Environment):
         parent: str | Template | None = None,
         globals: t.MutableMapping[str, t.Any] | None = None,
     ) -> Template:
-        """Get a template by name asynchronously."""
         if isinstance(name, Template):
             return name
-
         if parent is not None:
             name = self.join_path(str(name), str(parent))
-
         return await self._load_template_async(name, globals)
 
     @internalcode
@@ -52,7 +46,6 @@ class AsyncEnvironment(Environment):
         parent: str | None = None,
         globals: t.MutableMapping[str, t.Any] | None = None,
     ) -> Template:
-        """Select a template from a list of names."""
         raise NotImplementedError("Use select_template_async instead")
 
     @internalcode
@@ -62,16 +55,12 @@ class AsyncEnvironment(Environment):
         parent: str | None = None,
         globals: t.MutableMapping[str, t.Any] | None = None,
     ) -> Template:
-        """Select a template from a list of names asynchronously."""
         if isinstance(names, Undefined):
             names._fail_with_undefined_error()
-
         if not names:
             raise TemplatesNotFound(
                 message="Tried to select from an empty list of templates."
             )
-
-        # Convert names to strings for error reporting
         names_list = []
         for name in names:
             if isinstance(name, Template):
@@ -90,7 +79,6 @@ class AsyncEnvironment(Environment):
         parent: str | None = None,
         globals: t.MutableMapping[str, t.Any] | None = None,
     ) -> Template:
-        """Get a template by name or select from a list."""
         raise NotImplementedError("Use get_or_select_template_async instead")
 
     @internalcode
@@ -100,7 +88,6 @@ class AsyncEnvironment(Environment):
         parent: str | None = None,
         globals: t.MutableMapping[str, t.Any] | None = None,
     ) -> Template:
-        """Get a template by name or select from a list asynchronously."""
         if isinstance(template_name_or_list, (str, Undefined)):
             return await self.get_template_async(template_name_or_list, parent, globals)
         elif isinstance(template_name_or_list, Template):
@@ -113,14 +100,10 @@ class AsyncEnvironment(Environment):
         name: str | Template | t.Iterable[str | Template],
         globals: t.MutableMapping[str, t.Any] | None,
     ) -> Template:
-        """Load a template from the loader asynchronously."""
         if isinstance(name, Template):
             return name
-
         if isinstance(name, str):
             return await self._get_template(name, globals)
-
-        # Try each name until one works
         names_list = []
         for template_name in name:
             if isinstance(template_name, Template):
@@ -131,14 +114,10 @@ class AsyncEnvironment(Environment):
         raise TemplatesNotFound(names_list)
 
     async def _get_template(
-        self,
-        name: str,
-        globals: t.MutableMapping[str, t.Any] | None,
+        self, name: str, globals: t.MutableMapping[str, t.Any] | None
     ) -> Template:
-        """Get a template from the loader."""
         if self.loader is None:
             raise TypeError("no loader for this environment specified")
-
         cache_key = (ref(self.loader), name)
         if self.cache is not None:
             with suppress(TypeError):
@@ -149,7 +128,6 @@ class AsyncEnvironment(Environment):
                     if globals:
                         template.globals.update(globals)
                     return template
-
         template = await self.loader.load(self, name, self.make_globals(globals))
         if self.cache is not None:
             self.cache[cache_key] = template
