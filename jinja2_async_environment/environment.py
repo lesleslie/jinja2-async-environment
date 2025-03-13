@@ -128,7 +128,7 @@ class AsyncEnvironment(Environment):
                     if globals:
                         template.globals.update(globals)
                     return template
-        template = await self.loader.load(self, name, self.make_globals(globals))
+        template = await self.loader.async_load(self, name, self.make_globals(globals))
         if self.cache is not None:
             self.cache[cache_key] = template
         return template

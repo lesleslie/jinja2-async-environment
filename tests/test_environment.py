@@ -276,18 +276,29 @@ class TestAsyncEnvironment:
     ) -> None:
         environment.cache = {}
         template = MagicMock(spec=Template)
-        if not isinstance(mock_loader.load, AsyncMock):
-            mock_loader.load = AsyncMock()
-        mock_loader.load.return_value = template
+
+        actual_return = None
+
+        async def side_effect(*args: t.Any, **kwargs: t.Any):
+            nonlocal actual_return
+            actual_return = template
+            return template
+
+        mock_loader.load = AsyncMock(side_effect=side_effect)
+        mock_loader.async_load = mock_loader.load
+
         globals_dict: GlobalsDict = {"var": "value"}
         environment.make_globals = MagicMock(return_value=globals_dict)
         cache_key = (MagicMock(), "template.html")
+
         with patch(
             "jinja2_async_environment.environment.ref", return_value=cache_key[0]
         ):
             result = await environment._get_template("template.html", globals_dict)
+
         assert result is template
+
+        assert environment.cache[cache_key] is actual_return
         mock_loader.load.assert_called_once_with(
             environment, "template.html", globals_dict
         )
-        assert environment.cache[cache_key] is template

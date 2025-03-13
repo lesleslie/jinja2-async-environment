@@ -24,6 +24,19 @@ SourceType = tuple[
 ]
 
 
+class AsyncLoaderProtocol(t.Protocol):
+    async def async_get_source(self, template: str | AsyncPath) -> SourceType: ...
+
+    async def async_list_templates(self) -> list[str]: ...
+
+    async def async_load(
+        self,
+        environment: AsyncEnvironment,
+        name: str,
+        env_globals: dict[str, t.Any] | None = None,
+    ) -> Template: ...
+
+
 class AsyncBaseLoader(BaseLoader):
     has_source_access: bool = True
     searchpath: list[AsyncPath]
