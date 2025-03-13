@@ -33,11 +33,11 @@ class TestAsyncBaseLoader:
     @pytest.mark.asyncio
     async def test_not_implemented_methods(self, loader: AsyncBaseLoader) -> None:
         with pytest.raises(TemplateNotFound):
-            await loader.async_get_source(AsyncPath("template.html"))
+            await loader.get_source_async(AsyncPath("template.html"))
         with pytest.raises(
             TypeError, match="this loader cannot iterate over all templates"
         ):
-            await loader.async_list_templates()
+            await loader.list_templates_async()
 
     @pytest.mark.asyncio
     async def test_load(self) -> None:
@@ -67,8 +67,8 @@ class TestAsyncBaseLoader:
         env.compile.return_value = "compiled_code"
         env.template_class = MagicMock()
         env.template_class.from_code = mock_from_code
-        loader.async_get_source = AsyncMock(return_value=(template_content, None, None))
-        result = await loader.async_load(env, "template.html")
+        loader.get_source_async = AsyncMock(return_value=(template_content, None, None))
+        result = await loader.load_async(env, "template.html")
         assert result is template_instance
         env.compile.assert_called_once_with(template_content, "template.html")
         assert len(calls) == 1
@@ -87,8 +87,8 @@ class TestAsyncBaseLoader:
         env.compile.return_value = "compiled_code"
         template_instance = MagicMock(spec=Template)
         env.template_class.from_code.return_value = template_instance
-        loader.async_get_source = AsyncMock(return_value=(bytes_content, None, None))
-        result = await loader.async_load(env, "template.html")
+        loader.get_source_async = AsyncMock(return_value=(bytes_content, None, None))
+        result = await loader.load_async(env, "template.html")
         env.compile.assert_called_once_with(bytes_content.decode(), "template.html")
         env.template_class.from_code.assert_called_once_with(
             env, "compiled_code", {}, None

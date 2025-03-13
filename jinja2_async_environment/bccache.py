@@ -20,14 +20,14 @@ class AsyncBytecodeCache(BytecodeCache):
     def get_bucket_name(self, key: str) -> str:
         raise NotImplementedError("get_bucket_name must be implemented.")
 
-    async def async_get_bucket(
+    async def get_bucket_async(
         self, environment: Environment, name: str, filename: str | None, source: str
     ) -> Bucket:
         raise NotImplementedError(
             "AsyncBytecodeCache.async_get_bucket must be implemented."
         )
 
-    async def async_set_bucket(self, bucket: Bucket) -> None:
+    async def set_bucket_async(self, bucket: Bucket) -> None:
         raise NotImplementedError(
             "AsyncBytecodeCache.async_set_bucket must be implemented."
         )

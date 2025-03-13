@@ -105,7 +105,7 @@ class TestAsyncEnvironment:
             side_effect=TemplateNotFound("undefined")
         )
         with pytest.raises(TemplateNotFound):
-            await environment.select_template_async(undefined)
+            await environment.select_template_async(undefined)  # type: ignore[arg-type]
         undefined._fail_with_undefined_error.assert_called_once()
 
     @pytest.mark.asyncio
@@ -192,11 +192,11 @@ class TestAsyncEnvironment:
         self, environment: AsyncEnvironment
     ) -> None:
         template = MagicMock(spec=Template)
-        environment._get_template = AsyncMock(return_value=template)
+        environment._get_template_async = AsyncMock(return_value=template)
         result = await environment._load_template_async(
             "template.html", {"var": "value"}
         )
-        environment._get_template.assert_called_once_with(
+        environment._get_template_async.assert_called_once_with(
             "template.html", {"var": "value"}
         )
         assert result is template
@@ -206,25 +206,27 @@ class TestAsyncEnvironment:
         self, environment: AsyncEnvironment
     ) -> None:
         template = MagicMock(spec=Template)
-        environment._get_template = AsyncMock(
+        environment._get_template_async = AsyncMock(
             side_effect=[TemplateNotFound("template1.html"), template]
         )
         result = await environment._load_template_async(
             ["template1.html", "template2.html"], None
         )
-        assert environment._get_template.call_count == 2
+        assert environment._get_template_async.call_count == 2
         assert result is template
 
     @pytest.mark.asyncio
     async def test_load_template_async_with_iterable_all_not_found(
         self, environment: AsyncEnvironment
     ) -> None:
-        environment._get_template = AsyncMock(side_effect=TemplateNotFound("not found"))
+        environment._get_template_async = AsyncMock(
+            side_effect=TemplateNotFound("not found")
+        )
         with pytest.raises(TemplatesNotFound) as exc_info:
             await environment._load_template_async(
                 ["template1.html", "template2.html"], None
             )
-        assert environment._get_template.call_count == 2
+        assert environment._get_template_async.call_count == 2
         assert "template1.html" in str(exc_info.value)
         assert "template2.html" in str(exc_info.value)
 
@@ -232,7 +234,7 @@ class TestAsyncEnvironment:
     async def test_get_template_no_loader(self, environment: AsyncEnvironment) -> None:
         environment.loader = None
         with pytest.raises(TypeError) as exc_info:
-            await environment._get_template("template.html", None)
+            await environment._get_template_async("template.html", None)
         assert "no loader" in str(exc_info.value)
 
     @pytest.mark.asyncio
@@ -248,7 +250,7 @@ class TestAsyncEnvironment:
         with patch(
             "jinja2_async_environment.environment.ref", return_value=cache_key[0]
         ):
-            result = await environment._get_template("template.html", None)
+            result = await environment._get_template_async("template.html", None)
         assert result is template
         environment.loader.load.assert_not_called()
 
@@ -266,7 +268,9 @@ class TestAsyncEnvironment:
         with patch(
             "jinja2_async_environment.environment.ref", return_value=cache_key[0]
         ):
-            result = await environment._get_template("template.html", {"var": "value"})
+            result = await environment._get_template_async(
+                "template.html", {"var": "value"}
+            )
         assert result is template
         mock_globals.update.assert_called_once_with({"var": "value"})
 
@@ -285,7 +289,7 @@ class TestAsyncEnvironment:
             return template
 
         mock_loader.load = AsyncMock(side_effect=side_effect)
-        mock_loader.async_load = mock_loader.load
+        mock_loader.load_async = mock_loader.load
 
         globals_dict: GlobalsDict = {"var": "value"}
         environment.make_globals = MagicMock(return_value=globals_dict)
@@ -294,7 +298,9 @@ class TestAsyncEnvironment:
         with patch(
             "jinja2_async_environment.environment.ref", return_value=cache_key[0]
         ):
-            result = await environment._get_template("template.html", globals_dict)
+            result = await environment._get_template_async(
+                "template.html", globals_dict
+            )
 
         assert result is template
 

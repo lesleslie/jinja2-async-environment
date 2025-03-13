@@ -103,17 +103,17 @@ class AsyncEnvironment(Environment):
         if isinstance(name, Template):
             return name
         if isinstance(name, str):
-            return await self._get_template(name, globals)
+            return await self._get_template_async(name, globals)
         names_list = []
         for template_name in name:
             if isinstance(template_name, Template):
                 return template_name
             with suppress(TemplateNotFound):
-                return await self._get_template(str(template_name), globals)
+                return await self._get_template_async(str(template_name), globals)
             names_list.append(str(template_name))
         raise TemplatesNotFound(names_list)
 
-    async def _get_template(
+    async def _get_template_async(
         self, name: str, globals: t.MutableMapping[str, t.Any] | None
     ) -> Template:
         if self.loader is None:
@@ -128,7 +128,7 @@ class AsyncEnvironment(Environment):
                     if globals:
                         template.globals.update(globals)
                     return template
-        template = await self.loader.async_load(self, name, self.make_globals(globals))
+        template = await self.loader.load_async(self, name, self.make_globals(globals))
         if self.cache is not None:
             self.cache[cache_key] = template
         return template

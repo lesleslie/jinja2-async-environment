@@ -25,11 +25,13 @@ SourceType = tuple[
 
 
 class AsyncLoaderProtocol(t.Protocol):
-    async def async_get_source(self, template: str | AsyncPath) -> SourceType: ...
+    async def get_source_async(
+        self, template: str | AsyncPath
+    ) -> SourceType | None: ...
 
-    async def async_list_templates(self) -> list[str]: ...
+    async def list_templates_async(self) -> list[str]: ...
 
-    async def async_load(
+    async def load_async(
         self,
         environment: AsyncEnvironment,
         name: str,
@@ -51,17 +53,17 @@ class AsyncBaseLoader(BaseLoader):
                 "searchpath must be an AsyncPath or a sequence of AsyncPath objects"
             )
 
-    async def async_get_source(self, template: str | AsyncPath) -> SourceType:
+    async def get_source_async(self, template: str | AsyncPath) -> SourceType:
         template_path: AsyncPath = (
             AsyncPath(template) if isinstance(template, str) else template
         )
         raise TemplateNotFound(template_path.name)
 
-    async def async_list_templates(self) -> list[str]:
+    async def list_templates_async(self) -> list[str]:
         raise TypeError("this loader cannot iterate over all templates")
 
     @internalcode
-    async def async_load(
+    async def load_async(
         self,
         environment: AsyncEnvironment,
         name: str,
@@ -69,12 +71,12 @@ class AsyncBaseLoader(BaseLoader):
     ) -> Template:
         if env_globals is None:
             env_globals = {}
-        source, path, uptodate = await self.async_get_source(name)
+        source, path, uptodate = await self.get_source_async(name)
         source_str = source.decode("utf-8") if isinstance(source, bytes) else source
         bcc = environment.bytecode_cache
         bucket = None
         if bcc:
-            bucket = await bcc.async_get_bucket(environment, name, path, source_str)
+            bucket = await bcc.get_bucket_async(environment, name, path, source_str)
             code = bucket.code
         else:
             code = None
@@ -85,7 +87,7 @@ class AsyncBaseLoader(BaseLoader):
                 code = environment.compile(source_str, name, path)
         if bcc and bucket is not None and (not bucket.code):
             bucket.code = code
-            await bcc.async_set_bucket(bucket)
+            await bcc.set_bucket_async(bucket)
         return environment.template_class.from_code(
             environment,
             code,
@@ -108,7 +110,7 @@ class AsyncFileSystemLoader(AsyncBaseLoader):
         self.encoding = encoding
         self.followlinks = followlinks
 
-    async def async_get_source(self, template: str | AsyncPath) -> SourceType:
+    async def get_source_async(self, template: str | AsyncPath) -> SourceType:
         template_path: AsyncPath = (
             AsyncPath(template) if isinstance(template, str) else template
         )
@@ -138,7 +140,7 @@ class AsyncFileSystemLoader(AsyncBaseLoader):
             _uptodate,
         )
 
-    async def async_list_templates(self) -> list[str]:
+    async def list_templates_async(self) -> list[str]:
         results: set[str] = set()
         for sp in self.searchpath:
             results.update({str(p) async for p in sp.rglob("*.html")})
@@ -197,7 +199,7 @@ class AsyncPackageLoader(AsyncBaseLoader):
             )
         self._template_root = template_root
 
-    async def async_get_source(self, template: str | AsyncPath) -> SourceType:
+    async def get_source_async(self, template: str | AsyncPath) -> SourceType:
         template_path: AsyncPath = (
             AsyncPath(template) if isinstance(template, str) else template
         )
@@ -220,7 +222,7 @@ class AsyncPackageLoader(AsyncBaseLoader):
             uptodate: t.Any = None
             return (source_bytes.decode(self.encoding), str(path), uptodate)
 
-    async def async_list_templates(self) -> list[str]:
+    async def list_templates_async(self) -> list[str]:
         results: list[str] = []
         if self._archive is None:
             paths = self._template_root.rglob("*.html")
@@ -249,7 +251,7 @@ class AsyncDictLoader(AsyncBaseLoader):
         super().__init__(searchpath)
         self.mapping = mapping
 
-    async def async_get_source(self, template: str | AsyncPath) -> SourceType:
+    async def get_source_async(self, template: str | AsyncPath) -> SourceType:
         template_name: str = (
             template.name if isinstance(template, AsyncPath) else template
         )
@@ -258,7 +260,7 @@ class AsyncDictLoader(AsyncBaseLoader):
             return (source, None, lambda: source == self.mapping.get(template_name))
         raise TemplateNotFound(template_name)
 
-    async def async_list_templates(self) -> list[str]:
+    async def list_templates_async(self) -> list[str]:
         return sorted(list(self.mapping))
 
 
@@ -277,7 +279,7 @@ class AsyncFunctionLoader(AsyncBaseLoader):
         super().__init__(searchpath)
         self.load_func = load_func
 
-    async def async_get_source(self, template: str | AsyncPath) -> SourceType:
+    async def get_source_async(self, template: str | AsyncPath) -> SourceType:
         result = self.load_func(template)
         if result is None:
             template_name: str = (
@@ -306,17 +308,17 @@ class AsyncChoiceLoader(AsyncBaseLoader):
         super().__init__(searchpath)
         self.loaders = loaders
 
-    async def async_get_source(self, template: str | AsyncPath) -> SourceType:
+    async def get_source_async(self, template: str | AsyncPath) -> SourceType:
         for loader in self.loaders:
             with suppress(TemplateNotFound):
-                return await loader.async_get_source(template)
+                return await loader.get_source_async(template)
         template_name: str = (
             template.name if isinstance(template, AsyncPath) else template
         )
         raise TemplateNotFound(template_name)
 
-    async def async_list_templates(self) -> list[str]:
+    async def list_templates_async(self) -> list[str]:
         found: set[str] = set()
         for loader in self.loaders:
-            found.update(await loader.async_list_templates())
+            found.update(await loader.list_templates_async())
         return sorted(found)
