@@ -24,12 +24,12 @@ class AsyncBytecodeCache(BytecodeCache):
         self, environment: Environment, name: str, filename: str | None, source: str
     ) -> Bucket:
         raise NotImplementedError(
-            "AsyncBytecodeCache.async_get_bucket must be implemented."
+            "AsyncBytecodeCache.get_bucket_async must be implemented."
         )
 
     async def set_bucket_async(self, bucket: Bucket) -> None:
         raise NotImplementedError(
-            "AsyncBytecodeCache.async_set_bucket must be implemented."
+            "AsyncBytecodeCache.set_bucket_async must be implemented."
         )
 
 
@@ -81,10 +81,10 @@ class AsyncRedisBytecodeCache(AsyncBytecodeCache):
     async def set_bucket(self, bucket: Bucket) -> None:  # type: ignore[override]
         await self.dump_bytecode(bucket)
 
-    async def async_get_bucket(
+    async def get_bucket_async(
         self, environment: Environment, name: str, filename: str | None, source: str
     ) -> Bucket:
         return await self.get_bucket(environment, name, filename, source)
 
-    async def async_set_bucket(self, bucket: Bucket) -> None:
+    async def set_bucket_async(self, bucket: Bucket) -> None:
         return await self.set_bucket(bucket)

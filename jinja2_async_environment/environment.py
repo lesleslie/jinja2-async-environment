@@ -123,12 +123,14 @@ class AsyncEnvironment(Environment):
         if self.cache is not None:
             with suppress(TypeError):
                 template = self.cache.get(cache_key)
-                if template is not None and (
-                    not self.auto_reload or template.is_up_to_date
-                ):
-                    if globals:
-                        template.globals.update(globals)
-                    return template
+                if template is not None:
+                    is_up_to_date = template.is_up_to_date
+                    if callable(getattr(is_up_to_date, "__await__", None)):
+                        is_up_to_date = await is_up_to_date  # type: ignore
+                    if not self.auto_reload or is_up_to_date:
+                        if globals:
+                            template.globals.update(globals)
+                        return template
         template = await self.loader.load_async(self, name, self.make_globals(globals))
         if self.cache is not None:
             self.cache[cache_key] = template
