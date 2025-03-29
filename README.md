@@ -13,13 +13,14 @@
   - `AsyncFileSystemLoader`: Load templates from the filesystem asynchronously
   - `AsyncPackageLoader`: Load templates from Python packages
   - `AsyncChoiceLoader`: Try multiple loaders in sequence
-- **Reids Bytecode Caching**: Improve performance with async Redis bytecode caching
+- **Redis Bytecode Caching**: Improve performance with async Redis bytecode caching
 - **Modern Python**: Leverages `asyncio` with type hints compatible with Python 3.13+
 - **Drop-in Replacement**: Familiar API for Jinja2 users with async alternatives
+- **Type Safety**: Fully typed with modern Python typing protocols
 
 ## Installation
 
-```bash
+```
 pip install jinja2-async-environment
 ```
 
@@ -28,6 +29,7 @@ pip install jinja2-async-environment
 - Python 3.13 or higher
 - Jinja2
 - aiopath
+- redis (for bytecode caching)
 
 ## Usage
 
@@ -133,9 +135,15 @@ async def setup_environment():
 
 ### Running Tests
 
-```bash
-pip install pytest pytest-asyncio
+```
+pip install pytest pytest-asyncio pytest-cov
 python -m pytest
+```
+
+For test coverage reporting:
+
+```
+python -m pytest --cov=jinja2_async_environment
 ```
 
 ### Contributing
