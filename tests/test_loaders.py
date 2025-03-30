@@ -2,7 +2,7 @@ import typing as t
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from aiopath import AsyncPath
+from anyio import Path as AsyncPath
 from jinja2.environment import Template
 from jinja2.exceptions import TemplateNotFound
 from jinja2_async_environment.environment import AsyncEnvironment

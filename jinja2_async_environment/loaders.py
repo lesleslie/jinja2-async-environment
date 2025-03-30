@@ -5,7 +5,7 @@ from contextlib import suppress
 from importlib import import_module
 from pathlib import Path
 
-from aiopath import AsyncPath
+from anyio import Path as AsyncPath
 from jinja2.environment import Template
 from jinja2.exceptions import TemplateNotFound
 from jinja2.loaders import BaseLoader
@@ -136,7 +136,7 @@ class AsyncFileSystemLoader(AsyncBaseLoader):
                 return False
 
         return (
-            resp.decode(self.encoding) if isinstance(resp, bytes) else resp,
+            resp.decode(self.encoding),
             str(path),
             _uptodate,
         )
