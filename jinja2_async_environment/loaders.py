@@ -304,9 +304,7 @@ class AsyncChoiceLoader(AsyncBaseLoader):
     def __init__(
         self,
         loaders: list[AsyncBaseLoader],
-        searchpath: AsyncPath | t.Sequence[AsyncPath],
     ) -> None:
-        super().__init__(searchpath)
         self.loaders = loaders
 
     async def get_source_async(self, template: str | AsyncPath) -> SourceType:
@@ -323,3 +321,15 @@ class AsyncChoiceLoader(AsyncBaseLoader):
         for loader in self.loaders:
             found.update(await loader.list_templates_async())
         return sorted(found)
+
+    @internalcode
+    async def load_async(
+            self,
+            environment: AsyncEnvironment,
+            name: str,
+            env_globals: dict[str, t.Any] | None = None,
+    ) -> Template:
+        for loader in self.loaders:
+            with suppress(TemplateNotFound):
+                return await loader.load_async(environment, name, env_globals)
+        raise TemplateNotFound(name)
