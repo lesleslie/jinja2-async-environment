@@ -49,19 +49,19 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
-    "tomli-w",
-    "uv",
-    "pytest-asyncio",
-    "pytest-mock",
-    "pre-commit",
     "pyyaml",
-    "autotyping",
+    "tomli-w",
+    "google-crc32c",
     "pytest",
+    "uv",
+    "autotyping",
+    "pytest-mock",
     "pdm-bump",
     "pytest-cov",
     "pyfiglet",
     "pdm",
-    "google-crc32c",
+    "pre-commit",
+    "pytest-asyncio",
 ]
 
 [tool.refurb]
@@ -72,15 +72,15 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
-    "B704",
-    "B311",
     "B301",
+    "B602",
+    "B404",
+    "B101",
+    "B704",
     "B403",
     "B603",
-    "B101",
-    "B602",
+    "B311",
     "B607",
-    "B404",
 ]
 
 [tool.pyright]
@@ -173,7 +173,7 @@ ignore_errors = false
 
 [project]
 name = "jinja2-async-environment"
-version = "0.11.5"
+version = "0.11.6"
 description = ""
 dependencies = [
     "jinja2>=3.1.6",
@@ -202,7 +202,7 @@ text = "BSD-3-Clause"
 
 [project.optional-dependencies]
 dev = [
-    "crackerjack>=0.15.1",
+    "crackerjack>=0.15.7",
 ]
 
 [build-system]
