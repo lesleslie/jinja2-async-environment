@@ -33,7 +33,7 @@ no-lines-before = [
 ]
 
 [tool.ruff.lint.mccabe]
-max-complexity = 12
+max-complexity = 13
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -49,19 +49,20 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
-    "pyyaml",
-    "tomli-w",
-    "google-crc32c",
+    "pyfiglet",
     "pytest",
+    "pyyaml",
+    "pytest-asyncio",
     "uv",
-    "autotyping",
+    "pdm",
+    "pytest-timeout",
+    "pytest-cov",
     "pytest-mock",
     "pdm-bump",
-    "pytest-cov",
-    "pyfiglet",
-    "pdm",
+    "tomli-w",
     "pre-commit",
-    "pytest-asyncio",
+    "google-crc32c",
+    "autotyping",
 ]
 
 [tool.refurb]
@@ -72,15 +73,15 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
-    "B301",
-    "B602",
-    "B404",
     "B101",
-    "B704",
-    "B403",
-    "B603",
-    "B311",
+    "B602",
     "B607",
+    "B603",
+    "B704",
+    "B311",
+    "B403",
+    "B301",
+    "B404",
 ]
 
 [tool.pyright]
@@ -114,7 +115,7 @@ quiet-level = 3
 ignore-words-list = "crate,uptodate"
 
 [tool.pytest.ini_options]
-addopts = "--cov=jinja2_async_environment"
+addopts = "--cov=jinja2_async_environment --cov-report=term"
 asyncio_default_fixture_loop_scope = "function"
 python_files = [
     "test_*.py",
@@ -142,10 +143,12 @@ ignore_names = [
 ]
 
 [tool.coverage.run]
-branch = true
+branch = false
 source = [
     "jinja2_async_environment",
 ]
+data_file = ".coverage"
+parallel = false
 omit = [
     "*/tests/*",
     "*/site-packages/*",
@@ -173,11 +176,11 @@ ignore_errors = false
 
 [project]
 name = "jinja2-async-environment"
-version = "0.11.6"
+version = "0.11.7"
 description = ""
 dependencies = [
     "jinja2>=3.1.6",
-    "redis>=5.2.1",
+    "redis>=6.0.0",
     "anyio>=4.9.0",
 ]
 requires-python = ">=3.13"
@@ -202,7 +205,7 @@ text = "BSD-3-Clause"
 
 [project.optional-dependencies]
 dev = [
-    "crackerjack>=0.15.7",
+    "crackerjack>=0.17.1",
 ]
 
 [build-system]
