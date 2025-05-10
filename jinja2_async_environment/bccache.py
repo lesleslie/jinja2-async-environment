@@ -55,7 +55,7 @@ class AsyncRedisBytecodeCache(AsyncBytecodeCache):
         return str(hash(source))
 
     def get_bucket_name(self, key: str) -> str:
-        return ":".join([self.prefix, key]) if self.prefix else key
+        return f"{self.prefix}:{key}" if self.prefix else key
 
     async def load_bytecode(self, bucket: Bucket) -> t.Optional[bytes]:  # type: ignore[override]
         code = await self.client.get(self.get_bucket_name(bucket.key))  # type: ignore

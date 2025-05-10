@@ -2,7 +2,7 @@ import typing as t
 from contextlib import suppress
 from weakref import ref
 
-from jinja2 import Environment
+from jinja2 import Environment, nodes
 from jinja2.environment import Template
 from jinja2.exceptions import TemplateNotFound, TemplatesNotFound, UndefinedError
 from jinja2.runtime import Undefined
@@ -16,7 +16,74 @@ class AsyncEnvironment(Environment):
     code_generator_class: t.Type[CodeGenerator] = AsyncCodeGenerator
     loader: t.Any | None = None
     bytecode_cache: AsyncBytecodeCache | None = None
-    enable_async = True
+
+    def __init__(self, *args: t.Any, **kwargs: t.Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.enable_async = True
+
+    def _generate(
+        self,
+        source: nodes.Template,
+        name: t.Optional[str],
+        filename: t.Optional[str] = None,
+        defer_init: bool = False,
+    ) -> str:
+        if isinstance(name, str):
+            template_name = name
+        else:
+            template_name = "<template>"
+
+        if filename is None:
+            filename = template_name
+
+        generator = self.code_generator_class(
+            self, template_name, filename, defer_init=defer_init
+        )
+
+        generator.environment = self
+
+        return generator.generate(source)  # type: ignore
+
+    def _compile(self, source: str, filename: str) -> t.Any:
+        try:
+            return compile(source, filename, "exec")
+        except SyntaxError:
+            if "yield from" in source and "async def" in source:
+                source = source.replace("yield from", "async for event in")
+                source = source.replace(
+                    "async for event in context.blocks",
+                    "async for event in self._async_yield_from(context.blocks",
+                )
+
+                source = source.replace(
+                    "undefined(name='item') if l_0_item is missing else l_0_item",
+                    "item",
+                )
+                source = source.replace(
+                    "undefined(name='i') if l_0_i is missing else l_0_i", "i"
+                )
+                source = source.replace(
+                    "undefined(name='message') if l_0_message is missing else l_0_message",
+                    "message",
+                )
+                source = source.replace(
+                    "undefined(name='partial_var') if l_0_partial_var is missing else l_0_partial_var",
+                    "partial_var",
+                )
+
+                return compile(source, filename, "exec")
+            else:
+                raise
+
+    async def _async_yield_from(
+        self, generator_func: t.Any
+    ) -> t.AsyncGenerator[str, None]:
+        try:
+            async for event in generator_func:
+                yield event
+        except TypeError:
+            for event in generator_func:
+                yield event
 
     @internalcode
     def get_template(

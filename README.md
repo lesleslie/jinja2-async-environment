@@ -41,16 +41,22 @@ pip install jinja2-async-environment
 import asyncio
 from jinja2_async_environment.environment import AsyncEnvironment
 from jinja2_async_environment.loaders import AsyncFileSystemLoader
+from anyio import Path as AsyncPath
 
 async def render_template():
     # Create an async environment with a filesystem loader
     env = AsyncEnvironment(
-        loader=AsyncFileSystemLoader('templates')
+        loader=AsyncFileSystemLoader(AsyncPath('templates'))
     )
 
-    # Load and render a template asynchronously
+    # Load a template asynchronously
     template = await env.get_template_async('hello.html')
-    rendered = await template.render_async(name='World')
+
+    # Create a context with variables
+    context = template.new_context({'name': 'World'})
+
+    # Render the template asynchronously
+    rendered = ''.join([event async for event in template.root_render_func(context)])
 
     return rendered
 
@@ -67,23 +73,72 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from jinja2_async_environment.environment import AsyncEnvironment
 from jinja2_async_environment.loaders import AsyncFileSystemLoader
+from anyio import Path as AsyncPath
 
 app = FastAPI()
 
 # Initialize the async environment once at startup
 env = AsyncEnvironment(
-    loader=AsyncFileSystemLoader('templates'),
+    loader=AsyncFileSystemLoader(AsyncPath('templates')),
     autoescape=True
 )
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
+    # Get the template asynchronously
     template = await env.get_template_async("index.html")
-    content = await template.render_async(
-        request=request,
-        title="Home Page"
-    )
+
+    # Create a context with variables
+    context = template.new_context({
+        'request': request,
+        'title': 'Home Page'
+    })
+
+    # Render the template asynchronously
+    content = ''.join([event async for event in template.root_render_func(context)])
+
     return content
+```
+
+### Web Framework Integration (Starlette Example)
+
+```python
+from starlette.applications import Starlette
+from starlette.requests import Request
+from starlette.responses import HTMLResponse
+from starlette.routing import Route
+from jinja2_async_environment.environment import AsyncEnvironment
+from jinja2_async_environment.loaders import AsyncFileSystemLoader
+from anyio import Path as AsyncPath
+
+# Initialize the async environment once at startup
+env = AsyncEnvironment(
+    loader=AsyncFileSystemLoader(AsyncPath('templates')),
+    autoescape=True
+)
+
+async def homepage(request: Request):
+    # Get the template asynchronously
+    template = await env.get_template_async("index.html")
+
+    # Create a context with variables
+    context = template.new_context({
+        'request': request,
+        'title': 'Starlette Home Page'
+    })
+
+    # Render the template asynchronously
+    content = ''.join([event async for event in template.root_render_func(context)])
+
+    return HTMLResponse(content)
+
+# Define routes
+routes = [
+    Route('/', endpoint=homepage)
+]
+
+# Create Starlette application
+app = Starlette(routes=routes)
 ```
 
 ### Using Different Loaders
@@ -94,18 +149,26 @@ from jinja2_async_environment.loaders import (
     AsyncPackageLoader,
     AsyncChoiceLoader
 )
+from anyio import Path as AsyncPath
 
 # Load templates from filesystem
-fs_loader = AsyncFileSystemLoader('templates')
+fs_loader = AsyncFileSystemLoader(AsyncPath('templates'))
 
 # Load templates from a Python package
-package_loader = AsyncPackageLoader('your_package', 'templates')
+package_loader = AsyncPackageLoader(
+    'your_package',
+    AsyncPath('templates'),
+    package_path=AsyncPath('templates')
+)
 
 # Create a loader that tries multiple sources
-choice_loader = AsyncChoiceLoader([
-    fs_loader,  # First try the filesystem
-    package_loader  # Then try the package
-])
+choice_loader = AsyncChoiceLoader(
+    [
+        fs_loader,  # First try the filesystem
+        package_loader  # Then try the package
+    ],
+    searchpath=AsyncPath('templates')
+)
 
 # Create environment with the choice loader
 env = AsyncEnvironment(loader=choice_loader)
@@ -118,21 +181,32 @@ from jinja2_async_environment.environment import AsyncEnvironment
 from jinja2_async_environment.loaders import AsyncFileSystemLoader
 from jinja2_async_environment.bccache import AsyncRedisBytecodeCache
 import redis.asyncio as redis
+from anyio import Path as AsyncPath
 
 async def setup_environment():
     # Create a Redis client
     redis_client = redis.Redis(host="localhost", port=6379, db=0)
 
     # Set up bytecode caching for better performance
-    bytecode_cache = AsyncRedisBytecodeCache(redis_client, prefix="jinja2_")
+    bytecode_cache = AsyncRedisBytecodeCache(client=redis_client, prefix="jinja2_")
 
     # Create environment with caching
     env = AsyncEnvironment(
-        loader=AsyncFileSystemLoader('templates'),
+        loader=AsyncFileSystemLoader(AsyncPath('templates')),
         bytecode_cache=bytecode_cache
     )
 
     return env
+
+async def render_template(env, template_name, context_vars):
+    # Get the template asynchronously
+    template = await env.get_template_async(template_name)
+
+    # Create a context with variables
+    context = template.new_context(context_vars)
+
+    # Render the template asynchronously
+    return ''.join([event async for event in template.root_render_func(context)])
 ```
 
 ### Running Tests
