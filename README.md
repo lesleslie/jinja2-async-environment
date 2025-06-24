@@ -14,8 +14,11 @@
 - **Multiple Loader Types**:
   - `AsyncFileSystemLoader`: Load templates from the filesystem asynchronously
   - `AsyncPackageLoader`: Load templates from Python packages
+  - `AsyncDictLoader`: Load templates from a dictionary in memory
+  - `AsyncFunctionLoader`: Load templates using custom async functions
   - `AsyncChoiceLoader`: Try multiple loaders in sequence
 - **Redis Bytecode Caching**: Improve performance with async Redis bytecode caching
+- **Sandboxed Execution**: `AsyncSandboxedEnvironment` for safe template execution in untrusted environments
 - **Modern Python**: Leverages `asyncio` with type hints compatible with Python 3.13+
 - **Drop-in Replacement**: Familiar API for Jinja2 users with async alternatives
 - **Type Safety**: Fully typed with modern Python typing protocols
@@ -29,9 +32,9 @@ pip install jinja2-async-environment
 ## Requirements
 
 - Python 3.13 or higher
-- Jinja2
-- aiopath
-- redis (for bytecode caching)
+- Jinja2 3.1.6+
+- anyio 4.9+
+- redis 6.2+ (for bytecode caching)
 
 ## Usage
 
@@ -49,14 +52,11 @@ async def render_template():
         loader=AsyncFileSystemLoader(AsyncPath('templates'))
     )
 
-    # Load a template asynchronously
+    # Load and render a template asynchronously
     template = await env.get_template_async('hello.html')
 
-    # Create a context with variables
-    context = template.new_context({'name': 'World'})
-
-    # Render the template asynchronously
-    rendered = ''.join([event async for event in template.root_render_func(context)])
+    # Render the template with context variables
+    rendered = await template.render_async(name='World')
 
     return rendered
 
@@ -85,17 +85,14 @@ env = AsyncEnvironment(
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
-    # Get the template asynchronously
+    # Get and render template asynchronously
     template = await env.get_template_async("index.html")
-
-    # Create a context with variables
-    context = template.new_context({
-        'request': request,
-        'title': 'Home Page'
-    })
-
-    # Render the template asynchronously
-    content = ''.join([event async for event in template.root_render_func(context)])
+    
+    # Render with context variables
+    content = await template.render_async(
+        request=request,
+        title='Home Page'
+    )
 
     return content
 ```
@@ -118,17 +115,14 @@ env = AsyncEnvironment(
 )
 
 async def homepage(request: Request):
-    # Get the template asynchronously
+    # Get and render template asynchronously
     template = await env.get_template_async("index.html")
 
-    # Create a context with variables
-    context = template.new_context({
-        'request': request,
-        'title': 'Starlette Home Page'
-    })
-
-    # Render the template asynchronously
-    content = ''.join([event async for event in template.root_render_func(context)])
+    # Render with context variables
+    content = await template.render_async(
+        request=request,
+        title='Starlette Home Page'
+    )
 
     return HTMLResponse(content)
 
@@ -147,6 +141,8 @@ app = Starlette(routes=routes)
 from jinja2_async_environment.loaders import (
     AsyncFileSystemLoader,
     AsyncPackageLoader,
+    AsyncDictLoader,
+    AsyncFunctionLoader,
     AsyncChoiceLoader
 )
 from anyio import Path as AsyncPath
@@ -155,20 +151,29 @@ from anyio import Path as AsyncPath
 fs_loader = AsyncFileSystemLoader(AsyncPath('templates'))
 
 # Load templates from a Python package
-package_loader = AsyncPackageLoader(
-    'your_package',
-    AsyncPath('templates'),
-    package_path=AsyncPath('templates')
-)
+package_loader = AsyncPackageLoader('your_package', AsyncPath('templates'))
 
-# Create a loader that tries multiple sources
-choice_loader = AsyncChoiceLoader(
-    [
-        fs_loader,  # First try the filesystem
-        package_loader  # Then try the package
-    ],
-    searchpath=AsyncPath('templates')
-)
+# Load templates from a dictionary
+templates_dict = {
+    'hello.html': '<h1>Hello {{ name }}!</h1>',
+    'goodbye.html': '<p>Goodbye {{ name }}.</p>'
+}
+dict_loader = AsyncDictLoader(templates_dict, AsyncPath('/virtual'))
+
+# Load templates using a custom async function
+async def load_template(name):
+    # Custom loading logic here
+    with open(f'templates/{name}', 'r') as f:
+        return f.read(), f'templates/{name}', lambda: True
+
+function_loader = AsyncFunctionLoader(load_template, AsyncPath('templates'))
+
+# Create a loader that tries multiple sources in order
+choice_loader = AsyncChoiceLoader([
+    fs_loader,        # First try the filesystem
+    dict_loader,      # Then try the dictionary
+    package_loader    # Finally try the package
+])
 
 # Create environment with the choice loader
 env = AsyncEnvironment(loader=choice_loader)
@@ -198,16 +203,58 @@ async def setup_environment():
 
     return env
 
-async def render_template(env, template_name, context_vars):
-    # Get the template asynchronously
+async def render_template(env, template_name, **context_vars):
+    # Get and render template asynchronously
     template = await env.get_template_async(template_name)
-
-    # Create a context with variables
-    context = template.new_context(context_vars)
-
-    # Render the template asynchronously
-    return ''.join([event async for event in template.root_render_func(context)])
+    
+    # Render with context variables
+    return await template.render_async(**context_vars)
 ```
+
+### Sandboxed Template Execution
+
+For scenarios where you need to execute untrusted templates safely, use `AsyncSandboxedEnvironment`:
+
+```python
+import asyncio
+from jinja2.exceptions import SecurityError
+from jinja2_async_environment.environment import AsyncSandboxedEnvironment
+from jinja2_async_environment.loaders import AsyncDictLoader
+from anyio import Path as AsyncPath
+
+async def safe_template_execution():
+    # Create templates that might contain untrusted content
+    templates = {
+        "user_template.html": "Hello {{ name }}! Your score is {{ score + 10 }}.",
+        "unsafe_template.html": "{{ ''.__class__.__mro__[1].__subclasses__() }}"  # This will be blocked
+    }
+    
+    # Create a sandboxed environment
+    sandbox_env = AsyncSandboxedEnvironment(
+        loader=AsyncDictLoader(templates, AsyncPath("/sandbox"))
+    )
+    
+    # Safe template execution
+    safe_template = await sandbox_env.get_template_async("user_template.html")
+    result = await safe_template.render_async(name="Alice", score=85)
+    print(result)  # Output: Hello Alice! Your score is 95.
+    
+    # Unsafe template execution will raise SecurityError
+    try:
+        unsafe_template = await sandbox_env.get_template_async("unsafe_template.html")
+        await unsafe_template.render_async()
+    except SecurityError as e:
+        print(f"Security violation caught: {e}")
+
+# Run the example
+asyncio.run(safe_template_execution())
+```
+
+The sandboxed environment provides protection against:
+- Access to Python internals and dangerous built-ins
+- File system access attempts
+- Import statements and module access
+- Execution of arbitrary Python code
 
 ### Running Tests
 

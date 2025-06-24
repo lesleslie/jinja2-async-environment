@@ -6,10 +6,9 @@ requires = [
 
 [project]
 name = "jinja2-async-environment"
-version = "0.12.0"
+version = "0.12.1"
 description = ""
 readme = "README.md"
-license.text = "BSD-3-Clause"
 authors = [
     { name = "lesleslie", email = "les@wedgwoodwebworks.com" },
 ]
@@ -32,7 +31,11 @@ dependencies = [
     "redis>=6.2",
 ]
 
-optional-dependencies.dev = [
+[project.license]
+text = "BSD-3-Clause"
+
+[project.optional-dependencies]
+dev = [
     "crackerjack>=0.20.20",
 ]
 
@@ -49,15 +52,18 @@ unsafe-fixes = true
 show-fixes = true
 output-format = "full"
 
-format.docstring-code-format = true
-lint.extend-select = [
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint]
+extend-select = [
     "C901",
     "D",
     "F",
     "I",
     "UP",
 ]
-lint.ignore = [
+ignore = [
     "D100",
     "D101",
     "D102",
@@ -69,15 +75,21 @@ lint.ignore = [
     "F821",
     "UP040",
 ]
-lint.fixable = [
+fixable = [
     "ALL",
 ]
-lint.unfixable = [  ]
-lint.isort.no-lines-before = [
+unfixable = []
+
+[tool.ruff.lint.isort]
+no-lines-before = [
     "first-party",
 ]
-lint.mccabe.max-complexity = 13
-lint.pydocstyle.convention = "google"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 13
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.codespell]
 skip = "*/data/*"
@@ -183,22 +195,22 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
-    "pytest-asyncio",
     "uv",
-    "tomli-w",
-    "pdm-bump",
-    "pyfiglet",
     "pytest-benchmark",
-    "pytest-mock",
-    "pytest-cov",
-    "pytest-xdist",
-    "pytest-timeout",
+    "pdm",
+    "pdm-bump",
     "pre-commit",
     "pyyaml",
     "google-crc32c",
+    "pytest-xdist",
+    "pytest-timeout",
+    "pytest-cov",
     "pytest",
     "autotyping",
-    "pdm",
+    "pytest-mock",
+    "pyfiglet",
+    "tomli-w",
+    "pytest-asyncio",
     "keyring",
 ]
 
@@ -211,15 +223,15 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
-    "B607",
-    "B403",
     "B311",
-    "B301",
+    "B404",
     "B704",
+    "B607",
+    "B602",
+    "B403",
     "B101",
     "B603",
-    "B404",
-    "B602",
+    "B301",
 ]
 
 [tool.vulture]
