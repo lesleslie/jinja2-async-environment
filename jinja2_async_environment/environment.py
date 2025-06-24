@@ -84,10 +84,10 @@ class AsyncEnvironment(Environment):
                 raise
 
     async def _async_yield_from(self, generator_func: t.Any) -> t.AsyncGenerator[str]:
-        try:
+        if hasattr(generator_func, "__aiter__"):
             async for event in generator_func:
                 yield event
-        except TypeError:
+        else:
             for event in generator_func:
                 yield event
 

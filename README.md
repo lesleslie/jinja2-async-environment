@@ -87,7 +87,7 @@ env = AsyncEnvironment(
 async def read_root(request: Request):
     # Get and render template asynchronously
     template = await env.get_template_async("index.html")
-    
+
     # Render with context variables
     content = await template.render_async(
         request=request,
@@ -206,7 +206,7 @@ async def setup_environment():
 async def render_template(env, template_name, **context_vars):
     # Get and render template asynchronously
     template = await env.get_template_async(template_name)
-    
+
     # Render with context variables
     return await template.render_async(**context_vars)
 ```
@@ -228,17 +228,17 @@ async def safe_template_execution():
         "user_template.html": "Hello {{ name }}! Your score is {{ score + 10 }}.",
         "unsafe_template.html": "{{ ''.__class__.__mro__[1].__subclasses__() }}"  # This will be blocked
     }
-    
+
     # Create a sandboxed environment
     sandbox_env = AsyncSandboxedEnvironment(
         loader=AsyncDictLoader(templates, AsyncPath("/sandbox"))
     )
-    
+
     # Safe template execution
     safe_template = await sandbox_env.get_template_async("user_template.html")
     result = await safe_template.render_async(name="Alice", score=85)
     print(result)  # Output: Hello Alice! Your score is 95.
-    
+
     # Unsafe template execution will raise SecurityError
     try:
         unsafe_template = await sandbox_env.get_template_async("unsafe_template.html")
