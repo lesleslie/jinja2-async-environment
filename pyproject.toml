@@ -1,17 +1,63 @@
+[build-system]
+build-backend = "pdm.backend"
+requires = [
+    "pdm-backend",
+]
+
+[project]
+name = "jinja2-async-environment"
+version = "0.12.0"
+description = ""
+readme = "README.md"
+license.text = "BSD-3-Clause"
+authors = [
+    { name = "lesleslie", email = "les@wedgwoodwebworks.com" },
+]
+requires-python = ">=3.13"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: AsyncIO",
+    "Framework :: FastAPI",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Typing :: Typed",
+]
+dependencies = [
+    "anyio>=4.9",
+    "jinja2>=3.1.6",
+    "redis>=6.2",
+]
+
+optional-dependencies.dev = [
+    "crackerjack>=0.20.20",
+]
+
+[tool.black]
+target-version = [
+    "py312",
+]
+
 [tool.ruff]
-line-length = 88
 target-version = "py313"
+line-length = 88
 fix = true
+unsafe-fixes = true
 show-fixes = true
 output-format = "full"
-unsafe-fixes = true
 
-[tool.ruff.format]
-docstring-code-format = true
-
-[tool.ruff.lint]
-ignore = [
-    "F821",
+format.docstring-code-format = true
+lint.extend-select = [
+    "C901",
+    "D",
+    "F",
+    "I",
+    "UP",
+]
+lint.ignore = [
     "D100",
     "D101",
     "D102",
@@ -20,108 +66,35 @@ ignore = [
     "D105",
     "D106",
     "D107",
+    "F821",
+    "UP040",
 ]
-extend-select = [
-    "I",
-    "C901",
-    "D",
+lint.fixable = [
+    "ALL",
 ]
-
-[tool.ruff.lint.isort]
-no-lines-before = [
+lint.unfixable = [  ]
+lint.isort.no-lines-before = [
     "first-party",
 ]
-
-[tool.ruff.lint.mccabe]
-max-complexity = 13
-
-[tool.ruff.lint.pydocstyle]
-convention = "google"
-
-[tool.black]
-target-version = [
-    "py312",
-]
-
-[tool.creosote]
-paths = [
-    "jinja2_async_environment",
-]
-deps-file = "pyproject.toml"
-exclude-deps = [
-    "pdm-bump",
-    "pre-commit",
-    "pyyaml",
-    "pyfiglet",
-    "tomli-w",
-    "pytest-timeout",
-    "pytest-asyncio",
-    "pytest-mock",
-    "pytest-cov",
-    "pdm",
-    "uv",
-    "google-crc32c",
-    "pytest",
-    "autotyping",
-]
-
-[tool.refurb]
-enable_all = true
-
-[tool.bandit]
-target = [
-    "jinja2_async_environment",
-]
-skips = [
-    "B403",
-    "B404",
-    "B311",
-    "B301",
-    "B607",
-    "B603",
-    "B602",
-    "B704",
-    "B101",
-]
-
-[tool.pyright]
-verboseOutput = true
-include = [
-    "jinja2_async_environment",
-]
-exclude = [
-    "scratch",
-]
-extraPaths = [
-    ".venv/lib/python3.13/site-packages/",
-]
-typeCheckingMode = "strict"
-reportMissingTypeStubs = false
-reportOptionalMemberAccess = false
-reportOptionalCall = false
-reportUnknownMemberType = false
-reportUnknownVariableType = false
-reportUnknownArgumentType = false
-reportInvalidTypeForm = false
-reportUnknownLambdaType = false
-reportUnknownParameterType = "warning"
-reportPrivateUsage = false
-pythonVersion = "3.13"
-pythonPlatform = "Darwin"
+lint.mccabe.max-complexity = 13
+lint.pydocstyle.convention = "google"
 
 [tool.codespell]
 skip = "*/data/*"
 quiet-level = 3
-ignore-words-list = "crate,uptodate"
+ignore-words-list = "crate,uptodate,nd"
+
+[tool.pyproject-fmt]
+column_width = 120
+indent = 4
 
 [tool.pytest.ini_options]
-addopts = "--cov=jinja2_async_environment --cov-report=term"
+asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 python_files = [
     "test_*.py",
     "*_test.py",
 ]
-asyncio_mode = "auto"
 testpaths = [
     "tests",
     "jinja2_async_environment",
@@ -132,15 +105,21 @@ python_classes = [
 python_functions = [
     "test_*",
 ]
+markers = [
+    "unit: marks test as a unit test",
+    "benchmark: mark test as a benchmark (disables parallel execution)",
+    "integration: marks test as an integration test",
+]
+timeout = 300
+timeout_method = "thread"
+addopts = "--cov=jinja2_async_environment --cov-report=term --cov-fail-under=42"
 
-[tool.vulture]
-min_confidence = 86
-paths = [
-    "jinja2_async_environment",
-]
-ignore_names = [
-    "cls",
-]
+[tool.pytest.benchmark]
+disable_gc = true
+warmup = false
+warmup_iterations = 0
+min_rounds = 1
+max_time = 5.0
 
 [tool.coverage.run]
 branch = false
@@ -174,42 +153,80 @@ exclude_also = [
 ]
 ignore_errors = false
 
-[project]
-name = "jinja2-async-environment"
-version = "0.11.8"
-description = ""
-dependencies = [
-    "jinja2>=3.1.6",
-    "redis>=6.0.0",
-    "anyio>=4.9.0",
+[tool.pyright]
+verboseOutput = true
+include = [
+    "jinja2_async_environment",
 ]
-requires-python = ">=3.13"
-readme = "README.md"
-authors = [
-    { name = "lesleslie", email = "les@wedgwoodwebworks.com" },
+exclude = [
+    "scratch",
 ]
-classifiers = [
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3.13",
-    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
-    "Operating System :: OS Independent",
-    "Framework :: FastAPI",
-    "Framework :: AsyncIO",
-    "Typing :: Typed",
-    "License :: OSI Approved :: BSD License",
-    "Development Status :: 4 - Beta",
+extraPaths = [
+    ".venv/lib/python3.13/site-packages/",
+]
+typeCheckingMode = "strict"
+reportMissingTypeStubs = false
+reportOptionalMemberAccess = false
+reportOptionalCall = false
+reportUnknownMemberType = false
+reportUnknownVariableType = false
+reportUnknownArgumentType = false
+reportInvalidTypeForm = false
+reportUnknownLambdaType = false
+reportUnknownParameterType = "warning"
+reportPrivateUsage = false
+pythonVersion = "3.13"
+
+[tool.creosote]
+paths = [
+    "jinja2_async_environment",
+]
+deps-file = "pyproject.toml"
+exclude-deps = [
+    "pytest-asyncio",
+    "uv",
+    "tomli-w",
+    "pdm-bump",
+    "pyfiglet",
+    "pytest-benchmark",
+    "pytest-mock",
+    "pytest-cov",
+    "pytest-xdist",
+    "pytest-timeout",
+    "pre-commit",
+    "pyyaml",
+    "google-crc32c",
+    "pytest",
+    "autotyping",
+    "pdm",
+    "keyring",
 ]
 
-[project.license]
-text = "BSD-3-Clause"
+[tool.refurb]
+enable_all = true
+quiet = true
 
-[project.optional-dependencies]
-dev = [
-    "crackerjack>=0.18.2",
+[tool.bandit]
+target = [
+    "jinja2_async_environment",
+]
+skips = [
+    "B607",
+    "B403",
+    "B311",
+    "B301",
+    "B704",
+    "B101",
+    "B603",
+    "B404",
+    "B602",
 ]
 
-[build-system]
-requires = [
-    "pdm-backend",
+[tool.vulture]
+min_confidence = 86
+paths = [
+    "jinja2_async_environment",
 ]
-build-backend = "pdm.backend"
+ignore_names = [
+    "cls",
+]

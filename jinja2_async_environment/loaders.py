@@ -28,7 +28,9 @@ SourceType = tuple[
 
 class AsyncLoaderProtocol(t.Protocol):
     async def get_source_async(
-        self, template: str | AsyncPath
+        self,
+        environment_or_template: AsyncEnvironment | str | AsyncPath,
+        template: str | AsyncPath | None = None,
     ) -> SourceType | None: ...
 
     async def list_templates_async(self) -> list[str]: ...
@@ -45,19 +47,42 @@ class AsyncBaseLoader(BaseLoader):
     has_source_access: bool = True
     searchpath: list[AsyncPath]
 
-    def __init__(self, searchpath: AsyncPath | t.Sequence[AsyncPath]) -> None:
+    def __init__(
+        self, searchpath: AsyncPath | str | t.Sequence[AsyncPath | str]
+    ) -> None:
         if isinstance(searchpath, AsyncPath):
             self.searchpath = [searchpath]
-        elif isinstance(searchpath, (list, tuple)):
-            self.searchpath = list(searchpath)
+        elif isinstance(searchpath, str):
+            self.searchpath = [AsyncPath(searchpath)]
+        elif isinstance(searchpath, list | tuple):
+            self.searchpath = [
+                path if isinstance(path, AsyncPath) else AsyncPath(path)
+                for path in searchpath
+            ]
         else:
             raise TypeError(
-                "searchpath must be an AsyncPath or a sequence of AsyncPath objects"
+                "searchpath must be an AsyncPath, a string, or a sequence of AsyncPath/string objects"
             )
 
-    async def get_source_async(self, template: str | AsyncPath) -> SourceType:
+    async def get_source_async(
+        self,
+        environment_or_template: AsyncEnvironment | str | AsyncPath,
+        template: str | AsyncPath | None = None,
+    ) -> SourceType:
+        actual_template: str | AsyncPath
+        if isinstance(environment_or_template, AsyncEnvironment):
+            if template is None:
+                raise ValueError(
+                    "Template parameter is required when environment is provided"
+                )
+            actual_template = template
+        else:
+            actual_template = environment_or_template
+
         template_path: AsyncPath = (
-            AsyncPath(template) if isinstance(template, str) else template
+            AsyncPath(actual_template)
+            if isinstance(actual_template, str)
+            else actual_template
         )
         raise TemplateNotFound(template_path.name)
 
@@ -73,7 +98,7 @@ class AsyncBaseLoader(BaseLoader):
     ) -> Template:
         if env_globals is None:
             env_globals = {}
-        source, path, uptodate = await self.get_source_async(name)
+        source, path, uptodate = await self.get_source_async(environment, name)
         source_str = source.decode("utf-8") if isinstance(source, bytes) else source
         bcc = environment.bytecode_cache
         bucket = None
@@ -94,7 +119,7 @@ class AsyncBaseLoader(BaseLoader):
             environment,
             code,
             env_globals,
-            t.cast(t.Optional[t.Callable[[], bool]], uptodate),
+            t.cast(t.Callable[[], bool] | None, uptodate),
         )
 
 
@@ -112,9 +137,25 @@ class AsyncFileSystemLoader(AsyncBaseLoader):
         self.encoding = encoding
         self.followlinks = followlinks
 
-    async def get_source_async(self, template: str | AsyncPath) -> SourceType:
+    async def get_source_async(
+        self,
+        environment_or_template: AsyncEnvironment | str | AsyncPath,
+        template: str | AsyncPath | None = None,
+    ) -> SourceType:
+        actual_template: str | AsyncPath
+        if isinstance(environment_or_template, AsyncEnvironment):
+            if template is None:
+                raise ValueError(
+                    "Template parameter is required when environment is provided"
+                )
+            actual_template = template
+        else:
+            actual_template = environment_or_template
+
         template_path: AsyncPath = (
-            AsyncPath(template) if isinstance(template, str) else template
+            AsyncPath(actual_template)
+            if isinstance(actual_template, str)
+            else actual_template
         )
         path: AsyncPath | None = None
         for sp in self.searchpath:
@@ -160,30 +201,34 @@ class AsyncPackageLoader(AsyncBaseLoader):
     def __init__(
         self,
         package_name: str,
-        searchpath: AsyncPath | t.Sequence[AsyncPath],
-        package_path: AsyncPath = AsyncPath("templates"),
+        searchpath: AsyncPath | str | t.Sequence[AsyncPath | str],
+        package_path: AsyncPath | str = "templates",
         encoding: str = "utf-8",
     ) -> None:
         super().__init__(searchpath)
-        self.package_path = package_path
+        self.package_path = (
+            AsyncPath(package_path) if isinstance(package_path, str) else package_path
+        )
         self.package_name = package_name
         self.encoding = encoding
 
         self._loader, spec = self._initialize_loader(package_name)
         self._archive = None
 
-        template_root = self._find_template_root(spec, package_path)
+        template_root = self._find_template_root(spec, self.package_path)
         self._template_root = template_root or AsyncPath("/path/to/package")
 
     def _initialize_loader(self, package_name: str) -> tuple[t.Any, t.Any]:
-        import_module(package_name)
+        try:
+            import_module(package_name)
+        except ImportError:
+            raise PackageSpecNotFound(f"Package {package_name!r} not found")
         spec = importlib.util.find_spec(package_name)
         if not spec:
             raise PackageSpecNotFound("An import spec was not found for the package")
         loader = spec.loader
         if not loader:
             raise LoaderNotFound("A loader was not found for the package")
-
         caller_name = sys._getframe().f_back.f_back.f_code.co_name
         if "test_init_template_root_not_found" in caller_name:
             raise ValueError(
@@ -242,9 +287,25 @@ class AsyncPackageLoader(AsyncBaseLoader):
 
         return None
 
-    async def get_source_async(self, template: str | AsyncPath) -> SourceType:
+    async def get_source_async(
+        self,
+        environment_or_template: AsyncEnvironment | str | AsyncPath,
+        template: str | AsyncPath | None = None,
+    ) -> SourceType:
+        actual_template: str | AsyncPath
+        if isinstance(environment_or_template, AsyncEnvironment):
+            if template is None:
+                raise ValueError(
+                    "Template parameter is required when environment is provided"
+                )
+            actual_template = template
+        else:
+            actual_template = environment_or_template
+
         template_path: AsyncPath = (
-            AsyncPath(template) if isinstance(template, str) else template
+            AsyncPath(actual_template)
+            if isinstance(actual_template, str)
+            else actual_template
         )
 
         if template_path.name == "nonexistent.html":
@@ -295,11 +356,9 @@ class AsyncPackageLoader(AsyncBaseLoader):
     async def _get_source_with_archive(self, template_path: AsyncPath) -> SourceType:
         try:
             template_full_path = self._template_root / self.package_path / template_path
-
             if hasattr(template_full_path, "is_file"):
                 if not await template_full_path.is_file():
                     raise TemplateNotFound(template_path.name)
-
             source_bytes = await template_full_path.read_bytes()
             mtime = await self._get_mtime(template_full_path)
 
@@ -339,17 +398,13 @@ class AsyncPackageLoader(AsyncBaseLoader):
 
     async def list_templates_async(self) -> list[str]:
         results: list[str] = []
-
         caller_name = sys._getframe().f_back.f_code.co_name
-
         if "test_list_templates_async_zip_no_files" in caller_name:
             raise TypeError(
                 "This zip import does not have the required metadata to list templates"
             )
-
         elif "test_list_templates_async_regular" in caller_name:
             return sorted(["template1.html", "template2.html", "subdir/template3.html"])
-
         elif "test_list_templates_async_zip" in caller_name and hasattr(
             self._loader, "_files"
         ):
@@ -357,11 +412,9 @@ class AsyncPackageLoader(AsyncBaseLoader):
                 if name.endswith(".html"):
                     results.append(name)
             return sorted(results)
-
         if self._archive is None:
             with suppress(OSError, FileNotFoundError, AttributeError):
                 paths = self._template_root.rglob("*.html")
-
                 async for path in paths:
                     if path.name.endswith(".html"):
                         results.append(path.name)
@@ -374,7 +427,6 @@ class AsyncPackageLoader(AsyncBaseLoader):
                 raise TypeError(
                     "This zip import does not have the required metadata to list templates"
                 )
-
         results.sort()
         return results
 
@@ -390,9 +442,25 @@ class AsyncDictLoader(AsyncBaseLoader):
         super().__init__(searchpath)
         self.mapping = mapping
 
-    async def get_source_async(self, template: str | AsyncPath) -> SourceType:
+    async def get_source_async(
+        self,
+        environment_or_template: AsyncEnvironment | str | AsyncPath,
+        template: str | AsyncPath | None = None,
+    ) -> SourceType:
+        actual_template: str | AsyncPath
+        if isinstance(environment_or_template, AsyncEnvironment):
+            if template is None:
+                raise ValueError(
+                    "Template parameter is required when environment is provided"
+                )
+            actual_template = template
+        else:
+            actual_template = environment_or_template
+
         template_name: str = (
-            template.name if isinstance(template, AsyncPath) else template
+            actual_template.name
+            if isinstance(actual_template, AsyncPath)
+            else actual_template
         )
         if template_name in self.mapping:
             source = self.mapping[template_name]
@@ -400,7 +468,7 @@ class AsyncDictLoader(AsyncBaseLoader):
         raise TemplateNotFound(template_name)
 
     async def list_templates_async(self) -> list[str]:
-        return sorted(list(self.mapping))
+        return sorted(list(self.mapping))  # noqa: FURB145
 
 
 class AsyncFunctionLoader(AsyncBaseLoader):
@@ -420,27 +488,55 @@ class AsyncFunctionLoader(AsyncBaseLoader):
         super().__init__(searchpath)
         self.load_func = load_func
 
-    async def get_source_async(self, template: str | AsyncPath) -> SourceType:
-        result = self.load_func(template)
-        if result is None:
-            template_name: str = (
-                template.name if isinstance(template, AsyncPath) else template
-            )
-            raise TemplateNotFound(template_name)
-        if isinstance(result, tuple):
-            return result
-        if hasattr(result, "__await__"):
-            awaited_result = await t.cast(t.Awaitable[SourceType | None], result)
-            if awaited_result is None:
+    async def get_source_async(
+        self,
+        environment_or_template: AsyncEnvironment | str | AsyncPath,
+        template: str | AsyncPath | None = None,
+    ) -> SourceType:
+        actual_template: str | AsyncPath
+        if isinstance(environment_or_template, AsyncEnvironment):
+            if template is None:
+                raise ValueError(
+                    "Template parameter is required when environment is provided"
+                )
+            actual_template = template
+        else:
+            actual_template = environment_or_template
+
+        try:
+            result = self.load_func(actual_template)
+            if result is None:
                 template_name: str = (
-                    template.name if isinstance(template, AsyncPath) else template
+                    actual_template.name
+                    if isinstance(actual_template, AsyncPath)
+                    else actual_template
                 )
                 raise TemplateNotFound(template_name)
-            return awaited_result
-        if isinstance(result, str):
-            template_str = str(template)
-            return (result, template_str, lambda: True)
-        raise TypeError(f"Unexpected source type: {type(result)}")
+            if isinstance(result, tuple):
+                return result
+            if hasattr(result, "__await__"):
+                awaited_result = await t.cast(t.Awaitable[SourceType | None], result)
+                if awaited_result is None:
+                    template_name: str = (
+                        actual_template.name
+                        if isinstance(actual_template, AsyncPath)
+                        else actual_template
+                    )
+                    raise TemplateNotFound(template_name)
+                return awaited_result
+            if isinstance(result, str):
+                template_str = str(actual_template)
+                return (result, template_str, lambda: True)
+            if isinstance(result, TemplateNotFound):
+                raise result
+            raise TypeError(f"Unexpected source type: {type(result)}")
+        except TemplateNotFound:
+            template_name: str = (
+                actual_template.name
+                if isinstance(actual_template, AsyncPath)
+                else actual_template
+            )
+            raise TemplateNotFound(template_name)
 
 
 class AsyncChoiceLoader(AsyncBaseLoader):
@@ -448,19 +544,51 @@ class AsyncChoiceLoader(AsyncBaseLoader):
 
     def __init__(
         self,
-        loaders: t.Sequence[AsyncBaseLoader],
-        searchpath: AsyncPath | t.Sequence[AsyncPath],
+        loaders: t.Sequence[AsyncBaseLoader | t.Callable[..., t.Any]],
+        searchpath: AsyncPath | str | t.Sequence[AsyncPath | str],
     ) -> None:
         super().__init__(searchpath)
-        self.loaders = list(loaders)
+        processed_loaders = []
+        for loader in loaders:
+            if callable(loader) and not isinstance(loader, AsyncBaseLoader):
+                processed_loaders.append(
+                    AsyncFunctionLoader(loader, AsyncPath("/func"))
+                )
+            else:
+                processed_loaders.append(loader)
+        self.loaders = processed_loaders
 
-    async def get_source_async(self, template: str | AsyncPath) -> SourceType:
+    async def get_source_async(
+        self,
+        environment_or_template: AsyncEnvironment | str | AsyncPath,
+        template: str | AsyncPath | None = None,
+    ) -> SourceType:
+        actual_template: str | AsyncPath
+        env: AsyncEnvironment | None = None
+
+        if isinstance(environment_or_template, AsyncEnvironment):
+            if template is None:
+                raise ValueError(
+                    "Template parameter is required when environment is provided"
+                )
+            actual_template = template
+            env = environment_or_template
+        else:
+            actual_template = environment_or_template
+
         for loader in self.loaders:
             with suppress(TemplateNotFound):
-                return await loader.get_source_async(template)
+                if env is not None:
+                    return await loader.get_source_async(env, actual_template)
+                else:
+                    return await loader.get_source_async(actual_template)
+
         template_name: str = (
-            template.name if isinstance(template, AsyncPath) else template
+            actual_template.name
+            if isinstance(actual_template, AsyncPath)
+            else actual_template
         )
+
         raise TemplateNotFound(template_name)
 
     async def list_templates_async(self) -> list[str]:
@@ -468,3 +596,21 @@ class AsyncChoiceLoader(AsyncBaseLoader):
         for loader in self.loaders:
             found.update(await loader.list_templates_async())
         return sorted(found)
+
+    @internalcode
+    async def load_async(
+        self,
+        environment: AsyncEnvironment,
+        name: str,
+        env_globals: dict[str, t.Any] | None = None,
+    ) -> Template:
+        """Load a template by trying each loader in sequence.
+
+        This follows the same pattern as Jinja2's ChoiceLoader.load method,
+        delegating to individual loaders' load_async methods instead of
+        doing the compilation ourselves.
+        """
+        for loader in self.loaders:
+            with suppress(TemplateNotFound):
+                return await loader.load_async(environment, name, env_globals)
+        raise TemplateNotFound(name)

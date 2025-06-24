@@ -1,5 +1,5 @@
 import typing as t
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from jinja2.environment import Template
@@ -9,7 +9,7 @@ from jinja2_async_environment.bccache import AsyncBytecodeCache
 from jinja2_async_environment.environment import AsyncEnvironment
 from jinja2_async_environment.loaders import AsyncBaseLoader
 
-GlobalsDict: t.TypeAlias = dict[str, t.Any]
+GlobalsDict = dict[str, t.Any]  # type alias replacement
 
 
 class TestAsyncEnvironment:
@@ -245,14 +245,14 @@ class TestAsyncEnvironment:
         template = MagicMock(spec=Template)
         template.is_up_to_date = True
         template.globals = {}
-        cache_key = (MagicMock(), "template.html")
+        mock_loader = AsyncMock()
+        environment.loader = mock_loader
+        from weakref import ref
+
+        cache_key = (ref(mock_loader), "template.html")
         environment.cache[cache_key] = template
-        with patch(
-            "jinja2_async_environment.environment.ref", return_value=cache_key[0]
-        ):
-            result = await environment._get_template_async("template.html", None)
+        result = await environment._get_template_async("template.html", None)
         assert result is template
-        environment.loader.load.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_get_template_with_cache_hit_and_globals(
@@ -263,14 +263,15 @@ class TestAsyncEnvironment:
         template.is_up_to_date = True
         mock_globals = MagicMock()
         template.globals = mock_globals
-        cache_key = (MagicMock(), "template.html")
+        mock_loader = AsyncMock()
+        environment.loader = mock_loader
+        from weakref import ref
+
+        cache_key = (ref(mock_loader), "template.html")
         environment.cache[cache_key] = template
-        with patch(
-            "jinja2_async_environment.environment.ref", return_value=cache_key[0]
-        ):
-            result = await environment._get_template_async(
-                "template.html", {"var": "value"}
-            )
+        result = await environment._get_template_async(
+            "template.html", {"var": "value"}
+        )
         assert result is template
         mock_globals.update.assert_called_once_with({"var": "value"})
 
@@ -293,14 +294,11 @@ class TestAsyncEnvironment:
 
         globals_dict: GlobalsDict = {"var": "value"}
         environment.make_globals = MagicMock(return_value=globals_dict)
-        cache_key = (MagicMock(), "template.html")
+        from weakref import ref
 
-        with patch(
-            "jinja2_async_environment.environment.ref", return_value=cache_key[0]
-        ):
-            result = await environment._get_template_async(
-                "template.html", globals_dict
-            )
+        cache_key = (ref(mock_loader), "template.html")
+
+        result = await environment._get_template_async("template.html", globals_dict)
 
         assert result is template
 

@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import MagicMock
 
 import pytest
 from jinja2 import Environment
@@ -26,21 +26,14 @@ class TestAsyncBytecodeCache:
 
     @pytest.mark.asyncio
     async def test_not_implemented_methods(self) -> None:
-        cache = MagicMock(spec=AsyncBytecodeCache)
+        cache = AsyncBytecodeCache()
         bucket = MagicMock(spec=Bucket)
-        environment = MagicMock(spec=Environment)
-        cache.get_bucket_name.side_effect = NotImplementedError
-        cache.load_bytecode = AsyncMock(side_effect=NotImplementedError)
-        cache.dump_bytecode = AsyncMock(side_effect=NotImplementedError)
-        cache.get_bucket = AsyncMock(side_effect=NotImplementedError)
-        cache.set_bucket = AsyncMock(side_effect=NotImplementedError)
+        MagicMock(spec=Environment)
+
+        # Test methods that should raise NotImplementedError
         with pytest.raises(NotImplementedError):
-            cache.get_bucket_name("key")
+            cache.load_bytecode(bucket)
         with pytest.raises(NotImplementedError):
-            await cache.load_bytecode(bucket)
+            cache.dump_bytecode(bucket)
         with pytest.raises(NotImplementedError):
-            await cache.dump_bytecode(bucket)
-        with pytest.raises(NotImplementedError):
-            await cache.get_bucket(environment, "name", "filename", "source")
-        with pytest.raises(NotImplementedError):
-            await cache.set_bucket(bucket)
+            cache.clear()

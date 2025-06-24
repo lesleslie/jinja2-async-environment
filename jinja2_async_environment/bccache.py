@@ -17,20 +17,39 @@ class AsyncBytecodeCache(BytecodeCache):
             "AsyncBytecodeCache.dump_bytecode must be implemented."
         )
 
-    def get_bucket_name(self, key: str) -> str:
-        raise NotImplementedError("get_bucket_name must be implemented.")
+    def clear(self) -> None:
+        raise NotImplementedError("AsyncBytecodeCache.clear must be implemented.")
+
+    def get_cache_key(
+        self, name: str, filename: str | None = None, env: Environment | None = None
+    ) -> str:
+        """Return the cache key for the template name and filename.
+
+        This method is used to generate a unique key for caching compiled templates.
+        """
+        return f"{name}:{filename or name}"
+
+    def get_source_checksum(self, source: str) -> str:
+        import hashlib
+
+        return hashlib.md5(source.encode(), usedforsecurity=False).hexdigest()
 
     async def get_bucket_async(
         self, environment: Environment, name: str, filename: str | None, source: str
     ) -> Bucket:
-        raise NotImplementedError(
-            "AsyncBytecodeCache.get_bucket_async must be implemented."
-        )
+        """Return a cache bucket for the given template.
+
+        This method creates a new bucket with the given parameters and loads
+        any existing bytecode from the cache.
+        """
+        key = self.get_cache_key(name, filename, environment)
+        checksum = self.get_source_checksum(source)
+        bucket = Bucket(environment, key, checksum)
+        self.load_bytecode(bucket)
+        return bucket
 
     async def set_bucket_async(self, bucket: Bucket) -> None:
-        raise NotImplementedError(
-            "AsyncBytecodeCache.set_bucket_async must be implemented."
-        )
+        self.dump_bytecode(bucket)
 
 
 class AsyncRedisBytecodeCache(AsyncBytecodeCache):
@@ -48,7 +67,9 @@ class AsyncRedisBytecodeCache(AsyncBytecodeCache):
         self.client = client or Redis(**configs)
         self.configs = MappingProxyType(configs)
 
-    def get_cache_key(self, name: str, filename: str | None = None) -> str:
+    def get_cache_key(
+        self, name: str, filename: str | None = None, env: Environment | None = None
+    ) -> str:
         return filename or name
 
     def get_source_checksum(self, source: str) -> str:
@@ -57,7 +78,7 @@ class AsyncRedisBytecodeCache(AsyncBytecodeCache):
     def get_bucket_name(self, key: str) -> str:
         return f"{self.prefix}:{key}" if self.prefix else key
 
-    async def load_bytecode(self, bucket: Bucket) -> t.Optional[bytes]:  # type: ignore[override]
+    async def load_bytecode(self, bucket: Bucket) -> bytes | None:  # type: ignore[override]
         code = await self.client.get(self.get_bucket_name(bucket.key))  # type: ignore
         if code:
             bucket.bytecode_from_string(code)

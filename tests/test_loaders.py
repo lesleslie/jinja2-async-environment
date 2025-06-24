@@ -18,7 +18,7 @@ class TestAsyncBaseLoader:
         path = AsyncPath("/templates")
         loader = AsyncBaseLoader(path)
         searchpath = loader.searchpath
-        assert isinstance(searchpath, (list, tuple))
+        assert isinstance(searchpath, list | tuple)
         assert len(searchpath) == 1
         assert searchpath[0] == path
 
@@ -26,7 +26,7 @@ class TestAsyncBaseLoader:
         paths = [AsyncPath("/templates1"), AsyncPath("/templates2")]
         loader = AsyncBaseLoader(paths)
         searchpath = loader.searchpath
-        assert isinstance(searchpath, (list, tuple))
+        assert isinstance(searchpath, list | tuple)
         assert len(searchpath) == 2
         assert searchpath.copy() == paths
 
@@ -50,7 +50,7 @@ class TestAsyncBaseLoader:
                 AsyncEnvironment,
                 str,
                 dict[str, t.Any],
-                t.Optional[t.Callable[[], bool]],
+                t.Callable[[], bool] | None,
             ]
         ] = []
 

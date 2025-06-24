@@ -1,5 +1,5 @@
 from .bccache import AsyncRedisBytecodeCache
-from .environment import AsyncEnvironment
+from .environment import AsyncEnvironment, AsyncSandboxedEnvironment
 from .loaders import (
     AsyncBaseLoader,
     AsyncChoiceLoader,
@@ -11,6 +11,7 @@ from .loaders import (
 
 __all__: list[str] = [
     "AsyncEnvironment",
+    "AsyncSandboxedEnvironment",
     "AsyncBaseLoader",
     "AsyncFunctionLoader",
     "AsyncFileSystemLoader",

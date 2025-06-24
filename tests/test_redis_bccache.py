@@ -32,7 +32,7 @@ class TestAsyncRedisBytecodeCache:
         cache = AsyncRedisBytecodeCache(prefix="test:", client=mock_redis_client)
         assert cache.prefix == "test:"
         assert cache.client is mock_redis_client
-        assert len(cache.configs) == 0
+        assert not cache.configs
 
     def test_init_with_configs(self) -> None:
         with patch("jinja2_async_environment.bccache.Redis") as mock_redis:
