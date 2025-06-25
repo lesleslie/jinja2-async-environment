@@ -44,12 +44,11 @@ pip install jinja2-async-environment
 import asyncio
 from jinja2_async_environment.environment import AsyncEnvironment
 from jinja2_async_environment.loaders import AsyncFileSystemLoader
-from anyio import Path as AsyncPath
 
 async def render_template():
     # Create an async environment with a filesystem loader
     env = AsyncEnvironment(
-        loader=AsyncFileSystemLoader(AsyncPath('templates'))
+        loader=AsyncFileSystemLoader('templates')
     )
 
     # Load and render a template asynchronously
@@ -73,13 +72,12 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from jinja2_async_environment.environment import AsyncEnvironment
 from jinja2_async_environment.loaders import AsyncFileSystemLoader
-from anyio import Path as AsyncPath
 
 app = FastAPI()
 
 # Initialize the async environment once at startup
 env = AsyncEnvironment(
-    loader=AsyncFileSystemLoader(AsyncPath('templates')),
+    loader=AsyncFileSystemLoader('templates'),
     autoescape=True
 )
 
@@ -106,11 +104,10 @@ from starlette.responses import HTMLResponse
 from starlette.routing import Route
 from jinja2_async_environment.environment import AsyncEnvironment
 from jinja2_async_environment.loaders import AsyncFileSystemLoader
-from anyio import Path as AsyncPath
 
 # Initialize the async environment once at startup
 env = AsyncEnvironment(
-    loader=AsyncFileSystemLoader(AsyncPath('templates')),
+    loader=AsyncFileSystemLoader('templates'),
     autoescape=True
 )
 
@@ -145,20 +142,19 @@ from jinja2_async_environment.loaders import (
     AsyncFunctionLoader,
     AsyncChoiceLoader
 )
-from anyio import Path as AsyncPath
 
 # Load templates from filesystem
-fs_loader = AsyncFileSystemLoader(AsyncPath('templates'))
+fs_loader = AsyncFileSystemLoader('templates')
 
 # Load templates from a Python package
-package_loader = AsyncPackageLoader('your_package', AsyncPath('templates'))
+package_loader = AsyncPackageLoader('your_package', 'templates')
 
 # Load templates from a dictionary
 templates_dict = {
     'hello.html': '<h1>Hello {{ name }}!</h1>',
     'goodbye.html': '<p>Goodbye {{ name }}.</p>'
 }
-dict_loader = AsyncDictLoader(templates_dict, AsyncPath('/virtual'))
+dict_loader = AsyncDictLoader(templates_dict, '/virtual')
 
 # Load templates using a custom async function
 async def load_template(name):
@@ -166,7 +162,7 @@ async def load_template(name):
     with open(f'templates/{name}', 'r') as f:
         return f.read(), f'templates/{name}', lambda: True
 
-function_loader = AsyncFunctionLoader(load_template, AsyncPath('templates'))
+function_loader = AsyncFunctionLoader(load_template, 'templates')
 
 # Create a loader that tries multiple sources in order
 choice_loader = AsyncChoiceLoader([
@@ -186,7 +182,6 @@ from jinja2_async_environment.environment import AsyncEnvironment
 from jinja2_async_environment.loaders import AsyncFileSystemLoader
 from jinja2_async_environment.bccache import AsyncRedisBytecodeCache
 import redis.asyncio as redis
-from anyio import Path as AsyncPath
 
 async def setup_environment():
     # Create a Redis client
@@ -197,7 +192,7 @@ async def setup_environment():
 
     # Create environment with caching
     env = AsyncEnvironment(
-        loader=AsyncFileSystemLoader(AsyncPath('templates')),
+        loader=AsyncFileSystemLoader('templates'),
         bytecode_cache=bytecode_cache
     )
 
@@ -220,7 +215,6 @@ import asyncio
 from jinja2.exceptions import SecurityError
 from jinja2_async_environment.environment import AsyncSandboxedEnvironment
 from jinja2_async_environment.loaders import AsyncDictLoader
-from anyio import Path as AsyncPath
 
 async def safe_template_execution():
     # Create templates that might contain untrusted content
@@ -231,7 +225,7 @@ async def safe_template_execution():
 
     # Create a sandboxed environment
     sandbox_env = AsyncSandboxedEnvironment(
-        loader=AsyncDictLoader(templates, AsyncPath("/sandbox"))
+        loader=AsyncDictLoader(templates, "/sandbox")
     )
 
     # Safe template execution

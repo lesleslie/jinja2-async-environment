@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "jinja2-async-environment"
-version = "0.12.3"
+version = "0.12.4"
 description = ""
 readme = "README.md"
 license.text = "BSD-3-Clause"
@@ -183,23 +183,23 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
+    "pytest-mock",
+    "keyring",
+    "pdm-bump",
+    "pdm",
     "pyyaml",
+    "pytest-timeout",
+    "pytest",
     "pre-commit",
     "pyfiglet",
-    "pytest-mock",
-    "autotyping",
-    "tomli-w",
-    "uv",
-    "pdm-bump",
-    "pytest",
-    "pytest-asyncio",
-    "pytest-xdist",
-    "google-crc32c",
-    "keyring",
-    "pdm",
-    "pytest-benchmark",
     "pytest-cov",
-    "pytest-timeout",
+    "google-crc32c",
+    "tomli-w",
+    "pytest-xdist",
+    "pytest-benchmark",
+    "pytest-asyncio",
+    "uv",
+    "autotyping",
 ]
 
 [tool.refurb]
@@ -211,15 +211,15 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
-    "B704",
-    "B403",
-    "B602",
-    "B603",
-    "B607",
-    "B301",
-    "B311",
     "B404",
     "B101",
+    "B602",
+    "B301",
+    "B704",
+    "B607",
+    "B311",
+    "B403",
+    "B603",
 ]
 
 [tool.vulture]

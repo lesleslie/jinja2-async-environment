@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.12.0] - 2024-12-XX
+## [0.12.0] - 2025-06-25
 
 ### Added
 - Added comprehensive test coverage across all modules
@@ -12,6 +12,7 @@
 ### Fixed
 - Fixed `NameError: name 'escape' is not defined` error by adding the escape filter to the AsyncCodeGenerator
 - Added import for `escape` from `markupsafe` in compiler.py
+- Fixed AsyncFileSystemLoader to accept string paths and convert them to AsyncPath objects automatically
 - Fixed refurb linting issues across the codebase
 - Fixed cache key format issues in tests using weak references
 - Fixed async mocking issues in test suites
@@ -19,8 +20,9 @@
 
 ### Changed
 - Updated dependency from `aiopath` to `anyio>=4.9`
+- **BREAKING CHANGE**: AsyncPath imports are now optional - all loaders accept string paths directly
 - Improved code style and consistency with refurb suggestions
-- Enhanced documentation with correct API usage examples
+- Enhanced documentation with updated API usage examples showing string path support
 - Updated Python requirement to 3.13+
 
 ### Improved
