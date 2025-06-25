@@ -45,6 +45,34 @@ async def mock_storage() -> AsyncIterator[MockStorage]:
 
 
 @pytest.mark.asyncio
+async def test_async_filesystem_loader_string_path_initialization() -> None:
+    """Test that AsyncFileSystemLoader accepts string paths (Issue #3)."""
+    # Test single string path
+    loader1 = AsyncFileSystemLoader("templates")
+    assert len(loader1.searchpath) == 1
+    assert isinstance(loader1.searchpath[0], AsyncPath)
+    assert str(loader1.searchpath[0]) == "templates"
+
+    # Test sequence of string paths
+    loader2 = AsyncFileSystemLoader(["templates", "other_templates"])
+    assert len(loader2.searchpath) == 2
+    assert all(isinstance(p, AsyncPath) for p in loader2.searchpath)
+    assert str(loader2.searchpath[0]) == "templates"
+    assert str(loader2.searchpath[1]) == "other_templates"
+
+    # Test mixed string and AsyncPath objects
+    loader3 = AsyncFileSystemLoader(["templates", AsyncPath("async_templates")])
+    assert len(loader3.searchpath) == 2
+    assert all(isinstance(p, AsyncPath) for p in loader3.searchpath)
+    assert str(loader3.searchpath[0]) == "templates"
+    assert str(loader3.searchpath[1]) == "async_templates"
+
+    # Test invalid type should raise TypeError with helpful message
+    with pytest.raises(TypeError, match="searchpath must be.*AsyncPath.*string"):
+        AsyncFileSystemLoader(123)  # type: ignore[arg-type]
+
+
+@pytest.mark.asyncio
 async def test_async_filesystem_loader_error_handling() -> None:
     """Test error handling in AsyncFileSystemLoader."""
     # Test with a non-existent directory
@@ -222,3 +250,38 @@ async def test_async_dict_loader_with_prefix() -> None:
 
     # Verify the source
     assert source == "content with prefix"
+
+
+@pytest.mark.asyncio
+async def test_async_filesystem_loader_list_templates() -> None:
+    """Test AsyncFileSystemLoader's list_templates_async method with directory structure."""
+    with (
+        patch("anyio.Path.rglob") as mock_rglob,
+        patch("anyio.Path.is_file") as mock_is_file,
+    ):
+        # Create a mock for the rglob method to return a list of paths
+        mock_paths = [
+            AsyncPath("/templates/template1.html"),
+            AsyncPath("/templates/subdir/template2.html"),
+            AsyncPath("/templates/subdir/nested/template3.html"),
+        ]
+
+        # Setup the mock to return an async iterator
+        async def mock_async_iter():
+            for path in mock_paths:
+                yield path
+
+        mock_rglob.return_value = mock_async_iter()
+        mock_is_file.return_value = True
+
+        # Create a loader with the mock searchpath
+        loader = AsyncFileSystemLoader(AsyncPath("/templates"))
+
+        # Test list_templates_async
+        templates = await loader.list_templates_async()
+
+        # Verify the templates list contains the expected relative paths
+        assert "template1.html" in templates
+        assert "subdir/template2.html" in templates
+        assert "subdir/nested/template3.html" in templates
+        assert len(templates) == 3

@@ -129,7 +129,7 @@ class AsyncFileSystemLoader(AsyncBaseLoader):
 
     def __init__(
         self,
-        searchpath: AsyncPath | t.Sequence[AsyncPath],
+        searchpath: AsyncPath | str | t.Sequence[AsyncPath | str],
         encoding: str = "utf-8",
         followlinks: bool = False,
     ) -> None:
@@ -186,7 +186,16 @@ class AsyncFileSystemLoader(AsyncBaseLoader):
     async def list_templates_async(self) -> list[str]:
         results: set[str] = set()
         for sp in self.searchpath:
-            results.update({str(p) async for p in sp.rglob("*.html")})
+            async for p in sp.rglob("*.html"):
+                if await p.is_file():
+                    try:
+                        p_str = str(p)
+                        sp_str = str(sp)
+                        if p_str.startswith(sp_str):
+                            rel_path = p_str[len(sp_str) :].lstrip("/")
+                            results.add(rel_path)
+                    except (ValueError, OSError):
+                        continue
         return sorted(results)
 
 
