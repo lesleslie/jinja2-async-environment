@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "jinja2-async-environment"
-version = "0.12.4"
+version = "0.13.0"
 description = ""
 readme = "README.md"
 license.text = "BSD-3-Clause"
@@ -33,7 +33,7 @@ dependencies = [
 ]
 
 optional-dependencies.dev = [
-    "crackerjack>=0.20.20",
+    "crackerjack>=0.21.3",
 ]
 
 [tool.black]
@@ -66,6 +66,7 @@ lint.ignore = [
     "D105",
     "D106",
     "D107",
+    "E402",
     "F821",
     "UP040",
 ]
@@ -183,23 +184,25 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
-    "pytest-mock",
-    "keyring",
-    "pdm-bump",
-    "pdm",
-    "pyyaml",
-    "pytest-timeout",
-    "pytest",
-    "pre-commit",
-    "pyfiglet",
-    "pytest-cov",
-    "google-crc32c",
+    "pydantic-settings",
     "tomli-w",
-    "pytest-xdist",
+    "pdm-bump",
     "pytest-benchmark",
-    "pytest-asyncio",
+    "keyring",
+    "inflection",
+    "pdm",
+    "pytest-xdist",
+    "pytest-cov",
+    "pytest",
+    "pyyaml",
     "uv",
+    "pytest-timeout",
     "autotyping",
+    "pytest-asyncio",
+    "pyfiglet",
+    "pre-commit",
+    "google-crc32c",
+    "pytest-mock",
 ]
 
 [tool.refurb]
@@ -211,15 +214,15 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
-    "B404",
-    "B101",
-    "B602",
-    "B301",
-    "B704",
     "B607",
-    "B311",
-    "B403",
     "B603",
+    "B301",
+    "B403",
+    "B311",
+    "B101",
+    "B704",
+    "B602",
+    "B404",
 ]
 
 [tool.vulture]

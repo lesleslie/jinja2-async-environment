@@ -72,7 +72,7 @@ def test_async_code_generator_init() -> None:
     assert generator.extends_so_far == 0
     assert not generator.has_known_extends
     assert not generator.has_super
-    assert generator.buffer is None
+    assert callable(generator.buffer)  # buffer is now the inherited method
     assert generator.last_identifier == 0
     assert not generator.identifiers
     assert not generator.import_aliases

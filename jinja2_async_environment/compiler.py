@@ -60,7 +60,9 @@ class AsyncFrame(Frame):
         return rv
 
     def inspect(self, nodes: t.Any | None = None) -> None:
-        pass
+        if nodes:
+            for node in nodes:
+                self.symbols.analyze_node(node)
 
     def push_scope(self) -> None:
         pass
@@ -85,7 +87,6 @@ class AsyncCodeGenerator(CodeGenerator):
     root_frame_class: type[AsyncFrame] = AsyncFrame
     eval_ctx: t.Any = None
     is_async: bool = True
-    buffer: t.Any = None
     last_identifier: int = 0
     identifiers: dict[str, t.Any] = {}
     import_aliases: dict[str, t.Any] = {}
@@ -93,6 +94,7 @@ class AsyncCodeGenerator(CodeGenerator):
     extends_buffer: t.Any = None
     required_blocks: set[str] = set()
     has_super: bool = False
+    macro_frames: list[AsyncFrame] = []
 
     def __init__(
         self, environment: t.Any, name: str, filename: str, defer_init: bool = False
@@ -103,7 +105,6 @@ class AsyncCodeGenerator(CodeGenerator):
         self.extends_so_far = 0
         self.has_known_extends = False
         self.has_super = False
-        self.buffer = None
         self.last_identifier = 0
         self.identifiers = {}
         self.import_aliases = {}
@@ -111,7 +112,11 @@ class AsyncCodeGenerator(CodeGenerator):
         self.extends_buffer = None
         self.required_blocks = set()
         self.is_async = True
+        self.macro_frames = []
 
+        from jinja2.defaults import DEFAULT_FILTERS
+
+        self.filters.update(t.cast(dict[str, str], DEFAULT_FILTERS))
         self.filters["escape"] = escape.__name__
 
         from jinja2.nodes import EvalContext
@@ -125,12 +130,6 @@ class AsyncCodeGenerator(CodeGenerator):
     def simple_write(self, value: str, frame: Frame) -> None:  # type: ignore[override]
         self.writeline(f"yield {value}")
 
-    def pull_locals(self, nodes: t.Any) -> None:
-        pass
-
-    def pull_dependencies(self, nodes: t.Any) -> None:
-        pass
-
     def func_code_generator(self, frame: Frame) -> str:
         async_frame = t.cast(AsyncFrame, frame)
         return "async def" if async_frame.is_async else "def"
@@ -138,7 +137,7 @@ class AsyncCodeGenerator(CodeGenerator):
     def return_buffer_contents(
         self,
         frame: Frame,
-        force_unescaped: bool = False,  # noqa: vulture
+        force_unescaped: bool = False,  # noqa: ARG002
     ) -> None:
         _ = force_unescaped
         if frame.buffer is not None:
@@ -218,46 +217,59 @@ class AsyncCodeGenerator(CodeGenerator):
 
     def visit_Name(self, node: nodes.Name, frame: Frame) -> None:
         frame = t.cast(AsyncFrame, frame)
+        self._handle_assignment_tracking(node, frame)
+        if self._handle_special_names(node):
+            return
+        self._handle_symbol_name(node, frame)
+
+    def _handle_assignment_tracking(self, node: nodes.Name, frame: AsyncFrame) -> None:
         if node.ctx == "store" and (
             frame.toplevel or frame.loop_frame or frame.block_frame
         ):
             if hasattr(self, "_assign_stack") and self._assign_stack:
                 self._assign_stack[-1].add(node.name)
+
+    def _handle_special_names(self, node: nodes.Name) -> bool:
         if node.name in ("blocks", "debug_info"):
             self.write(node.name)
-            return
-        if node.ctx == "load":
-            self.write(f"context.get({node.name!r})")
-            return
+            return True
+        return False
+
+    def _handle_symbol_name(self, node: nodes.Name, frame: AsyncFrame) -> None:
         try:
             ref = frame.symbols.ref(node.name)
-            if node.ctx == "load":
-                from jinja2.compiler import VAR_LOAD_PARAMETER
-
-                load = frame.symbols.find_load(ref)
-                if not (
-                    load is not None
-                    and load[0] == VAR_LOAD_PARAMETER
-                    and hasattr(self, "parameter_is_undeclared")
-                    and not self.parameter_is_undeclared(ref)
-                ):
-                    self.write(
-                        f"(undefined(name={node.name!r}) if {ref} is missing else {ref})"
-                    )
-                    return
-            self.write(ref)
+            if node.ctx == "load" and self._should_use_undefined_check(ref, frame):
+                self.write(
+                    f"(undefined(name={node.name!r}) if {ref} is missing else {ref})"
+                )
+            else:
+                self.write(ref)
         except AssertionError:
             if node.ctx == "load":
-                self.write(f"context.get({node.name!r}, undefined(name={node.name!r}))")
+                self.write(f"context.get({node.name!r})")
             else:
                 self.write(f"context.vars[{node.name!r}]")
+
+    def _should_use_undefined_check(self, ref: str, frame: AsyncFrame) -> bool:
+        from jinja2.compiler import VAR_LOAD_PARAMETER
+
+        load = frame.symbols.find_load(ref)
+        return not (
+            load is not None
+            and load[0] == VAR_LOAD_PARAMETER
+            and hasattr(self, "parameter_is_undeclared")
+            and not self.parameter_is_undeclared(ref)
+        )
 
     def generate(self, node: nodes.Template) -> str:
         self.writeline(f"name = {self.name!r}")
         self.writeline("blocks = {}")
         self.writeline("debug_info = None")
         self.writeline("from jinja2.runtime import Undefined")
+        self.writeline("from jinja2.runtime import Macro")
+        self.writeline("from jinja2.runtime import missing")
         self.writeline("from markupsafe import escape")
+        self.writeline("from jinja2.defaults import DEFAULT_FILTERS")
         self.writeline("def undefined(name=None, **_):")
         self.indent()
         self.writeline("return Undefined(name=name)")
@@ -270,14 +282,14 @@ class AsyncCodeGenerator(CodeGenerator):
         self.outdent()
         self.writeline("return value")
         self.outdent()
-        self.writeline("filters = {}")
+        self.writeline("filters = DEFAULT_FILTERS.copy()")
         self.writeline("filters['escape'] = escape")
         self.writeline("async def root(context):")
         self.indent()
         self.writeline("parent_template = None")
         self.writeline("environment = context.environment")
         self.writeline("eval_ctx = context.eval_ctx")
-        self.writeline("missing = environment.undefined")
+        self.writeline("undefined = environment.undefined")
         from jinja2.nodes import EvalContext
 
         if self.eval_ctx is None:
@@ -286,8 +298,8 @@ class AsyncCodeGenerator(CodeGenerator):
         frame.toplevel = frame.rootlevel = True
         frame.require_output_check = False
         frame.buffer = None
-        self.pull_locals(node.find_all(nodes.Scope))
-        self.pull_dependencies(node.find_all((nodes.Import, nodes.FromImport)))
+        for macro in node.find_all(nodes.Macro):
+            frame.symbols.store(macro.name)
         self.blockvisit(node.body, frame)
         self.outdent()
 
@@ -299,46 +311,76 @@ class AsyncCodeGenerator(CodeGenerator):
         if node.recursive:
             raise NotImplementedError("Recursive loops not supported")
         target = t.cast(t.Any, node.target)
-        item = target.name
-        frame.symbols.store(item)
-        self.writeline(f"{item} = None")
+        item_name = target.name
+        frame.symbols.store(item_name)
+        item_ref = frame.symbols.ref(item_name)
+        self.writeline(f"{item_ref} = None")
+        loop_filter = self._setup_loop_filter(node, frame)
+        loop_var = self.temporary_identifier()
+        self.writeline(f"{loop_var} = -1", node)
+        self._write_async_for_loop(node, frame, item_ref, loop_var, loop_filter)
+        self._write_sync_for_fallback(node, frame, item_ref, loop_var, loop_filter)
+        self._write_else_clause(node, frame, loop_var)
+
+    def _setup_loop_filter(self, node: nodes.For, frame: AsyncFrame) -> str | None:
         loop_filter = None
         if node.test:
             loop_filter = self.temporary_identifier()
             self.writeline(f"{loop_filter} = ", node.test)
             self.visit(node.test, frame)
-        loop_var = self.temporary_identifier()
-        self.writeline(f"{loop_var} = -1", node)
+        return loop_filter
+
+    def _write_async_for_loop(
+        self,
+        node: nodes.For,
+        frame: AsyncFrame,
+        item_ref: str,
+        loop_var: str,
+        loop_filter: str | None,
+    ) -> None:
         self.writeline("try:", node)
         self.indent()
-        self.writeline(f"async for {item} in ", node.iter)
+        self.writeline(f"async for {item_ref} in ", node.iter)
         self.visit(node.iter, frame)
         self.write(":")
         self.indent()
         self.writeline(f"{loop_var} += 1")
-        if node.test and loop_filter:
-            self.writeline(f"if {loop_filter}({item}):")
-            self.indent()
-        self.blockvisit(node.body, frame)
-        if node.test and loop_filter:
-            self.outdent()
+        self._write_loop_body_with_filter(node, frame, item_ref, loop_filter)
         self.outdent()
         self.outdent()
+
+    def _write_sync_for_fallback(
+        self,
+        node: nodes.For,
+        frame: AsyncFrame,
+        item_ref: str,
+        loop_var: str,
+        loop_filter: str | None,
+    ) -> None:
         self.writeline("except TypeError:", node)
         self.indent()
-        self.writeline(f"for {item} in ", node.iter)
+        self.writeline(f"for {item_ref} in ", node.iter)
         self.visit(node.iter, frame)
         self.write(":")
         self.indent()
         self.writeline(f"{loop_var} += 1")
+        self._write_loop_body_with_filter(node, frame, item_ref, loop_filter)
+        self.outdent()
+        self.outdent()
+
+    def _write_loop_body_with_filter(
+        self, node: nodes.For, frame: AsyncFrame, item_ref: str, loop_filter: str | None
+    ) -> None:
         if node.test and loop_filter:
-            self.writeline(f"if {loop_filter}({item}):")
+            self.writeline(f"if {loop_filter}({item_ref}):")
             self.indent()
         self.blockvisit(node.body, frame)
         if node.test and loop_filter:
             self.outdent()
-        self.outdent()
-        self.outdent()
+
+    def _write_else_clause(
+        self, node: nodes.For, frame: AsyncFrame, loop_var: str
+    ) -> None:
         if node.else_:
             self.writeline(f"if {loop_var} == -1:")
             self.indent()
@@ -453,15 +495,6 @@ class AsyncCodeGenerator(CodeGenerator):
         self, node: nodes.Import | nodes.FromImport, frame: Frame
     ) -> None:
         frame = t.cast(AsyncFrame, frame)
-        self.writeline("try:")
-        self.indent()
         self.writeline("template = await environment.get_template_async(", node)
         self.visit(node.template, frame)
         self.write(f", {self.name!r})")
-        self.outdent()
-        self.writeline("except TemplateNotFound:")
-        self.indent()
-        self.writeline("template = await environment.get_template_async(", node)
-        self.visit(node.template, frame)
-        self.write(f", {self.name!r})")
-        self.outdent()

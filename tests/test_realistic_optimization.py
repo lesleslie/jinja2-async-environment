@@ -23,11 +23,11 @@ class TestRealisticOptimization:
         env = AsyncEnvironment()
 
         # Simulate template rendering with multiple generator calls
-        def large_sync_generator():
+        def large_sync_generator() -> Generator[str]:
             for i in range(1000):  # Larger dataset
                 yield f"<li>Item {i}: Content for item {i}</li>"
 
-        async def realistic_template_rendering():
+        async def realistic_template_rendering() -> list[str]:
             # Simulate multiple calls to _async_yield_from like in real templates
             results = []
 
@@ -40,7 +40,7 @@ class TestRealisticOptimization:
 
             return results
 
-        def run_realistic_test():
+        def run_realistic_test() -> list[str]:
             return asyncio.run(realistic_template_rendering())
 
         result = benchmark(run_realistic_test)
@@ -55,7 +55,7 @@ class TestRealisticOptimization:
             for i in range(start, start + count):
                 yield f"Item {i}"
 
-        async def many_small_calls():
+        async def many_small_calls() -> list[str]:
             results = []
             # Simulate many small template fragments
             for i in range(100):  # 100 different generators
@@ -66,7 +66,7 @@ class TestRealisticOptimization:
                 results.extend(fragment)
             return results
 
-        def run_many_small_test():
+        def run_many_small_test() -> list[str]:
             return asyncio.run(many_small_calls())
 
         result = benchmark(run_many_small_test)
@@ -85,7 +85,7 @@ class TestRealisticOptimization:
             for i in range(count):
                 yield f"{prefix}-async-{i}"
 
-        async def mixed_generator_test():
+        async def mixed_generator_test() -> list[str]:
             results = []
 
             # Mix of sync and async generators
@@ -110,7 +110,7 @@ class TestRealisticOptimization:
 
             return results
 
-        def run_mixed_test():
+        def run_mixed_test() -> list[str]:
             return asyncio.run(mixed_generator_test())
 
         result = benchmark(run_mixed_test)
@@ -121,7 +121,7 @@ class TestRealisticOptimization:
         """Test performance with nested generator calls."""
         env = AsyncEnvironment()
 
-        def outer_generator():
+        def outer_generator() -> Generator[str]:
             for i in range(10):
                 yield f"outer-{i}"
 
@@ -129,7 +129,7 @@ class TestRealisticOptimization:
             for j in range(10):
                 yield f"{outer_item}-inner-{j}"
 
-        async def nested_generator_test():
+        async def nested_generator_test() -> list[str]:
             results = []
 
             async for outer_item in env._async_yield_from(outer_generator()):
@@ -143,7 +143,7 @@ class TestRealisticOptimization:
 
             return results
 
-        def run_nested_test():
+        def run_nested_test() -> list[str]:
             return asyncio.run(nested_generator_test())
 
         result = benchmark(run_nested_test)
@@ -166,21 +166,21 @@ class TestRealisticOptimization:
     def test_benchmark_old_vs_new_realistic(self, benchmark: BenchmarkFixture) -> None:
         """Direct comparison of old vs new in realistic scenario."""
 
-        def test_generator():
+        def test_generator() -> Generator[str]:
             for i in range(100):
                 yield f"Test item {i}"
 
         # Test the new implementation
         env = AsyncEnvironment()
 
-        async def test_new_implementation():
+        async def test_new_implementation() -> list[str]:
             results = []
             for _ in range(10):  # Multiple calls
                 items = [item async for item in env._async_yield_from(test_generator())]
                 results.extend(items)
             return results
 
-        def run_new_test():
+        def run_new_test() -> list[str]:
             return asyncio.run(test_new_implementation())
 
         result = benchmark(run_new_test)

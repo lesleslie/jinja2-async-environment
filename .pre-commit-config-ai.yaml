@@ -5,31 +5,40 @@ repos:
     hooks:
       - id: trailing-whitespace
         name: trailing-whitespace
+        verbose: true
       - id: end-of-file-fixer
         name: end-of-file-fixer
+        verbose: true
       - id: check-yaml
         name: check-yaml
+        verbose: true
       - id: check-toml
         name: check-toml
+        verbose: true
       - id: check-added-large-files
         name: check-added-large-files
+        verbose: true
 
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.24.1
     hooks:
       - id: validate-pyproject
+        verbose: true
 
   - repo: https://github.com/tox-dev/pyproject-fmt
     rev: "v2.6.0"
     hooks:
       - id: pyproject-fmt
+        verbose: true
 
   # Package management - once structure is valid
   - repo: https://github.com/pdm-project/pdm
     rev: 2.25.3
     hooks:
       - id: pdm-lock-check
+        verbose: true
       - id: pdm-sync
+        verbose: true
         additional_dependencies:
           - keyring
 
@@ -38,6 +47,7 @@ repos:
     hooks:
       - id: uv-lock
         files: ^pyproject\.toml$
+        verbose: true
 
   # Security check - early to prevent credential leaks
   - repo: https://github.com/Yelp/detect-secrets
@@ -45,12 +55,14 @@ repos:
     hooks:
       - id: detect-secrets
         exclude: 'pdm\.lock|uv\.lock|pyproject\.toml|tests/.*|docs/.*|.*\.md'
+        verbose: true
 
   # Code quality tier 1 - quick fixes
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
     hooks:
       - id: codespell
+        verbose: true
         additional_dependencies:
           - tomli
 
@@ -58,29 +70,36 @@ repos:
     rev: v0.12.1
     hooks:
       - id: ruff-check
+        verbose: true
+        args: [--output-format=json]
       - id: ruff-format
+        verbose: true
 
   # Code quality tier 2 - analysis
   - repo: https://github.com/jendrikseipp/vulture
     rev: 'v2.14'
     hooks:
       - id: vulture
+        verbose: true
 
   - repo: https://github.com/fredrikaverpil/creosote
     rev: v4.0.3
     hooks:
       - id: creosote
+        verbose: true
 
   - repo: https://github.com/rohaquinlop/complexipy-pre-commit
     rev: v3.0.0
     hooks:
       - id: complexipy
-        args: ["-d", "low"]
+        args: ["-d", "low", "-j"]
+        verbose: true
 
   - repo: https://github.com/dosisod/refurb
     rev: v2.1.0
     hooks:
       - id: refurb
+        verbose: true
 
   # Code quality tier 3 - thorough checks
   - repo: local
@@ -96,6 +115,7 @@ repos:
         types_or: [ python, pyi ]
         language: python
         files: \.py$
+        verbose: true
         additional_dependencies:
           - autotyping>=24.3.0
           - libcst>=1.1.0
@@ -104,20 +124,12 @@ repos:
     rev: '1.8.5'
     hooks:
       - id: bandit
-        args: ["-c", "pyproject.toml"]
+        args: ["-c", "pyproject.toml", "--format", "json"]
+        verbose: true
 
   - repo: https://github.com/RobertCraigie/pyright-python
     rev: v1.1.402
     hooks:
       - id: pyright
-
-  #  - repo: https://github.com/pdoc3/pdoc
-  #    rev: master
-  #    hooks:
-  #      - id: pdoc
-  #        name: pdoc
-  #        entry: pdoc --html -f -o docs module1 module2 module3
-  #        language_version: python3.11
-  #        require_serial: true
-  #        types: [ python ]
-  #        always_run: true
+        verbose: true
+        args: ["--outputjson"]

@@ -221,11 +221,11 @@ class TestAsyncCodeGenerator:
     ) -> None:
         code_generator.writeline = MagicMock()
         code_generator.write = MagicMock()
-        code_generator.indent = MagicMock()
-        code_generator.outdent = MagicMock()
         code_generator.visit = MagicMock()
         import_node = nodes.Import(MagicMock(), MagicMock(), True)
         code_generator._import_common(import_node, async_frame)
-        code_generator.writeline.assert_any_call("try:")
-        code_generator.writeline.assert_any_call("except TemplateNotFound:")
+        code_generator.writeline.assert_any_call(
+            "template = await environment.get_template_async(", import_node
+        )
+        code_generator.write.assert_any_call(f", {code_generator.name!r})")
         code_generator.visit.assert_called_with(import_node.template, async_frame)
