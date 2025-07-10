@@ -21,7 +21,7 @@ repos:
 
   # Package management - once structure is valid
   - repo: https://github.com/pdm-project/pdm
-    rev: 2.25.3
+    rev: 2.25.4
     hooks:
       - id: pdm-lock-check
       - id: pdm-sync
@@ -29,7 +29,7 @@ repos:
           - keyring
 
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.7.16
+    rev: 0.7.20
     hooks:
       - id: uv-lock
         files: ^pyproject\.toml$
@@ -50,7 +50,7 @@ repos:
           - tomli
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.1
+    rev: v0.12.2
     hooks:
       - id: ruff-check
       - id: ruff-format
@@ -96,12 +96,12 @@ repos:
           - libcst>=1.1.0
 
   - repo: https://github.com/PyCQA/bandit
-    rev: '1.8.5'
+    rev: '1.8.6'
     hooks:
       - id: bandit
         args: ["-c", "pyproject.toml"]
 
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.402
+    rev: v1.1.403
     hooks:
       - id: pyright

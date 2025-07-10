@@ -110,3 +110,20 @@ The test suite uses `asyncio_mode = "auto"` and requires AsyncMock for async ope
 - Strict type checking with Pyright - all new code must be fully typed
 - Pre-commit hooks enforce comprehensive code quality (formatting, linting, security, performance)
 - Performance regressions are tracked via benchmark tests in `tests/` directory
+
+## Task Completion Requirements
+
+**MANDATORY: Before marking any task as complete, AI assistants MUST:**
+
+1. **Run crackerjack verification**: Execute `python -m crackerjack -t --ai-agent` to run all quality checks and tests with AI-optimized output
+2. **Fix any issues found**: Address all formatting, linting, type checking, and test failures
+3. **Re-run verification**: Ensure crackerjack passes completely (all hooks pass, all tests pass)
+4. **Document verification**: Mention that crackerjack verification was completed successfully
+
+**Why this is critical:**
+- Ensures all code meets project quality standards
+- Prevents broken code from being committed
+- Maintains consistency with project development workflow
+- Catches issues early before they become problems
+
+**Never skip crackerjack verification** - it's the project's standard quality gate.

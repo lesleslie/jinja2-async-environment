@@ -158,7 +158,7 @@ wheels = [
 
 [[package]]
 name = "crackerjack"
-version = "0.22.4"
+version = "0.22.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "autotyping" },
@@ -180,9 +180,9 @@ dependencies = [
     { name = "typer" },
     { name = "uv" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/53/ef/2b808bfb291445135f800d4f20ffed9b9d52a6700b696791751594d44e61/crackerjack-0.22.4.tar.gz", hash = "sha256:f6041c6f09233f23466b8a7f86125b8c1a9725e9874982a1d3e3ad841537ed91", size = 66805, upload-time = "2025-07-10T03:11:59.236Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c1/c4/c06fc01cd56e6769e3bc5b7a3426e82da66e3519d3b1953678c967da2bfd/crackerjack-0.22.5.tar.gz", hash = "sha256:091aa7d3dce10e03278c35abf784d7308772dab3a7210f40e701f0f9d3e3ad8a", size = 66929, upload-time = "2025-07-10T08:57:48.072Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cb/c9/87f318087f970dab0bbf64dc1e9bcc236259bfb6044374a41734a327ddbf/crackerjack-0.22.4-py3-none-any.whl", hash = "sha256:1c66c8b934b7db52a5eaaab310be5a16a146e647ac9fdf7775419d7fe635905d", size = 53366, upload-time = "2025-07-10T03:11:57.393Z" },
+    { url = "https://files.pythonhosted.org/packages/b7/a7/b8e19bbbaed0806334d92f583740fdef7c926faae3a3c4231c077600c6e2/crackerjack-0.22.5-py3-none-any.whl", hash = "sha256:996cd1402bbae8384f1d42fcf72123971f1afbdaec09141f309ab259ef909e1c", size = 53736, upload-time = "2025-07-10T08:57:46.298Z" },
 ]
 
 [[package]]
@@ -423,7 +423,7 @@ wheels = [
 
 [[package]]
 name = "jinja2-async-environment"
-version = "0.13.0"
+version = "0.13.1"
 source = { editable = "." }
 dependencies = [
     { name = "anyio" },
@@ -439,7 +439,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "anyio", specifier = ">=4.9" },
-    { name = "crackerjack", marker = "extra == 'dev'", specifier = ">=0.22.4" },
+    { name = "crackerjack", marker = "extra == 'dev'", specifier = ">=0.22.5" },
     { name = "jinja2", specifier = ">=3.1.6" },
     { name = "redis", specifier = ">=6.2" },
 ]
