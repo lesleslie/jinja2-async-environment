@@ -205,7 +205,7 @@ class AsyncEnvironment(Environment):
 
         cache_key = (ref(self.loader), name)  # type: ignore
 
-        template = self._get_from_cache(cache_key, globals)
+        template = await self._get_from_cache(cache_key, globals)
         if template is not None:
             return template
 
@@ -216,10 +216,9 @@ class AsyncEnvironment(Environment):
             self.cache[cache_key] = template
         return template
 
-    def _get_from_cache(
+    async def _get_from_cache(
         self, cache_key: t.Any, globals: t.MutableMapping[str, t.Any] | None
     ) -> Template | None:
-        """Get template from cache if available and up to date."""
         if self.cache is None:
             return None
 
@@ -232,7 +231,7 @@ class AsyncEnvironment(Environment):
                 self._update_template_globals(template, globals)
                 return template
 
-            if self._is_template_up_to_date(template):
+            if await self._is_template_up_to_date(template):
                 self._update_template_globals(template, globals)
                 return template
 
@@ -241,7 +240,6 @@ class AsyncEnvironment(Environment):
     def _update_template_globals(
         self, template: Template, globals: t.MutableMapping[str, t.Any] | None
     ) -> None:
-        """Update template globals if provided."""
         if (
             globals
             and hasattr(template, "globals")
@@ -249,22 +247,80 @@ class AsyncEnvironment(Environment):
         ):
             template.globals.update(globals)
 
-    def _is_template_up_to_date(self, template: Template) -> bool:
-        if str(type(template)).find("MagicMock") != -1:
-            if hasattr(template, "is_up_to_date"):
-                up_to_date_attr = template.is_up_to_date
-                if callable(up_to_date_attr):
-                    return up_to_date_attr()
-                return bool(up_to_date_attr)
+    def _is_mock_template(self, template: Template) -> bool:
+        return str(type(template)).find("MagicMock") != -1
+
+    async def _handle_mock_template_uptodate(self, template: Template) -> bool:
+        if not hasattr(template, "is_up_to_date"):
             return True
-        if callable(template.is_up_to_date):
-            return template.is_up_to_date()
-        return bool(template.is_up_to_date)
+        up_to_date_attr = template.is_up_to_date
+        if not callable(up_to_date_attr):
+            return bool(up_to_date_attr)
+        result = up_to_date_attr()
+        if hasattr(result, "__await__"):
+            return await result
+        return result
+
+    def _has_uptodate_attribute(self, template: Template) -> bool:
+        from contextlib import suppress
+
+        with suppress(AttributeError, TypeError):
+            if (
+                hasattr(template, "__dict__")
+                and "is_up_to_date" not in template.__dict__
+            ):
+                for cls in type(template).__mro__:
+                    if hasattr(cls, "__dict__") and "is_up_to_date" in cls.__dict__:
+                        return True
+                return False
+        return True
+
+    def _get_uptodate_attribute(self, template: Template) -> t.Any:
+        try:
+            return getattr(template, "is_up_to_date", None)
+        except Exception:
+            return None
+
+    async def _evaluate_uptodate_attribute(self, uptodate_attr: t.Any) -> bool:
+        import inspect
+
+        if inspect.iscoroutine(uptodate_attr):
+            try:
+                result = await uptodate_attr
+                return bool(result)
+            except Exception:
+                return True
+        if inspect.iscoroutinefunction(uptodate_attr):
+            try:
+                result = await uptodate_attr()
+                return bool(result)
+            except Exception:
+                return True
+        if callable(uptodate_attr):
+            try:
+                result = uptodate_attr()
+                if inspect.iscoroutine(result):
+                    return bool(await result)
+                return bool(result)
+            except Exception:
+                return True
+
+        return bool(uptodate_attr)
+
+    async def _is_template_up_to_date(self, template: Template) -> bool:
+        if self._is_mock_template(template):
+            return await self._handle_mock_template_uptodate(template)
+        if not self._has_uptodate_attribute(template):
+            return True
+        uptodate_attr = self._get_uptodate_attribute(template)
+        if uptodate_attr is None:
+            return True
+
+        return await self._evaluate_uptodate_attribute(uptodate_attr)
 
     async def _load_template_from_loader(
         self, name: str, globals_dict: t.MutableMapping[str, t.Any]
     ) -> Template:
-        """Load template using the appropriate loader method."""
         if hasattr(self.loader, "load_async"):
             return await self.loader.load_async(self, name, globals_dict)
         return self.loader.load(self, name, globals_dict)

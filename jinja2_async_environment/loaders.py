@@ -171,11 +171,14 @@ class AsyncFileSystemLoader(AsyncBaseLoader):
             raise TemplateNotFound(path.name)
         mtime = (await path.stat()).st_mtime
 
-        async def _uptodate() -> bool:
-            try:
-                return (await path.stat()).st_mtime == mtime
-            except OSError:
-                return False
+        def _uptodate():
+            async def _async_uptodate() -> bool:
+                try:
+                    return (await path.stat()).st_mtime == mtime
+                except OSError:
+                    return False
+
+            return _async_uptodate()
 
         return (
             resp.decode(self.encoding),
@@ -350,11 +353,14 @@ class AsyncPackageLoader(AsyncBaseLoader):
         source_bytes = await template_full_path.read_bytes()
         mtime = (await template_full_path.stat()).st_mtime
 
-        async def _uptodate() -> bool:
-            return (
-                await template_full_path.is_file()
-                and (await template_full_path.stat()).st_mtime == mtime
-            )
+        def _uptodate():
+            async def _async_uptodate() -> bool:
+                return (
+                    await template_full_path.is_file()
+                    and (await template_full_path.stat()).st_mtime == mtime
+                )
+
+            return _async_uptodate()
 
         return (
             source_bytes.decode(self.encoding),
@@ -371,14 +377,17 @@ class AsyncPackageLoader(AsyncBaseLoader):
             source_bytes = await template_full_path.read_bytes()
             mtime = await self._get_mtime(template_full_path)
 
-            async def _uptodate() -> bool:
-                try:
-                    return (
-                        await template_full_path.is_file()
-                        and (await template_full_path.stat()).st_mtime == mtime
-                    )
-                except (AttributeError, OSError):
-                    return True
+            def _uptodate():
+                async def _async_uptodate() -> bool:
+                    try:
+                        return (
+                            await template_full_path.is_file()
+                            and (await template_full_path.stat()).st_mtime == mtime
+                        )
+                    except (AttributeError, OSError):
+                        return True
+
+                return _async_uptodate()
 
             return (
                 source_bytes.decode(self.encoding),
@@ -644,12 +653,6 @@ class AsyncChoiceLoader(AsyncBaseLoader):
         name: str,
         env_globals: dict[str, t.Any] | None = None,
     ) -> Template:
-        """Load a template by trying each loader in sequence.
-
-        This follows the same pattern as Jinja2's ChoiceLoader.load method,
-        delegating to individual loaders' load_async methods instead of
-        doing the compilation ourselves.
-        """
         for loader in self.loaders:
             with suppress(TemplateNotFound):
                 return await loader.load_async(environment, name, env_globals)

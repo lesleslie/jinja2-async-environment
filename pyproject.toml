@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "jinja2-async-environment"
-version = "0.13.0"
+version = "0.13.1"
 description = ""
 readme = "README.md"
 license.text = "BSD-3-Clause"
@@ -33,7 +33,7 @@ dependencies = [
 ]
 
 optional-dependencies.dev = [
-    "crackerjack>=0.21.3",
+    "crackerjack>=0.22.4",
 ]
 
 [tool.black]
@@ -184,25 +184,25 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
-    "pydantic-settings",
-    "tomli-w",
-    "pdm-bump",
-    "pytest-benchmark",
-    "keyring",
-    "inflection",
-    "pdm",
-    "pytest-xdist",
+    "pyyaml",
+    "pytest-timeout",
     "pytest-cov",
     "pytest",
-    "pyyaml",
     "uv",
-    "pytest-timeout",
-    "autotyping",
     "pytest-asyncio",
-    "pyfiglet",
-    "pre-commit",
-    "google-crc32c",
+    "pytest-benchmark",
     "pytest-mock",
+    "autotyping",
+    "pdm",
+    "pre-commit",
+    "keyring",
+    "tomli-w",
+    "pyfiglet",
+    "pydantic-settings",
+    "inflection",
+    "pytest-xdist",
+    "pdm-bump",
+    "google-crc32c",
 ]
 
 [tool.refurb]
@@ -214,15 +214,15 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
-    "B607",
-    "B603",
-    "B301",
     "B403",
-    "B311",
     "B101",
     "B704",
-    "B602",
+    "B311",
+    "B603",
+    "B301",
+    "B607",
     "B404",
+    "B602",
 ]
 
 [tool.vulture]

@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.13.0] - 2025-07-10
+
+### Fixed
+- Fixed async uptodate function support in template caching
+- Fixed `RuntimeWarning: coroutine 'FileSystemLoader.get_source_async.<locals>.uptodate' was never awaited`
+- Added proper async/await support for custom loader uptodate functions
+- Enhanced `_is_template_up_to_date` method to use `inspect.iscoroutinefunction()` for proper async detection
+- Fixed `_get_from_cache` method to properly await async uptodate checks
+- Eliminated coroutine creation without awaiting by checking function type before calling
+
+### Added
+- Added comprehensive test suite for async uptodate function support
+- Added tests for sync and async uptodate functions in template caching scenarios
+
 ## [0.12.0] - 2025-06-25
 
 ### Added

@@ -31,6 +31,7 @@
 - **Modern Python**: Leverages `asyncio` with type hints compatible with Python 3.13+
 - **Drop-in Replacement**: Familiar API for Jinja2 users with async alternatives
 - **Type Safety**: Fully typed with modern Python typing protocols
+- **Async Uptodate Functions**: Support for both sync and async uptodate functions in custom loaders
 
 ## Installation
 
@@ -172,6 +173,25 @@ async def load_template(name):
         return f.read(), f'templates/{name}', lambda: True
 
 function_loader = AsyncFunctionLoader(load_template, 'templates')
+
+# Load templates with async uptodate function
+async def load_template_with_async_uptodate(name):
+    # Custom loading logic here
+    with open(f'templates/{name}', 'r') as f:
+        content = f.read()
+        filepath = f'templates/{name}'
+
+        # Async uptodate function - useful for remote/database checks
+        async def async_uptodate():
+            # Check if template is still up to date (async operation)
+            import os
+            import asyncio
+            await asyncio.sleep(0)  # Simulate async operation
+            return os.path.getmtime(filepath) == os.path.getmtime(filepath)
+
+        return content, filepath, async_uptodate
+
+async_function_loader = AsyncFunctionLoader(load_template_with_async_uptodate, 'templates')
 
 # Create a loader that tries multiple sources in order
 choice_loader = AsyncChoiceLoader([
@@ -334,6 +354,53 @@ python -m pytest --cov=jinja2_async_environment
 ### Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+### Async Uptodate Functions
+
+Custom loaders can now return async uptodate functions for non-blocking template freshness checks:
+
+```python
+import asyncio
+from jinja2_async_environment.environment import AsyncEnvironment
+from jinja2_async_environment.loaders import AsyncFunctionLoader
+
+async def load_template_with_async_uptodate(name):
+    # Custom loading logic here
+    with open(f'templates/{name}', 'r') as f:
+        content = f.read()
+        filepath = f'templates/{name}'
+
+        # Async uptodate function - useful for remote/database checks
+        async def async_uptodate():
+            # Check if template is still up to date (async operation)
+            # This could be a database query, API call, etc.
+            import os
+            import asyncio
+            await asyncio.sleep(0)  # Simulate async operation
+            return os.path.getmtime(filepath) == os.path.getmtime(filepath)
+
+        return content, filepath, async_uptodate
+
+async def main():
+    # Create environment with async uptodate support
+    env = AsyncEnvironment(
+        loader=AsyncFunctionLoader(load_template_with_async_uptodate, 'templates'),
+        auto_reload=True  # Enable auto-reload to use uptodate functions
+    )
+
+    # The environment will automatically await async uptodate functions
+    template = await env.get_template_async('example.html')
+    result = await template.render_async()
+    print(result)
+
+asyncio.run(main())
+```
+
+**Key Features:**
+- Both sync and async uptodate functions are supported
+- Async uptodate functions are automatically awaited during template caching
+- No code changes needed - existing sync uptodate functions continue to work
+- Useful for remote template sources (databases, APIs, remote filesystems)
 
 ## License
 
