@@ -65,17 +65,17 @@ extend-select = [
     "UP",
 ]
 ignore = [
-    "D105",
-    "D104",
-    "D106",
-    "F821",
-    "D101",
-    "E402",
-    "D103",
     "D107",
+    "E402",
+    "D105",
+    "D103",
+    "UP040",
+    "D101",
+    "D104",
+    "F821",
     "D102",
     "D100",
-    "UP040",
+    "D106",
 ]
 fixable = [
     "ALL",
@@ -197,24 +197,24 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
+    "pydantic-settings",
+    "pytest-timeout",
+    "hatchling",
+    "inflection",
+    "pytest-asyncio",
+    "pytest-xdist",
+    "autotyping",
+    "pytest-mock",
+    "tomli-w",
     "pytest-cov",
     "pyyaml",
+    "pre-commit",
+    "pyfiglet",
+    "keyring",
+    "google-crc32c",
     "pytest",
     "uv",
-    "pyfiglet",
-    "pre-commit",
-    "keyring",
-    "pydantic-settings",
-    "pytest-mock",
-    "pytest-xdist",
-    "inflection",
-    "hatchling",
     "pytest-benchmark",
-    "pytest-timeout",
-    "tomli-w",
-    "pytest-asyncio",
-    "google-crc32c",
-    "autotyping",
 ]
 
 [tool.refurb]
@@ -226,15 +226,15 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
-    "B603",
-    "B101",
     "B301",
     "B403",
+    "B607",
     "B404",
     "B311",
-    "B704",
     "B602",
-    "B607",
+    "B101",
+    "B704",
+    "B603",
 ]
 
 [tool.vulture]
