@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "jinja2-async-environment"
-version = "0.14.0"
+version = "0.14.1"
 description = ""
 readme = "README.md"
 license.text = "BSD-3-Clause"
@@ -185,24 +185,24 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
+    "google-crc32c",
     "pyyaml",
-    "pytest-asyncio",
-    "keyring",
-    "pre-commit",
-    "hatchling",
-    "pytest-mock",
-    "pytest",
+    "autotyping",
     "inflection",
-    "pytest-benchmark",
+    "pytest-asyncio",
+    "pytest",
+    "pytest-timeout",
+    "hatchling",
+    "tomli-w",
+    "pydantic-settings",
+    "uv",
+    "pytest-mock",
     "pyfiglet",
     "pytest-xdist",
-    "pydantic-settings",
-    "tomli-w",
-    "google-crc32c",
-    "autotyping",
-    "uv",
+    "pre-commit",
+    "pytest-benchmark",
+    "keyring",
     "pytest-cov",
-    "pytest-timeout",
 ]
 
 [tool.refurb]
@@ -214,15 +214,15 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
-    "B101",
     "B607",
-    "B301",
-    "B602",
-    "B311",
-    "B704",
-    "B404",
-    "B403",
     "B603",
+    "B101",
+    "B602",
+    "B404",
+    "B311",
+    "B301",
+    "B403",
+    "B704",
 ]
 
 [tool.vulture]
@@ -236,3 +236,4 @@ ignore_names = [
 
 [tool.uv]
 keyring-provider = "subprocess"
+index-url = "https://pypi.org/simple/"

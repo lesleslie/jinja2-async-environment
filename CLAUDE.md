@@ -8,11 +8,21 @@ This is `jinja2-async-environment`, an async-first template engine that extends 
 
 ## Development Commands
 
+### Initial Setup
+```bash
+# Install dependencies (first time setup)
+uv sync              # Install dependencies from uv.lock
+
+# Activate virtual environment if needed
+source .venv/bin/activate  # or .venv/Scripts/activate on Windows
+```
+
 ### Package Management
 ```bash
 # Primary package manager
 uv sync              # Install dependencies from uv.lock
 uv add <package>     # Add new dependency
+uv add --dev <package>  # Add development dependency
 uv lock              # Update lock file
 ```
 
@@ -40,14 +50,22 @@ pytest tests/test_environment.py
 # Run single test
 pytest tests/test_environment.py::test_specific_function
 
-# Run with coverage
+# Run with coverage (configured with 42% minimum)
 pytest --cov=jinja2_async_environment
 
-# Run benchmarks only
-pytest -m benchmark tests/test_benchmarks.py
+# Run tests with verbose output
+pytest -v
+
+# Run specific test markers
+pytest -m unit           # Unit tests only
+pytest -m integration    # Integration tests only
+pytest -m benchmark      # Benchmark tests only
 
 # Run realistic performance tests
 pytest tests/test_realistic_optimization.py
+
+# Run tests in parallel (if pytest-xdist is available)
+pytest -n auto
 ```
 
 ### Performance Analysis
@@ -102,11 +120,19 @@ The test suite uses `asyncio_mode = "auto"` and requires AsyncMock for async ope
 
 ### Development Notes
 
-- Minimum Python 3.13+ required
-- Uses UV for dependency management
-- Strict type checking with Pyright - all new code must be fully typed
-- Pre-commit hooks enforce comprehensive code quality (formatting, linting, security, performance)
-- Performance regressions are tracked via benchmark tests in `tests/` directory
+- **Python Version**: Minimum Python 3.13+ required
+- **Package Manager**: Uses UV for dependency management (faster than pip/poetry)
+- **Type Checking**: Strict type checking with Pyright - all new code must be fully typed
+- **Code Quality**: Pre-commit hooks enforce comprehensive quality checks:
+  - Code formatting (Ruff)
+  - Linting and style (Ruff, Vulture, Refurb)
+  - Security analysis (Bandit, detect-secrets)
+  - Type checking (Pyright)
+  - Dependency analysis (Creosote)
+  - Complexity analysis (Complexipy)
+- **Performance**: Performance regressions tracked via benchmark tests in `tests/` directory
+- **Async Patterns**: Test suite uses `asyncio_mode = "auto"` - use AsyncMock, not MagicMock for async operations
+- **Documentation**: Comprehensive performance baselines in `tests/BENCHMARK_BASELINE.md`
 
 ## Task Completion Requirements
 
@@ -124,3 +150,39 @@ The test suite uses `asyncio_mode = "auto"` and requires AsyncMock for async ope
 - Catches issues early before they become problems
 
 **Never skip crackerjack verification** - it's the project's standard quality gate.
+
+## File Organization
+
+### Source Structure
+```
+jinja2_async_environment/
+├── __init__.py           # Public API exports
+├── environment.py        # AsyncEnvironment, AsyncSandboxedEnvironment
+├── loaders.py           # All async loader implementations
+├── compiler.py          # AsyncCodeGenerator, async-aware compilation
+└── bccache.py           # AsyncRedisBytecodeCache for performance
+```
+
+### Test Structure
+```
+tests/
+├── BENCHMARK_BASELINE.md    # Performance baseline tracking
+├── OPTIMIZATION_RESULTS.md  # Optimization analysis results
+├── PERFORMANCE_SUMMARY.md   # Performance summary reports
+├── test_environment.py      # Core environment tests
+├── test_*_loader.py         # Loader-specific tests
+├── test_benchmarks.py       # Performance benchmarks
+├── test_realistic_optimization.py  # Real-world performance tests
+└── test_*.py               # Component-specific test files
+```
+
+## Important Implementation Details
+
+### Critical Performance Method
+The `_async_yield_from()` method in `AsyncEnvironment` (environment.py:~200) is the performance-critical path that was optimized from exception-based type detection to direct `hasattr()` checking, achieving 300x performance improvement. Any changes to this method require careful performance testing.
+
+### Loader Interface
+All async loaders implement the `AsyncLoaderProtocol` defined in loaders.py:29. When creating new loaders, follow this protocol and support both sync and async uptodate functions.
+
+### Redis Caching
+The `AsyncRedisBytecodeCache` provides significant performance improvements for compiled templates. Always test caching functionality when modifying compilation or template loading logic.
