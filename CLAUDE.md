@@ -11,12 +11,9 @@ This is `jinja2-async-environment`, an async-first template engine that extends 
 ### Package Management
 ```bash
 # Primary package manager
-pdm install          # Install dependencies
-pdm add <package>    # Add new dependency
-pdm lock             # Update lock file
-
-# Alternative (UV also supported)
-uv sync              # Install from uv.lock
+uv sync              # Install dependencies from uv.lock
+uv add <package>     # Add new dependency
+uv lock              # Update lock file
 ```
 
 ### Code Quality & Linting
@@ -106,7 +103,7 @@ The test suite uses `asyncio_mode = "auto"` and requires AsyncMock for async ope
 ### Development Notes
 
 - Minimum Python 3.13+ required
-- Uses PDM for dependency management (UV also supported)
+- Uses UV for dependency management
 - Strict type checking with Pyright - all new code must be fully typed
 - Pre-commit hooks enforce comprehensive code quality (formatting, linting, security, performance)
 - Performance regressions are tracked via benchmark tests in `tests/` directory

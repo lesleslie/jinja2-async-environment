@@ -18,16 +18,9 @@ repos:
     rev: "v2.6.0"
     hooks:
       - id: pyproject-fmt
+        args: ["-n"]
 
   # Package management - once structure is valid
-  - repo: https://github.com/pdm-project/pdm
-    rev: 2.25.4
-    hooks:
-      - id: pdm-lock-check
-      - id: pdm-sync
-        additional_dependencies:
-          - keyring
-
   - repo: https://github.com/astral-sh/uv-pre-commit
     rev: 0.7.20
     hooks:
@@ -39,7 +32,7 @@ repos:
     rev: v1.5.0
     hooks:
       - id: detect-secrets
-        exclude: 'pdm\.lock|uv\.lock|pyproject\.toml|tests/.*|docs/.*|.*\.md'
+        exclude: 'uv\.lock|pyproject\.toml|tests/.*|docs/.*|.*\.md'
 
   # Code quality tier 1 - quick fixes
   - repo: https://github.com/codespell-project/codespell
@@ -50,7 +43,7 @@ repos:
           - tomli
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.2
+    rev: v0.12.3
     hooks:
       - id: ruff-check
       - id: ruff-format

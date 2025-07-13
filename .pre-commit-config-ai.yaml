@@ -29,19 +29,10 @@ repos:
     rev: "v2.6.0"
     hooks:
       - id: pyproject-fmt
+        args: ["-n"]
         verbose: true
 
   # Package management - once structure is valid
-  - repo: https://github.com/pdm-project/pdm
-    rev: 2.25.3
-    hooks:
-      - id: pdm-lock-check
-        verbose: true
-      - id: pdm-sync
-        verbose: true
-        additional_dependencies:
-          - keyring
-
   - repo: https://github.com/astral-sh/uv-pre-commit
     rev: 0.7.15
     hooks:
@@ -54,7 +45,7 @@ repos:
     rev: v1.5.0
     hooks:
       - id: detect-secrets
-        exclude: 'pdm\.lock|uv\.lock|pyproject\.toml|tests/.*|docs/.*|.*\.md'
+        exclude: 'uv\.lock|pyproject\.toml|tests/.*|docs/.*|.*\.md'
         verbose: true
 
   # Code quality tier 1 - quick fixes
