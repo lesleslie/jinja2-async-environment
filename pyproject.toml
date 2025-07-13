@@ -6,10 +6,9 @@ requires = [
 
 [project]
 name = "jinja2-async-environment"
-version = "0.14.1"
+version = "0.14.2"
 description = ""
 readme = "README.md"
-license.text = "BSD-3-Clause"
 authors = [
     { name = "lesleslie", email = "les@wedgwoodwebworks.com" },
 ]
@@ -32,9 +31,13 @@ dependencies = [
     "redis>=6.2",
 ]
 
+[project.license]
+text = "BSD-3-Clause"
+
 [dependency-groups]
 dev = [
     "crackerjack>=0.22.5",
+    "twine>=6.1.0",
 ]
 
 [tool.black]
@@ -50,36 +53,45 @@ unsafe-fixes = true
 show-fixes = true
 output-format = "full"
 
-format.docstring-code-format = true
-lint.extend-select = [
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint]
+extend-select = [
     "C901",
     "D",
     "F",
     "I",
     "UP",
 ]
-lint.ignore = [
-    "D100",
-    "D101",
-    "D102",
-    "D103",
-    "D104",
+ignore = [
     "D105",
+    "D104",
     "D106",
-    "D107",
-    "E402",
     "F821",
+    "D101",
+    "E402",
+    "D103",
+    "D107",
+    "D102",
+    "D100",
     "UP040",
 ]
-lint.fixable = [
+fixable = [
     "ALL",
 ]
-lint.unfixable = [  ]
-lint.isort.no-lines-before = [
+unfixable = []
+
+[tool.ruff.lint.isort]
+no-lines-before = [
     "first-party",
 ]
-lint.mccabe.max-complexity = 13
-lint.pydocstyle.convention = "google"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 13
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.codespell]
 skip = "*/data/*"
@@ -185,24 +197,24 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
-    "google-crc32c",
-    "pyyaml",
-    "autotyping",
-    "inflection",
-    "pytest-asyncio",
-    "pytest",
-    "pytest-timeout",
-    "hatchling",
-    "tomli-w",
-    "pydantic-settings",
-    "uv",
-    "pytest-mock",
-    "pyfiglet",
-    "pytest-xdist",
-    "pre-commit",
-    "pytest-benchmark",
-    "keyring",
     "pytest-cov",
+    "pyyaml",
+    "pytest",
+    "uv",
+    "pyfiglet",
+    "pre-commit",
+    "keyring",
+    "pydantic-settings",
+    "pytest-mock",
+    "pytest-xdist",
+    "inflection",
+    "hatchling",
+    "pytest-benchmark",
+    "pytest-timeout",
+    "tomli-w",
+    "pytest-asyncio",
+    "google-crc32c",
+    "autotyping",
 ]
 
 [tool.refurb]
@@ -214,15 +226,15 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
-    "B607",
     "B603",
     "B101",
-    "B602",
-    "B404",
-    "B311",
     "B301",
     "B403",
+    "B404",
+    "B311",
     "B704",
+    "B602",
+    "B607",
 ]
 
 [tool.vulture]
@@ -237,3 +249,12 @@ ignore_names = [
 [tool.uv]
 keyring-provider = "subprocess"
 index-url = "https://pypi.org/simple/"
+publish-url = "https://upload.pypi.org/legacy/"
+check-url = "https://pypi.org/simple/"
+
+[tool.uv.sources]
+
+[[tool.uv.index]]
+name = "pypi"
+url = "https://upload.pypi.org/legacy/"
+check-url = "https://pypi.org/simple/"
