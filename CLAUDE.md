@@ -179,10 +179,13 @@ tests/
 ## Important Implementation Details
 
 ### Critical Performance Method
-The `_async_yield_from()` method in `AsyncEnvironment` (environment.py:~200) is the performance-critical path that was optimized from exception-based type detection to direct `hasattr()` checking, achieving 300x performance improvement. Any changes to this method require careful performance testing.
+The `_async_yield_from()` method in `AsyncEnvironment` (environment.py:86) is the performance-critical path that was optimized from exception-based type detection to direct `hasattr()` checking, achieving 300x performance improvement. Any changes to this method require careful performance testing.
 
 ### Loader Interface
 All async loaders implement the `AsyncLoaderProtocol` defined in loaders.py:29. When creating new loaders, follow this protocol and support both sync and async uptodate functions.
 
 ### Redis Caching
 The `AsyncRedisBytecodeCache` provides significant performance improvements for compiled templates. Always test caching functionality when modifying compilation or template loading logic.
+
+### Template Compilation
+The `AsyncCodeGenerator` in `compiler.py` extends Jinja2's compiler with async-aware code generation. The `_compile()` method in `AsyncEnvironment` includes special handling for async syntax and yield statements to ensure proper async template rendering.

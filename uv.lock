@@ -39,11 +39,11 @@ wheels = [
 
 [[package]]
 name = "certifi"
-version = "2025.7.9"
+version = "2025.7.14"
 source = { registry = "https://pypi.org/simple/" }
-sdist = { url = "https://files.pythonhosted.org/packages/de/8a/c729b6b60c66a38f590c4e774decc4b2ec7b0576be8f1aa984a53ffa812a/certifi-2025.7.9.tar.gz", hash = "sha256:c1d2ec05395148ee10cf672ffc28cd37ea0ab0d99f9cc74c43e588cbd111b079", size = 160386, upload-time = "2025-07-09T02:13:58.874Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b3/76/52c535bcebe74590f296d6c77c86dabf761c41980e1347a2422e4aa2ae41/certifi-2025.7.14.tar.gz", hash = "sha256:8ea99dbdfaaf2ba2f9bac77b9249ef62ec5218e7c2b2e903378ed5fccf765995", size = 163981, upload-time = "2025-07-14T03:29:28.449Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/66/f3/80a3f974c8b535d394ff960a11ac20368e06b736da395b551a49ce950cce/certifi-2025.7.9-py3-none-any.whl", hash = "sha256:d842783a14f8fdd646895ac26f719a061408834473cfc10203f6a575beb15d39", size = 159230, upload-time = "2025-07-09T02:13:57.007Z" },
+    { url = "https://files.pythonhosted.org/packages/4f/52/34c6cf5bb9285074dc3531c437b3919e825d976fde097a7a73f79e726d03/certifi-2025.7.14-py3-none-any.whl", hash = "sha256:6b31f564a415d79ee77df69d757bb49a5bb53bd9f756cbbe24394ffd6fc1f4b2", size = 162722, upload-time = "2025-07-14T03:29:26.863Z" },
 ]
 
 [[package]]
@@ -149,7 +149,7 @@ wheels = [
 
 [[package]]
 name = "crackerjack"
-version = "0.24.7"
+version = "0.24.10"
 source = { registry = "https://pypi.org/simple/" }
 dependencies = [
     { name = "autotyping" },
@@ -170,9 +170,9 @@ dependencies = [
     { name = "typer" },
     { name = "uv" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/16/a6/1ac8ab4a5fe4f4312daf33a4df8382f57e9d6892d19de882c89417d82a6a/crackerjack-0.24.7.tar.gz", hash = "sha256:66a16ec4c79dfc7487bda903e802e27627ac0fff8b04124a39d3e75d4b2c10eb", size = 104415, upload-time = "2025-07-13T02:20:49.296Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/31/e1/c33b47b9fda44d257c3d3c684578381c620105eef982041627cd7f15921a/crackerjack-0.24.10.tar.gz", hash = "sha256:b262846bd157a96c189cf21db7d931724952aba05ca20bc3e89b331f32fbdc59", size = 105869, upload-time = "2025-07-14T11:29:17.939Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c4/ce/7f15802ec297e1e9ee68b300b0a19d136024d85c8dcbf1ff325cf0f20352/crackerjack-0.24.7-py3-none-any.whl", hash = "sha256:e0d392fd3b5f2bd553357290199eb7118aa70ed0e9742c08adba1dce70d02435", size = 35770, upload-time = "2025-07-13T02:20:47.57Z" },
+    { url = "https://files.pythonhosted.org/packages/fd/63/f72b1fd1660c3bf8b08b2d6f8def0fc4eb64702d691a3dc8c82464693eef/crackerjack-0.24.10-py3-none-any.whl", hash = "sha256:975fff593b725b9e4c3782385041db061a7ac35752f4fb8db8a144e0b9f76b8b", size = 36688, upload-time = "2025-07-14T11:29:16.284Z" },
 ]
 
 [[package]]
@@ -350,7 +350,7 @@ wheels = [
 
 [[package]]
 name = "jinja2-async-environment"
-version = "0.14.2"
+version = "0.14.4"
 source = { editable = "." }
 dependencies = [
     { name = "anyio" },
@@ -368,13 +368,13 @@ dev = [
 requires-dist = [
     { name = "anyio", specifier = ">=4.9" },
     { name = "jinja2", specifier = ">=3.1.6" },
-    { name = "redis", specifier = ">=6.2" },
+    { name = "redis", specifier = ">=3.5.3" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "crackerjack", specifier = ">=0.22.5" },
-    { name = "twine", specifier = ">=6.1.0" },
+    { name = "twine", specifier = ">=6.1" },
 ]
 
 [[package]]
@@ -646,6 +646,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pyjwt"
+version = "2.9.0"
+source = { registry = "https://pypi.org/simple/" }
+sdist = { url = "https://files.pythonhosted.org/packages/fb/68/ce067f09fca4abeca8771fe667d89cc347d1e99da3e093112ac329c6020e/pyjwt-2.9.0.tar.gz", hash = "sha256:7e1e5b56cc735432a7369cbfa0efe50fa113ebecdc04ae6922deba8b84582d0c", size = 78825, upload-time = "2024-08-01T15:01:08.445Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/79/84/0fdf9b18ba31d69877bd39c9cd6052b47f3761e9910c15de788e519f079f/PyJWT-2.9.0-py3-none-any.whl", hash = "sha256:3b02fb0f44517787776cf48f2ae25d8e14f300e6d7545a4315cee571a415e850", size = 22344, upload-time = "2024-08-01T15:01:06.481Z" },
+]
+
+[[package]]
 name = "pytest"
 version = "8.4.1"
 source = { registry = "https://pypi.org/simple/" }
@@ -803,11 +812,14 @@ wheels = [
 
 [[package]]
 name = "redis"
-version = "6.2.0"
+version = "5.3.0"
 source = { registry = "https://pypi.org/simple/" }
-sdist = { url = "https://files.pythonhosted.org/packages/ea/9a/0551e01ba52b944f97480721656578c8a7c46b51b99d66814f85fe3a4f3e/redis-6.2.0.tar.gz", hash = "sha256:e821f129b75dde6cb99dd35e5c76e8c49512a5a0d8dfdc560b2fbd44b85ca977", size = 4639129, upload-time = "2025-05-28T05:01:18.91Z" }
+dependencies = [
+    { name = "pyjwt" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/71/dd/2b37032f4119dff2a2f9bbcaade03221b100ba26051bb96e275de3e5db7a/redis-5.3.0.tar.gz", hash = "sha256:8d69d2dde11a12dc85d0dbf5c45577a5af048e2456f7077d87ad35c1c81c310e", size = 4626288, upload-time = "2025-04-30T14:54:40.634Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/13/67/e60968d3b0e077495a8fee89cf3f2373db98e528288a48f1ee44967f6e8c/redis-6.2.0-py3-none-any.whl", hash = "sha256:c8ddf316ee0aab65f04a11229e94a64b2618451dab7a67cb2f77eb799d872d5e", size = 278659, upload-time = "2025-05-28T05:01:16.955Z" },
+    { url = "https://files.pythonhosted.org/packages/45/b0/aa601efe12180ba492b02e270554877e68467e66bda5d73e51eaa8ecc78a/redis-5.3.0-py3-none-any.whl", hash = "sha256:f1deeca1ea2ef25c1e4e46b07f4ea1275140526b1feea4c6459c0ec27a10ef83", size = 272836, upload-time = "2025-04-30T14:54:30.744Z" },
 ]
 
 [[package]]

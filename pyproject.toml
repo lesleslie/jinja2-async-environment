@@ -6,9 +6,10 @@ requires = [
 
 [project]
 name = "jinja2-async-environment"
-version = "0.14.2"
+version = "0.14.4"
 description = ""
 readme = "README.md"
+license.text = "BSD-3-Clause"
 authors = [
     { name = "lesleslie", email = "les@wedgwoodwebworks.com" },
 ]
@@ -28,16 +29,13 @@ classifiers = [
 dependencies = [
     "anyio>=4.9",
     "jinja2>=3.1.6",
-    "redis>=6.2",
+    "redis>=3.5.3",
 ]
-
-[project.license]
-text = "BSD-3-Clause"
 
 [dependency-groups]
 dev = [
     "crackerjack>=0.22.5",
-    "twine>=6.1.0",
+    "twine>=6.1",
 ]
 
 [tool.black]
@@ -53,45 +51,36 @@ unsafe-fixes = true
 show-fixes = true
 output-format = "full"
 
-[tool.ruff.format]
-docstring-code-format = true
-
-[tool.ruff.lint]
-extend-select = [
+format.docstring-code-format = true
+lint.extend-select = [
     "C901",
     "D",
     "F",
     "I",
     "UP",
 ]
-ignore = [
+lint.ignore = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D106",
     "D107",
     "E402",
-    "D105",
-    "D103",
-    "UP040",
-    "D101",
-    "D104",
     "F821",
-    "D102",
-    "D100",
-    "D106",
+    "UP040",
 ]
-fixable = [
+lint.fixable = [
     "ALL",
 ]
-unfixable = []
-
-[tool.ruff.lint.isort]
-no-lines-before = [
+lint.unfixable = [  ]
+lint.isort.no-lines-before = [
     "first-party",
 ]
-
-[tool.ruff.lint.mccabe]
-max-complexity = 13
-
-[tool.ruff.lint.pydocstyle]
-convention = "google"
+lint.mccabe.max-complexity = 13
+lint.pydocstyle.convention = "google"
 
 [tool.codespell]
 skip = "*/data/*"
@@ -127,6 +116,9 @@ markers = [
 timeout = 300
 timeout_method = "thread"
 addopts = "--cov=jinja2_async_environment --cov-report=term --cov-fail-under=42"
+filterwarnings = [
+    "ignore::pytest_benchmark.logger.PytestBenchmarkWarning",
+]
 
 [tool.pytest.benchmark]
 disable_gc = true
@@ -197,24 +189,24 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
+    "uv",
     "pydantic-settings",
-    "pytest-timeout",
-    "hatchling",
-    "inflection",
+    "pyfiglet",
     "pytest-asyncio",
-    "pytest-xdist",
-    "autotyping",
+    "pytest",
     "pytest-mock",
     "tomli-w",
-    "pytest-cov",
-    "pyyaml",
-    "pre-commit",
-    "pyfiglet",
-    "keyring",
-    "google-crc32c",
-    "pytest",
-    "uv",
+    "hatchling",
     "pytest-benchmark",
+    "autotyping",
+    "pytest-cov",
+    "pre-commit",
+    "pytest-timeout",
+    "keyring",
+    "pytest-xdist",
+    "inflection",
+    "pyyaml",
+    "google-crc32c",
 ]
 
 [tool.refurb]
@@ -226,15 +218,15 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
-    "B301",
-    "B403",
-    "B607",
-    "B404",
-    "B311",
-    "B602",
-    "B101",
     "B704",
+    "B404",
+    "B607",
+    "B301",
     "B603",
+    "B101",
+    "B311",
+    "B403",
+    "B602",
 ]
 
 [tool.vulture]
