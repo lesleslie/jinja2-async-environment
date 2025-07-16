@@ -3,6 +3,7 @@
 ## [0.13.0] - 2025-07-10
 
 ### Fixed
+
 - Fixed async uptodate function support in template caching
 - Fixed `RuntimeWarning: coroutine 'FileSystemLoader.get_source_async.<locals>.uptodate' was never awaited`
 - Added proper async/await support for custom loader uptodate functions
@@ -11,12 +12,14 @@
 - Eliminated coroutine creation without awaiting by checking function type before calling
 
 ### Added
+
 - Added comprehensive test suite for async uptodate function support
 - Added tests for sync and async uptodate functions in template caching scenarios
 
 ## [0.12.0] - 2025-06-25
 
 ### Added
+
 - Added comprehensive test coverage across all modules
 - Added support for `AsyncDictLoader` and `AsyncFunctionLoader`
 - Added `AsyncSandboxedEnvironment` for secure template execution in untrusted environments
@@ -24,6 +27,7 @@
 - Improved type safety and error handling
 
 ### Fixed
+
 - Fixed `NameError: name 'escape' is not defined` error by adding the escape filter to the AsyncCodeGenerator
 - Added import for `escape` from `markupsafe` in compiler.py
 - Fixed AsyncFileSystemLoader to accept string paths and convert them to AsyncPath objects automatically
@@ -33,6 +37,7 @@
 - Resolved `TypeError: object MagicMock can't be used in 'await' expression` in tests
 
 ### Changed
+
 - Updated dependency from `aiopath` to `anyio>=4.9`
 - **BREAKING CHANGE**: AsyncPath imports are now optional - all loaders accept string paths directly
 - Improved code style and consistency with refurb suggestions
@@ -40,6 +45,7 @@
 - Updated Python requirement to 3.13+
 
 ### Improved
+
 - **MAJOR PERFORMANCE BOOST**: Optimized `_async_yield_from` method by replacing exception handling with type detection
   - Eliminated try/catch overhead in hot path (347ms → ~1ms for large workloads)
   - ~300x performance improvement for async generator handling

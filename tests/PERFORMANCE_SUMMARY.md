@@ -3,12 +3,14 @@
 ## 🎯 Key Findings
 
 ### Critical Performance Bottleneck
+
 - **`async_yield_from`**: 347ms execution time - **CRITICAL ISSUE**
   - This single method is 1000x slower than other operations
   - Affects all async template rendering
   - **Root cause**: Exception handling for generator type detection
 
 ### Fast Operations (< 1ms) ✅
+
 | Operation | Time | Ops/Sec | Status |
 |-----------|------|---------|---------|
 | hasattr_check | 549ns | 1.8M | Excellent |
@@ -16,6 +18,7 @@
 | mock_detection | 867ns | 1.2M | Excellent |
 
 ### Slow Operations (> 10ms) ⚠️
+
 | Operation | Time | Impact | Priority |
 |-----------|------|--------|----------|
 | async_yield_from | 347ms | Critical | Fix immediately |
@@ -26,6 +29,7 @@
 ## 🔧 Optimization Priorities
 
 ### 1. **IMMEDIATE FIX: async_yield_from**
+
 ```python
 # Current (slow - 347ms)
 async def _async_yield_from(self, generator_func):
@@ -36,23 +40,27 @@ async def _async_yield_from(self, generator_func):
         for event in generator_func:
             yield event
 
+
 # Optimized approach (target: <1ms)
 async def _async_yield_from(self, generator_func):
-    if hasattr(generator_func, '__aiter__'):
+    if hasattr(generator_func, "__aiter__"):
         async for event in generator_func:
             yield event
     else:
         for event in generator_func:
             yield event
 ```
+
 **Expected improvement**: 100x faster (347ms → 3ms)
 
 ### 2. **HIGH PRIORITY: Package Loader (45ms)**
+
 - Cache import operations
 - Use lazy loading
 - **Expected improvement**: 9x faster (45ms → 5ms)
 
 ### 3. **MEDIUM PRIORITY: Template Compilation (17-54ms)**
+
 - Pre-compile regex patterns as class attributes
 - Optimize string operations
 - **Expected improvement**: 3x faster (54ms → 18ms)
@@ -60,10 +68,12 @@ async def _async_yield_from(self, generator_func):
 ## 📊 Baseline Performance Data
 
 ### Environment Creation
+
 - Regular: 5.5ms (182 ops/sec)
 - Sandboxed: 7.0ms (142 ops/sec) - 28% slower
 
 ### Loader Performance Comparison
+
 | Loader | Time | Relative Speed |
 |--------|------|----------------|
 | FileSystem | 730μs | 1x (fastest) |
@@ -72,6 +82,7 @@ async def _async_yield_from(self, generator_func):
 | Package | 45ms | 62x slower ⚠️ |
 
 ### Cache Operations
+
 - Key generation: 754ns
 - Cache ops: 830ns
 - **Issue**: No performance difference between cache hits/misses
@@ -79,6 +90,7 @@ async def _async_yield_from(self, generator_func):
 ## 🎖️ Performance Testing Setup
 
 **Created comprehensive benchmarks covering:**
+
 - ✅ Environment creation (AsyncEnvironment, AsyncSandboxedEnvironment)
 - ✅ All loader types (FileSystem, Dict, Package, Function, Choice)
 - ✅ Template loading and compilation
@@ -88,6 +100,7 @@ async def _async_yield_from(self, generator_func):
 - ❌ Template rendering (needs debugging)
 
 **Benchmark command:**
+
 ```bash
 pytest tests/test_benchmarks.py --benchmark-only --benchmark-sort=mean
 ```
@@ -97,11 +110,11 @@ pytest tests/test_benchmarks.py --benchmark-only --benchmark-sort=mean
 Implementing the top 3 optimizations should result in:
 
 1. **async_yield_from fix**: 100x improvement
-2. **Package loader optimization**: 9x improvement
-3. **Compilation optimization**: 3x improvement
+1. **Package loader optimization**: 9x improvement
+1. **Compilation optimization**: 3x improvement
 
 **Combined impact**: Template rendering operations could see 10-50x performance improvement for typical workloads.
 
----
+______________________________________________________________________
 
 *Next: Implement async_yield_from optimization for immediate 100x performance gain*

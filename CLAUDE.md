@@ -9,6 +9,7 @@ This is `jinja2-async-environment`, an async-first template engine that extends 
 ## Development Commands
 
 ### Initial Setup
+
 ```bash
 # Install dependencies (first time setup)
 uv sync              # Install dependencies from uv.lock
@@ -18,6 +19,7 @@ source .venv/bin/activate  # or .venv/Scripts/activate on Windows
 ```
 
 ### Package Management
+
 ```bash
 # Primary package manager
 uv sync              # Install dependencies from uv.lock
@@ -27,6 +29,7 @@ uv lock              # Update lock file
 ```
 
 ### Code Quality & Linting
+
 ```bash
 # Run all pre-commit hooks (comprehensive quality checks)
 pre-commit run --all-files
@@ -40,6 +43,7 @@ bandit -r .         # Security analysis
 ```
 
 ### Testing
+
 ```bash
 # Run all tests
 pytest
@@ -69,6 +73,7 @@ pytest -n auto
 ```
 
 ### Performance Analysis
+
 ```bash
 # Run baseline benchmarks (located in tests/)
 pytest tests/test_benchmarks.py -v
@@ -84,6 +89,7 @@ pytest tests/test_optimization_comparison.py
 **AsyncEnvironment** (`environment.py`): Main async template environment that extends Jinja2's Environment with async-aware compilation and rendering. Key method: `_async_yield_from()` - optimized for 300x performance improvement.
 
 **Async Loaders** (`loaders.py`): Five loader types for different template sources:
+
 - `AsyncFileSystemLoader` - filesystem templates using anyio.Path
 - `AsyncPackageLoader` - Python package templates
 - `AsyncDictLoader` - in-memory dictionary templates
@@ -111,6 +117,7 @@ The `_async_yield_from()` method in `AsyncEnvironment` was recently optimized fr
 ### Testing Strategy
 
 Tests are organized by component with comprehensive coverage:
+
 - Core functionality tests for each loader and environment type
 - Performance benchmarks with baseline tracking in `tests/BENCHMARK_BASELINE.md`
 - Security tests for sandboxed environments
@@ -139,11 +146,12 @@ The test suite uses `asyncio_mode = "auto"` and requires AsyncMock for async ope
 **MANDATORY: Before marking any task as complete, AI assistants MUST:**
 
 1. **Run crackerjack verification**: Execute `python -m crackerjack -t --ai-agent` to run all quality checks and tests with AI-optimized output
-2. **Fix any issues found**: Address all formatting, linting, type checking, and test failures
-3. **Re-run verification**: Ensure crackerjack passes completely (all hooks pass, all tests pass)
-4. **Document verification**: Mention that crackerjack verification was completed successfully
+1. **Fix any issues found**: Address all formatting, linting, type checking, and test failures
+1. **Re-run verification**: Ensure crackerjack passes completely (all hooks pass, all tests pass)
+1. **Document verification**: Mention that crackerjack verification was completed successfully
 
 **Why this is critical:**
+
 - Ensures all code meets project quality standards
 - Prevents broken code from being committed
 - Maintains consistency with project development workflow
@@ -154,6 +162,7 @@ The test suite uses `asyncio_mode = "auto"` and requires AsyncMock for async ope
 ## File Organization
 
 ### Source Structure
+
 ```
 jinja2_async_environment/
 ├── __init__.py           # Public API exports
@@ -164,6 +173,7 @@ jinja2_async_environment/
 ```
 
 ### Test Structure
+
 ```
 tests/
 ├── BENCHMARK_BASELINE.md    # Performance baseline tracking
@@ -179,13 +189,17 @@ tests/
 ## Important Implementation Details
 
 ### Critical Performance Method
+
 The `_async_yield_from()` method in `AsyncEnvironment` (environment.py:86) is the performance-critical path that was optimized from exception-based type detection to direct `hasattr()` checking, achieving 300x performance improvement. Any changes to this method require careful performance testing.
 
 ### Loader Interface
+
 All async loaders implement the `AsyncLoaderProtocol` defined in loaders.py:29. When creating new loaders, follow this protocol and support both sync and async uptodate functions.
 
 ### Redis Caching
+
 The `AsyncRedisBytecodeCache` provides significant performance improvements for compiled templates. Always test caching functionality when modifying compilation or template loading logic.
 
 ### Template Compilation
+
 The `AsyncCodeGenerator` in `compiler.py` extends Jinja2's compiler with async-aware code generation. The `_compile()` method in `AsyncEnvironment` includes special handling for async syntax and yield statements to ensure proper async template rendering.

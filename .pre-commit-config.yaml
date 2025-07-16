@@ -22,7 +22,7 @@ repos:
 
   # Package management - once structure is valid
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.7.20
+    rev: 0.7.21
     hooks:
       - id: uv-lock
         files: ^pyproject\.toml$
@@ -48,29 +48,40 @@ repos:
       - id: ruff-check
       - id: ruff-format
 
-  # Code quality tier 2 - analysis
+  - repo: https://github.com/executablebooks/mdformat
+    rev: 0.7.22
+    hooks:
+      - id: mdformat
+        additional_dependencies:
+          - mdformat-ruff
+
+  # Code quality tier 2 - analysis (moved to pre-push for performance)
   - repo: https://github.com/jendrikseipp/vulture
     rev: 'v2.14'
     hooks:
       - id: vulture
+        stages: [pre-push, manual]
 
   - repo: https://github.com/fredrikaverpil/creosote
     rev: v4.0.3
     hooks:
       - id: creosote
+        stages: [pre-push, manual]
 
   - repo: https://github.com/rohaquinlop/complexipy-pre-commit
     rev: v3.0.0
     hooks:
       - id: complexipy
         args: ["-d", "low"]
+        stages: [pre-push, manual]
 
   - repo: https://github.com/dosisod/refurb
     rev: v2.1.0
     hooks:
       - id: refurb
+        stages: [pre-push, manual]
 
-  # Code quality tier 3 - thorough checks
+  # Code quality tier 3 - thorough checks (moved to pre-push for performance)
   - repo: local
     hooks:
       - id: autotyping
@@ -83,7 +94,8 @@ repos:
           - jinja2_async_environment
         types_or: [ python, pyi ]
         language: python
-        files: \.py$
+        files: ^jinja2_async_environment/.*\.py$
+        stages: [pre-push, manual]
         additional_dependencies:
           - autotyping>=24.3.0
           - libcst>=1.1.0
@@ -92,9 +104,11 @@ repos:
     rev: '1.8.6'
     hooks:
       - id: bandit
-        args: ["-c", "pyproject.toml"]
+        args: ["-c", "pyproject.toml", "-r", "-ll"]
+        stages: [pre-push, manual]
 
   - repo: https://github.com/RobertCraigie/pyright-python
     rev: v1.1.403
     hooks:
       - id: pyright
+        stages: [pre-push, manual]

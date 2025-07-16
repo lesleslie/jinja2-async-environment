@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "jinja2-async-environment"
-version = "0.14.4"
+version = "0.14.5"
 description = ""
 readme = "README.md"
 license.text = "BSD-3-Clause"
@@ -162,10 +162,14 @@ ignore_errors = false
 [tool.pyright]
 verboseOutput = true
 include = [
+    "tests",
     "jinja2_async_environment",
 ]
 exclude = [
+    "dist",
+    "build",
     "scratch",
+    ".venv",
 ]
 extraPaths = [
     ".venv/lib/python3.13/site-packages/",
@@ -182,6 +186,9 @@ reportUnknownLambdaType = false
 reportUnknownParameterType = "warning"
 reportPrivateUsage = false
 pythonVersion = "3.13"
+reportUnnecessaryTypeIgnoreComment = "warning"
+reportUnnecessaryComparison = "warning"
+reportConstantRedefinition = "warning"
 
 [tool.creosote]
 paths = [
@@ -189,44 +196,50 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
-    "uv",
-    "pydantic-settings",
-    "pyfiglet",
-    "pytest-asyncio",
-    "pytest",
     "pytest-mock",
-    "tomli-w",
-    "hatchling",
-    "pytest-benchmark",
-    "autotyping",
-    "pytest-cov",
-    "pre-commit",
+    "pyfiglet",
+    "pydantic-settings",
     "pytest-timeout",
-    "keyring",
+    "tomli-w",
+    "pytest",
     "pytest-xdist",
-    "inflection",
+    "uv",
+    "keyring",
     "pyyaml",
+    "hatchling",
+    "pytest-cov",
     "google-crc32c",
+    "pytest-benchmark",
+    "pytest-asyncio",
+    "pre-commit",
+    "autotyping",
+    "pyleak",
+    "inflection",
 ]
 
 [tool.refurb]
 enable_all = true
 quiet = true
+python_version = "3.13"
 
 [tool.bandit]
 target = [
+    "tests",
     "jinja2_async_environment",
 ]
 skips = [
-    "B704",
-    "B404",
-    "B607",
-    "B301",
-    "B603",
-    "B101",
-    "B311",
-    "B403",
     "B602",
+    "B607",
+    "B403",
+    "B704",
+    "B301",
+    "B101",
+    "B404",
+    "B603",
+    "B311",
+]
+exclude_dirs = [
+    "tests/data",
 ]
 
 [tool.vulture]
@@ -250,3 +263,19 @@ check-url = "https://pypi.org/simple/"
 name = "pypi"
 url = "https://upload.pypi.org/legacy/"
 check-url = "https://pypi.org/simple/"
+
+[tool.autotyping]
+exclude = [
+    "tests/data/*",
+    "*/conftest.py",
+]
+safe = true
+aggressive = true
+
+[tool.complexipy]
+default_pattern = "**/*.py"
+exclude_patterns = [
+    "**/tests/**",
+    "**/test_*.py",
+]
+max_complexity = 13

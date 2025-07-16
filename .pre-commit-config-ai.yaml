@@ -1,98 +1,112 @@
+# AI-optimized pre-commit hooks for comprehensive analysis and structured output
+# Designed for AI agent workflows with enhanced reporting and metrics
+
 repos:
-  # File structure and format validators - check structure first
+  # Group 1: File Structure & Format Validation (parallel-safe, fast)
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
       - id: trailing-whitespace
         name: trailing-whitespace
-        verbose: true
+        stages: [pre-commit]
       - id: end-of-file-fixer
         name: end-of-file-fixer
-        verbose: true
+        stages: [pre-commit]
       - id: check-yaml
         name: check-yaml
-        verbose: true
+        stages: [pre-commit]
       - id: check-toml
         name: check-toml
-        verbose: true
+        stages: [pre-commit]
       - id: check-added-large-files
         name: check-added-large-files
-        verbose: true
+        stages: [pre-commit]
 
+  # Group 2: Project Configuration Management
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.24.1
     hooks:
       - id: validate-pyproject
-        verbose: true
+        stages: [pre-commit]
 
   - repo: https://github.com/tox-dev/pyproject-fmt
     rev: "v2.6.0"
     hooks:
       - id: pyproject-fmt
         args: ["-n"]
-        verbose: true
+        stages: [pre-commit]
 
-  # Package management - once structure is valid
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.7.15
+    rev: 0.7.21
     hooks:
       - id: uv-lock
         files: ^pyproject\.toml$
-        verbose: true
+        stages: [pre-commit]
 
-  # Security check - early to prevent credential leaks
+  # Group 3: Security (early detection, critical)
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0
     hooks:
       - id: detect-secrets
         exclude: 'uv\.lock|pyproject\.toml|tests/.*|docs/.*|.*\.md'
-        verbose: true
+        stages: [pre-commit]
 
-  # Code quality tier 1 - quick fixes
+  # Group 4: Code Quality & Style (fast formatting)
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
     hooks:
       - id: codespell
-        verbose: true
         additional_dependencies:
           - tomli
+        stages: [pre-commit]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.1
+    rev: v0.12.3
     hooks:
       - id: ruff-check
-        verbose: true
-        args: [--output-format=json]
+        args: ["--output-format=json", "--fix"]
+        stages: [pre-commit]
       - id: ruff-format
-        verbose: true
+        stages: [pre-commit]
 
-  # Code quality tier 2 - analysis
+  - repo: https://github.com/executablebooks/mdformat
+    rev: 0.7.22
+    hooks:
+      - id: mdformat
+        additional_dependencies:
+          - mdformat-ruff
+        stages: [pre-commit]
+
+  # Group 5: Static Analysis (comprehensive, slower)
   - repo: https://github.com/jendrikseipp/vulture
     rev: 'v2.14'
     hooks:
       - id: vulture
-        verbose: true
+        args: ["--verbose"]
+        stages: [pre-commit]
 
   - repo: https://github.com/fredrikaverpil/creosote
     rev: v4.0.3
     hooks:
       - id: creosote
-        verbose: true
+        args: ["--verbose"]
+        stages: [pre-commit]
 
   - repo: https://github.com/rohaquinlop/complexipy-pre-commit
     rev: v3.0.0
     hooks:
       - id: complexipy
-        args: ["-d", "low", "-j"]
-        verbose: true
+        args: ["-d", "low", "--output", "complexipy.json"]
+        stages: [pre-commit]
 
   - repo: https://github.com/dosisod/refurb
     rev: v2.1.0
     hooks:
       - id: refurb
-        verbose: true
+        args: ["--quiet"]
+        stages: [pre-commit]
 
-  # Code quality tier 3 - thorough checks
+  # Group 6: Type Checking & Enhancement (most expensive)
   - repo: local
     hooks:
       - id: autotyping
@@ -102,25 +116,38 @@ repos:
           - --aggressive
           - --only-without-imports
           - --guess-common-names
+          - --cache-dir=.autotyping-cache
+          - --workers=4
+          - --max-line-length=88
+          - --exclude-name=test_*,conftest
           - jinja2_async_environment
         types_or: [ python, pyi ]
         language: python
-        files: \.py$
-        verbose: true
+        files: ^jinja2_async_environment/.*\.py$
+        stages: [pre-commit]
         additional_dependencies:
           - autotyping>=24.3.0
           - libcst>=1.1.0
 
   - repo: https://github.com/PyCQA/bandit
-    rev: '1.8.5'
+    rev: '1.8.6'
     hooks:
       - id: bandit
-        args: ["-c", "pyproject.toml", "--format", "json"]
-        verbose: true
+        args: ["-c", "pyproject.toml", "-f", "json", "-o", "bandit-report.json", "-r", "-ll"]
+        stages: [pre-commit]
 
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.402
+    rev: v1.1.403
     hooks:
       - id: pyright
-        verbose: true
         args: ["--outputjson"]
+        stages: [pre-commit]
+
+  # Group 7: Documentation & Security Enhancement (AI-specific)
+  # pydocstyle temporarily disabled - conflicts with code cleaning functionality
+  # - repo: https://github.com/PyCQA/pydocstyle
+  #   rev: 6.3.0
+  #   hooks:
+  #     - id: pydocstyle
+  #       args: ["--config=pyproject.toml"]
+  #       stages: [pre-commit]
