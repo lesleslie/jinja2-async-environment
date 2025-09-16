@@ -6,10 +6,9 @@ requires = [
 
 [project]
 name = "jinja2-async-environment"
-version = "0.14.5"
+version = "0.16.0"
 description = ""
 readme = "README.md"
-license.text = "BSD-3-Clause"
 authors = [
     { name = "lesleslie", email = "les@wedgwoodwebworks.com" },
 ]
@@ -32,9 +31,16 @@ dependencies = [
     "redis>=3.5.3",
 ]
 
+[project.license]
+text = "BSD-3-Clause"
+
 [dependency-groups]
 dev = [
+    "codespell>=2.4.1",
+    "complexipy>=3.3",
     "crackerjack>=0.22.5",
+    "pyproject-fmt>=2.6",
+    "session-mgmt-mcp>=0.1.3",
     "twine>=6.1",
 ]
 
@@ -51,15 +57,18 @@ unsafe-fixes = true
 show-fixes = true
 output-format = "full"
 
-format.docstring-code-format = true
-lint.extend-select = [
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint]
+extend-select = [
     "C901",
     "D",
     "F",
     "I",
     "UP",
 ]
-lint.ignore = [
+ignore = [
     "D100",
     "D101",
     "D102",
@@ -72,15 +81,21 @@ lint.ignore = [
     "F821",
     "UP040",
 ]
-lint.fixable = [
+fixable = [
     "ALL",
 ]
-lint.unfixable = [  ]
-lint.isort.no-lines-before = [
+unfixable = []
+
+[tool.ruff.lint.isort]
+no-lines-before = [
     "first-party",
 ]
-lint.mccabe.max-complexity = 13
-lint.pydocstyle.convention = "google"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 13
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.codespell]
 skip = "*/data/*"
@@ -196,25 +211,25 @@ paths = [
 ]
 deps-file = "pyproject.toml"
 exclude-deps = [
-    "pytest-mock",
-    "pyfiglet",
-    "pydantic-settings",
-    "pytest-timeout",
-    "tomli-w",
     "pytest",
-    "pytest-xdist",
-    "uv",
+    "pytest-mock",
     "keyring",
-    "pyyaml",
-    "hatchling",
-    "pytest-cov",
-    "google-crc32c",
     "pytest-benchmark",
-    "pytest-asyncio",
-    "pre-commit",
-    "autotyping",
+    "pydantic-settings",
+    "google-crc32c",
     "pyleak",
+    "tomli-w",
+    "pytest-asyncio",
+    "pytest-cov",
+    "pytest-xdist",
+    "autotyping",
+    "uv",
+    "hatchling",
+    "pytest-timeout",
+    "pyfiglet",
     "inflection",
+    "pyyaml",
+    "pre-commit",
 ]
 
 [tool.refurb]
@@ -228,15 +243,15 @@ target = [
     "jinja2_async_environment",
 ]
 skips = [
-    "B602",
-    "B607",
     "B403",
-    "B704",
-    "B301",
     "B101",
+    "B301",
     "B404",
-    "B603",
+    "B602",
+    "B704",
+    "B607",
     "B311",
+    "B603",
 ]
 exclude_dirs = [
     "tests/data",

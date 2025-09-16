@@ -1,0 +1,117 @@
+{
+  "mcpServers": {
+    "session-mgmt": {
+      "url": "http://localhost:8678/mcp",
+      "type": "http"
+    },
+    "crackerjack": {
+      "url": "http://localhost:8676/mcp",
+      "type": "http"
+    },
+    "jetbrains": {
+      "type": "sse",
+      "url": "http://localhost:64342/sse"
+    },
+    "macos_automator": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@steipete/macos-automator-mcp@0.4.1"
+      ],
+      "type": "stdio"
+    },
+    "peekaboo": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@steipete/peekaboo-mcp@3.0.0-beta.2"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@executeautomation/playwright-mcp-server@1.0.6"
+      ],
+      "type": "stdio"
+    },
+    "git": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@cyanheads/git-mcp-server@2.3.2"
+      ],
+      "type": "stdio"
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github@latest"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN_USE_GHCLI": "true"
+      },
+      "type": "stdio"
+    },
+    "gitlab": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@zereight/mcp-gitlab@2.0.3"
+      ],
+      "type": "stdio"
+    },
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory@2025.8.4"
+      ],
+      "type": "stdio"
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking@2025.7.1"
+      ],
+      "type": "stdio"
+    },
+    "filesystem": {
+      "command": "rust-mcp-filesystem",
+      "args": [
+        "-w",
+        "~/Projects"
+      ],
+      "type": "stdio"
+    },
+    "gemini-cli": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "gemini-mcp-tool@1.1.4"
+      ],
+      "type": "stdio"
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@1.0.16"
+      ],
+      "type": "stdio"
+    },
+
+
+    "mermaid": {
+      "url": "http://localhost:3033/mcp",
+      "type": "http"
+    },
+    "excalidraw": {
+      "url": "http://localhost:3032/mcp",
+      "type": "http"
+    }
+  }
+}

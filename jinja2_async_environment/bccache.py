@@ -3,7 +3,7 @@ from types import MappingProxyType
 
 from jinja2 import Environment
 from jinja2.bccache import Bucket, BytecodeCache
-from redis.asyncio import Redis, RedisCluster  # type: ignore
+from redis.asyncio import Redis, RedisCluster
 
 
 class AsyncBytecodeCache(BytecodeCache):
@@ -45,13 +45,13 @@ class AsyncBytecodeCache(BytecodeCache):
 
 class AsyncRedisBytecodeCache(AsyncBytecodeCache):
     prefix: str | None
-    client: Redis | RedisCluster  # type: ignore
+    client: Redis | RedisCluster
     configs: MappingProxyType[str, t.Any]
 
     def __init__(
         self,
         prefix: str | None = None,
-        client: Redis | RedisCluster | None = None,  # type: ignore
+        client: Redis | RedisCluster | None = None,
         **configs: t.Any,
     ) -> None:
         self.prefix = prefix
@@ -70,7 +70,7 @@ class AsyncRedisBytecodeCache(AsyncBytecodeCache):
         return f"{self.prefix}:{key}" if self.prefix else key
 
     async def load_bytecode(self, bucket: Bucket) -> bytes | None:  # type: ignore[override]
-        code = await self.client.get(self.get_bucket_name(bucket.key))  # type: ignore
+        code = await self.client.get(self.get_bucket_name(bucket.key))
         if code:
             code_bytes = code.encode("utf-8") if isinstance(code, str) else code
             bucket.bytecode_from_string(code_bytes)
@@ -78,7 +78,7 @@ class AsyncRedisBytecodeCache(AsyncBytecodeCache):
         return None
 
     async def dump_bytecode(self, bucket: Bucket) -> None:  # type: ignore[override]
-        await self.client.set(  # type: ignore
+        await self.client.set(
             self.get_bucket_name(bucket.key), bucket.bytecode_to_string()
         )
 

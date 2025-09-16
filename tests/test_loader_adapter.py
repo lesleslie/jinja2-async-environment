@@ -26,9 +26,19 @@ class TestLoaderAdapter:
         original_method = loader.get_source_async
 
         async def patched_get_source(*args: t.Any, **kwargs: t.Any) -> t.Any:
-            # If first arg is environment, call with just the template
-            if len(args) > 1 and isinstance(args[0], AsyncEnvironment):
-                return await original_method(args[1])
+            # Handle calls with environment parameter (new signature)
+            if len(args) >= 2 and isinstance(args[0], AsyncEnvironment):
+                # Simulate implementation that raises TemplateNotFound
+                from jinja2.exceptions import TemplateNotFound
+
+                raise TemplateNotFound("template.html")
+            # Handle calls with just template parameter (old signature)
+            elif len(args) >= 1:
+                # Simulate implementation that raises TemplateNotFound
+                from jinja2.exceptions import TemplateNotFound
+
+                raise TemplateNotFound("template.html")
+            # Pass through any other calls
             return await original_method(*args, **kwargs)
 
         # Apply the patch

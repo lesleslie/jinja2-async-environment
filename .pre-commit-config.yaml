@@ -1,114 +1,110 @@
 repos:
-  # File structure and format validators - check structure first
+  - repo: local
+    hooks:
+      - id: validate-regex-patterns
+        name: validate-regex-patterns
+        entry: uv run python -m crackerjack.tools.validate_regex_patterns
+        language: system
+        files: \.py$
+        exclude: ^\.venv/|^src/
+      - id: skylos
+        name: skylos-dead-code-detection
+        entry: skylos
+        language: system
+        args: ["jinja2_async_environment"]
+        pass_filenames: false
+        exclude: ^src/
+        stages: ["pre-push", "manual"]
+      - id: zuban
+        name: zuban-type-checking
+        entry: uv run zuban check
+        language: system
+        args: ["--config-file", "mypy.ini", "./jinja2_async_environment"]
+        pass_filenames: false
+        exclude: ^src/
+        stages: ["pre-push", "manual"]
+      - id: pyright
+        name: pyright-type-checking
+        entry: uv run pyright
+        language: system
+        files: ^jinja2_async_environment/.*\.py$
+        exclude: ^crackerjack/(mcp|plugins)/.*\.py$|crackerjack/code_cleaner\.py$|^src/
+        stages: ["pre-push", "manual"]
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
         name: trailing-whitespace
+        exclude: ^\.venv/|^src/
       - id: end-of-file-fixer
         name: end-of-file-fixer
+        exclude: ^\.venv/|^src/
       - id: check-yaml
         name: check-yaml
+        exclude: ^\.venv/|^src/
       - id: check-toml
         name: check-toml
+        exclude: ^\.venv/|^src/
       - id: check-added-large-files
         name: check-added-large-files
-
-  - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "v2.6.0"
-    hooks:
-      - id: pyproject-fmt
-        args: ["-n"]
-
-  # Package management - once structure is valid
+        exclude: ^\.venv/|^src/
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.7.21
+    rev: 0.8.15
     hooks:
       - id: uv-lock
-        files: ^pyproject\.toml$
-
-  # Security check - early to prevent credential leaks
-  - repo: https://github.com/Yelp/detect-secrets
-    rev: v1.5.0
+        files: ^ pyproject\.toml$
+        exclude: ^src/
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.28.0
     hooks:
-      - id: detect-secrets
-        exclude: 'uv\.lock|pyproject\.toml|tests/.*|docs/.*|.*\.md'
-
-  # Code quality tier 1 - quick fixes
+      - id: gitleaks
+        exclude: uv\.lock|pyproject\.toml|tests/.*|docs/.*|.*\.md|^src/
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.6
+    hooks:
+      - id: bandit
+        args: ["-c", "pyproject.toml", "-r", "-ll"]
+        files: ^jinja2_async_environment/.*\.py$
+        exclude: ^src/
+        stages: ["pre-push", "manual"]
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
     hooks:
       - id: codespell
-        additional_dependencies:
-          - tomli
-
+        exclude: ^\.venv/|^src/
+        additional_dependencies: ["tomli"]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.3
+    rev: v0.12.12
     hooks:
       - id: ruff-check
+        exclude: ^\.venv/|^src/
       - id: ruff-format
-
+        exclude: ^\.venv/|^src/
   - repo: https://github.com/executablebooks/mdformat
     rev: 0.7.22
     hooks:
       - id: mdformat
-        additional_dependencies:
-          - mdformat-ruff
-
-  # Code quality tier 2 - analysis (moved to pre-push for performance)
-  - repo: https://github.com/jendrikseipp/vulture
-    rev: 'v2.14'
-    hooks:
-      - id: vulture
-        stages: [pre-push, manual]
-
+        exclude: ^\.venv/|^src/
+        additional_dependencies: ["mdformat-ruff"]
   - repo: https://github.com/fredrikaverpil/creosote
-    rev: v4.0.3
+    rev: v4.1.0
     hooks:
       - id: creosote
-        stages: [pre-push, manual]
-
+        exclude: ^\.venv/|^src/
+        stages: ["pre-push", "manual"]
   - repo: https://github.com/rohaquinlop/complexipy-pre-commit
-    rev: v3.0.0
+    rev: v3.3.0
     hooks:
       - id: complexipy
-        args: ["-d", "low"]
-        stages: [pre-push, manual]
-
+        args: ["-d", "low", "--max-complexity-allowed", "15"]
+        files: ^jinja2_async_environment/.*\.py$
+        exclude: ^(\.venv/|tests/)|^src/
+        stages: ["pre-push", "manual"]
   - repo: https://github.com/dosisod/refurb
     rev: v2.1.0
     hooks:
       - id: refurb
-        stages: [pre-push, manual]
-
-  # Code quality tier 3 - thorough checks (moved to pre-push for performance)
-  - repo: local
-    hooks:
-      - id: autotyping
-        name: autotyping
-        entry: python -m autotyping
-        args:
-          - --aggressive
-          - --only-without-imports
-          - --guess-common-names
-          - jinja2_async_environment
-        types_or: [ python, pyi ]
-        language: python
+        args: ["--ignore", "FURB184", "--ignore", "FURB120"]
         files: ^jinja2_async_environment/.*\.py$
-        stages: [pre-push, manual]
-        additional_dependencies:
-          - autotyping>=24.3.0
-          - libcst>=1.1.0
-
-  - repo: https://github.com/PyCQA/bandit
-    rev: '1.8.6'
-    hooks:
-      - id: bandit
-        args: ["-c", "pyproject.toml", "-r", "-ll"]
-        stages: [pre-push, manual]
-
-  - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.403
-    hooks:
-      - id: pyright
-        stages: [pre-push, manual]
+        exclude: ^tests/.*\.py$|^src/
+        stages: ["pre-push", "manual"]

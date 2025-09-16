@@ -1,6 +1,6 @@
 import typing as t
 from collections.abc import AsyncIterator
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from anyio import Path as AsyncPath
@@ -86,9 +86,10 @@ async def test_async_filesystem_loader_error_handling() -> None:
 @pytest.mark.asyncio
 async def test_async_package_loader_error_handling() -> None:
     """Test error handling in AsyncPackageLoader."""
-    # Test with a non-existent package
+    # Test with a non-existent package - should raise when trying to use it
+    loader = AsyncPackageLoader("non_existent_package", "templates")
     with pytest.raises(PackageSpecNotFound):
-        AsyncPackageLoader("non_existent_package", "templates")
+        await loader.get_source_async(AsyncEnvironment(), "test.html")
 
     # Test with a valid package but non-existent template
     loader = AsyncPackageLoader("jinja2_async_environment", "tests")
@@ -144,14 +145,36 @@ async def test_async_dict_loader_error_handling() -> None:
 async def test_async_filesystem_loader_with_encoding() -> None:
     """Test AsyncFileSystemLoader with different encodings."""
     with (
-        patch("anyio.Path.is_file") as mock_is_file,
-        patch("anyio.Path.read_bytes") as mock_read_bytes,
-        patch("anyio.Path.stat") as mock_stat,
+        patch(
+            "jinja2_async_environment.loaders.filesystem.AsyncPath.exists",
+            return_value=True,
+        ),
+        patch(
+            "jinja2_async_environment.loaders.filesystem.AsyncPath.read_text",
+            return_value="template content",
+        ) as mock_read_text,
+        patch(
+            "jinja2_async_environment.loaders.filesystem.AsyncPath.stat"
+        ) as mock_stat,
+        patch(
+            "jinja2_async_environment.loaders.filesystem.AsyncPath.is_file",
+            return_value=True,
+        ),
+        patch(
+            "jinja2_async_environment.loaders.filesystem.AsyncPath.is_symlink",
+            return_value=False,
+        ),
+        patch(
+            "jinja2_async_environment.loaders.filesystem.AsyncPath.resolve"
+        ) as mock_resolve,
     ):
-        # Mock the file exists and content
-        mock_is_file.return_value = True
-        mock_read_bytes.return_value = "template content".encode("latin1")
-        mock_stat.return_value.st_mtime = 123456789.0
+        # Mock stat to return a proper stat result
+        mock_stat_result = MagicMock()
+        mock_stat_result.st_mtime = 123456789.0
+        mock_stat.return_value = mock_stat_result
+
+        # Mock resolve to return the same path
+        mock_resolve.return_value = AsyncPath("/templates/template.html")
 
         # Create a loader with a specific encoding
         loader = AsyncFileSystemLoader(AsyncPath("/templates"), encoding="latin1")
@@ -162,7 +185,7 @@ async def test_async_filesystem_loader_with_encoding() -> None:
         )
 
         # Verify the encoding was used
-        mock_read_bytes.assert_called_once()
+        mock_read_text.assert_called_once_with(encoding="latin1")
         assert source == "template content"
 
 
@@ -258,6 +281,7 @@ async def test_async_filesystem_loader_list_templates() -> None:
     with (
         patch("anyio.Path.rglob") as mock_rglob,
         patch("anyio.Path.is_file") as mock_is_file,
+        patch("anyio.Path.exists") as mock_exists,
     ):
         # Create a mock for the rglob method to return a list of paths
         mock_paths = [
@@ -273,6 +297,7 @@ async def test_async_filesystem_loader_list_templates() -> None:
 
         mock_rglob.return_value = mock_async_iter()
         mock_is_file.return_value = True
+        mock_exists.return_value = True  # Mock the searchpath as existing
 
         # Create a loader with the mock searchpath
         loader = AsyncFileSystemLoader(AsyncPath("/templates"))

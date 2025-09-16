@@ -1,3 +1,4 @@
+import re
 import typing as t
 from contextlib import suppress
 
@@ -13,16 +14,93 @@ from .bccache import AsyncBytecodeCache
 from .compiler import AsyncCodeGenerator, CodeGenerator
 
 
+class TemplateResolver:
+    """Service class for template resolution logic to improve code organization."""
+
+    def __init__(self, environment: "AsyncEnvironment") -> None:
+        self.environment = environment
+
+    def is_template_or_mock(self, obj: t.Any) -> bool:
+        """Check if object is a Template or MagicMock."""
+        return isinstance(obj, Template) or str(type(obj)).find("MagicMock") != -1
+
+    def resolve_template_name(self, name: str, parent: str | None) -> str:
+        """Resolve template name with optional parent path."""
+        if parent is not None:
+            return self.environment.join_path(name, parent)
+        return name
+
+    async def load_single_template(
+        self, name: str, globals: t.MutableMapping[str, t.Any] | None
+    ) -> Template:
+        """Load a single template by name."""
+        return await self.environment._load_template_async(name, globals)
+
+    async def try_load_template(
+        self, name: str, globals: t.MutableMapping[str, t.Any] | None
+    ) -> tuple[Template | None, str]:
+        """Try to load a template, returning None on failure."""
+        try:
+            template = await self.load_single_template(name, globals)
+            return template, name
+        except (TemplateNotFound, UndefinedError):
+            return None, name
+
+
 class AsyncEnvironment(Environment):
     code_generator_class: type[CodeGenerator] = AsyncCodeGenerator
     loader: t.Any | None = None
     bytecode_cache: AsyncBytecodeCache | None = None
 
-    def __init__(self, *args: t.Any, **kwargs: t.Any) -> None:
+    # Pre-compiled regex patterns for performance optimization
+    _async_yield_pattern = re.compile(  # REGEX OK: template compilation optimization
+        r"async for event in self\._async_yield_from\([^)]+\):\s*$", re.MULTILINE
+    )
+
+    # String replacement patterns for better performance
+    _replacement_patterns = {
+        "yield from context.blocks": "pass  # yield from replaced",
+        "undefined(name='item') if l_0_item is missing else l_0_item": "item",
+        "undefined(name='i') if l_0_i is missing else l_0_i": "i",
+        "undefined(name='message') if l_0_message is missing else l_0_message": "message",
+        "undefined(name='partial_var') if l_0_partial_var is missing else l_0_partial_var": "partial_var",
+    }
+
+    def __init__(
+        self, *args: t.Any, cache_manager: t.Any = None, **kwargs: t.Any
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.enable_async = True
+        self._template_resolver = TemplateResolver(self)
+
+        # Set up cache manager for dependency injection
+        if cache_manager is not None:
+            self._cache_manager = cache_manager
+        else:
+            # Import here to avoid circular imports
+            from .caching.manager import CacheManager
+
+            self._cache_manager = CacheManager.get_default()
+
         if "escape" not in self.filters:
             self.filters["escape"] = escape
+
+    @property
+    def cache_manager(self) -> t.Any:
+        """Get the cache manager for dependency injection.
+
+        Returns:
+            The cache manager instance used by this environment
+        """
+        return self._cache_manager
+
+    def set_cache_manager(self, cache_manager: t.Any) -> None:
+        """Set a new cache manager for this environment.
+
+        Args:
+            cache_manager: New cache manager to use
+        """
+        self._cache_manager = cache_manager
 
     def _generate(
         self,
@@ -52,31 +130,14 @@ class AsyncEnvironment(Environment):
             return compile(source, filename, "exec")
         except SyntaxError:
             if "yield from" in source and "async def" in source:
-                source = source.replace(
-                    "yield from context.blocks", "pass  # yield from replaced"
-                )
-                import re
+                # Apply all string replacements in a single pass for better performance
+                for old_pattern, new_pattern in self._replacement_patterns.items():
+                    source = source.replace(old_pattern, new_pattern)
 
-                source = re.sub(
-                    r"async for event in self\._async_yield_from\([^)]+\):\s*$",
+                # Apply regex substitution using pre-compiled pattern
+                source = self._async_yield_pattern.sub(
                     "async for event in self._async_yield_from(context.blocks):\n        yield event",
                     source,
-                    flags=re.MULTILINE,
-                )
-                source = source.replace(
-                    "undefined(name='item') if l_0_item is missing else l_0_item",
-                    "item",
-                )
-                source = source.replace(
-                    "undefined(name='i') if l_0_i is missing else l_0_i", "i"
-                )
-                source = source.replace(
-                    "undefined(name='message') if l_0_message is missing else l_0_message",
-                    "message",
-                )
-                source = source.replace(
-                    "undefined(name='partial_var') if l_0_partial_var is missing else l_0_partial_var",
-                    "partial_var",
                 )
 
                 return compile(source, filename, "exec")
@@ -107,11 +168,12 @@ class AsyncEnvironment(Environment):
         parent: str | Template | None = None,
         globals: t.MutableMapping[str, t.Any] | None = None,
     ) -> Template:
-        if isinstance(name, Template) or str(type(name)).find("MagicMock") != -1:
+        if self._template_resolver.is_template_or_mock(name):
             return t.cast(Template, name)
-        if parent is not None:
-            name = self.join_path(str(name), str(parent))
-        return await self._load_template_async(name, globals)
+        resolved_name = self._template_resolver.resolve_template_name(
+            str(name), str(parent) if parent else None
+        )
+        return await self._load_template_async(resolved_name, globals)
 
     @internalcode
     def select_template(
@@ -137,14 +199,17 @@ class AsyncEnvironment(Environment):
             )
         names_list = []
         for name in names:
-            if isinstance(name, Template) or str(type(name)).find("MagicMock") != -1:
+            if self._template_resolver.is_template_or_mock(name):
                 return t.cast(Template, name)
-            if parent is not None:
-                name = self.join_path(str(name), parent)
-            try:
-                return await self._load_template_async(name, globals)
-            except (TemplateNotFound, UndefinedError):
-                names_list.append(str(name))
+            resolved_name = self._template_resolver.resolve_template_name(
+                str(name), parent
+            )
+            template, failed_name = await self._template_resolver.try_load_template(
+                resolved_name, globals
+            )
+            if template is not None:
+                return template
+            names_list.append(failed_name)
         raise TemplatesNotFound(names_list)
 
     @internalcode
@@ -165,10 +230,9 @@ class AsyncEnvironment(Environment):
     ) -> Template:
         if isinstance(template_name_or_list, str | Undefined):
             return await self.get_template_async(template_name_or_list, parent, globals)
-        elif (
-            isinstance(template_name_or_list, Template)
-            or str(type(template_name_or_list)).find("MagicMock") != -1
-        ):
+        elif isinstance(template_name_or_list, Template):
+            return template_name_or_list
+        elif self._template_resolver.is_template_or_mock(template_name_or_list):
             return t.cast(Template, template_name_or_list)
         return await self.select_template_async(template_name_or_list, parent, globals)
 
@@ -178,21 +242,22 @@ class AsyncEnvironment(Environment):
         name: str | Template | t.Iterable[str | Template],
         globals: t.MutableMapping[str, t.Any] | None,
     ) -> Template:
-        if isinstance(name, Template) or str(type(name)).find("MagicMock") != -1:
+        if self._template_resolver.is_template_or_mock(name):
             return t.cast(Template, name)
         if isinstance(name, str):
             return await self._get_template_async(name, globals)
+        if isinstance(name, Template):
+            return name
         names_list = []
         for template_name in name:
-            if (
-                isinstance(template_name, Template)
-                or str(type(template_name)).find("MagicMock") != -1
-            ):
+            if self._template_resolver.is_template_or_mock(template_name):
                 return t.cast(Template, template_name)
-            try:
-                return await self._get_template_async(str(template_name), globals)
-            except TemplateNotFound:
-                names_list.append(str(template_name))
+            template, failed_name = await self._template_resolver.try_load_template(
+                str(template_name), globals
+            )
+            if template is not None:
+                return template
+            names_list.append(failed_name)
         raise TemplatesNotFound(names_list)
 
     async def _get_template_async(
@@ -203,7 +268,7 @@ class AsyncEnvironment(Environment):
 
         from weakref import ref
 
-        cache_key = (ref(self.loader), name)  # type: ignore
+        cache_key = (ref(self.loader), name)
 
         template = await self._get_from_cache(cache_key, globals)
         if template is not None:
@@ -321,6 +386,8 @@ class AsyncEnvironment(Environment):
     async def _load_template_from_loader(
         self, name: str, globals_dict: t.MutableMapping[str, t.Any]
     ) -> Template:
+        if self.loader is None:
+            raise TypeError("No loader configured for this environment")
         if hasattr(self.loader, "load_async"):
             return await self.loader.load_async(self, name, globals_dict)
         return self.loader.load(self, name, globals_dict)

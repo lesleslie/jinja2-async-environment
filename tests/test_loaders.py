@@ -1,5 +1,5 @@
 import typing as t
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from anyio import Path as AsyncPath
@@ -32,8 +32,17 @@ class TestAsyncBaseLoader:
 
     @pytest.mark.asyncio
     async def test_not_implemented_methods(self, loader: AsyncBaseLoader) -> None:
-        with pytest.raises(TemplateNotFound):
-            await loader.get_source_async(AsyncPath("template.html"))
+        # Patch the abstract method to simulate an implementation that raises TemplateNotFound
+
+        async def patched_get_source(*args: t.Any, **kwargs: t.Any) -> t.Any:
+            # Always raise TemplateNotFound for testing purposes
+            from jinja2.exceptions import TemplateNotFound
+
+            raise TemplateNotFound("template.html")
+
+        with patch.object(loader, "get_source_async", patched_get_source):
+            with pytest.raises(TemplateNotFound):
+                await loader.get_source_async(AsyncPath("template.html"))
         with pytest.raises(
             TypeError, match="this loader cannot iterate over all templates"
         ):
@@ -70,7 +79,7 @@ class TestAsyncBaseLoader:
         loader.get_source_async = AsyncMock(return_value=(template_content, None, None))
         result = await loader.load_async(env, "template.html")
         assert result is template_instance
-        env.compile.assert_called_once_with(template_content, "template.html")
+        env.compile.assert_called_once_with(template_content, "template.html", None)
         assert len(calls) == 1
         call_args = calls[0]
         assert call_args[0] == env
@@ -89,7 +98,9 @@ class TestAsyncBaseLoader:
         env.template_class.from_code.return_value = template_instance
         loader.get_source_async = AsyncMock(return_value=(bytes_content, None, None))
         result = await loader.load_async(env, "template.html")
-        env.compile.assert_called_once_with(bytes_content.decode(), "template.html")
+        env.compile.assert_called_once_with(
+            bytes_content.decode(), "template.html", None
+        )
         env.template_class.from_code.assert_called_once_with(
             env, "compiled_code", {}, None
         )

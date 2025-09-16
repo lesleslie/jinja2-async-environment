@@ -237,8 +237,7 @@ class TestTemplateBenchmarks:
     """Benchmark template operations."""
 
     @pytest.mark.benchmark
-    @pytest.mark.asyncio
-    async def test_benchmark_simple_template_load(
+    def test_benchmark_simple_template_load(
         self, benchmark: BenchmarkFixture, dict_templates: dict[str, str]
     ) -> None:
         """Benchmark loading a simple template."""
@@ -249,12 +248,14 @@ class TestTemplateBenchmarks:
         async def load_template():
             return await env.get_template_async("simple.html")
 
-        result = await benchmark(load_template)
+        def run_benchmark():
+            return asyncio.run(load_template())
+
+        result = benchmark(run_benchmark)
         assert isinstance(result, Template)
 
     @pytest.mark.benchmark
-    @pytest.mark.asyncio
-    async def test_benchmark_complex_template_load(
+    def test_benchmark_complex_template_load(
         self, benchmark: BenchmarkFixture, dict_templates: dict[str, str]
     ) -> None:
         """Benchmark loading a complex template."""
@@ -265,90 +266,103 @@ class TestTemplateBenchmarks:
         async def load_template():
             return await env.get_template_async("complex.html")
 
-        result = await benchmark(load_template)
+        def run_benchmark():
+            return asyncio.run(load_template())
+
+        result = benchmark(run_benchmark)
         assert isinstance(result, Template)
 
     @pytest.mark.benchmark
-    @pytest.mark.asyncio
-    async def test_benchmark_template_render_simple(
+    def test_benchmark_template_render_simple(
         self, benchmark: BenchmarkFixture, dict_templates: dict[str, str]
     ) -> None:
         """Benchmark rendering a simple template."""
-        env = AsyncEnvironment(
-            loader=AsyncDictLoader(dict_templates, AsyncPath("/virtual")),
-            enable_async=True,
-        )
-        template = await env.get_template_async("simple.html")
 
-        async def render_template():
+        async def setup_and_render():
+            env = AsyncEnvironment(
+                loader=AsyncDictLoader(dict_templates, AsyncPath("/virtual")),
+                enable_async=True,
+            )
+            template = await env.get_template_async("simple.html")
             return await template.render_async(name="World")
 
-        result = await benchmark(render_template)
+        def run_benchmark():
+            return asyncio.run(setup_and_render())
+
+        result = benchmark(run_benchmark)
         assert "Hello World!" in result
 
     @pytest.mark.benchmark
-    @pytest.mark.asyncio
-    async def test_benchmark_template_render_complex(
+    def test_benchmark_template_render_complex(
         self,
         benchmark: BenchmarkFixture,
         dict_templates: dict[str, str],
         complex_context: dict[str, Any],
     ) -> None:
         """Benchmark rendering a complex template."""
-        env = AsyncEnvironment(
-            loader=AsyncDictLoader(dict_templates, AsyncPath("/virtual")),
-            enable_async=True,
-        )
-        template = await env.get_template_async("complex.html")
 
-        async def render_template():
+        async def setup_and_render():
+            env = AsyncEnvironment(
+                loader=AsyncDictLoader(dict_templates, AsyncPath("/virtual")),
+                enable_async=True,
+            )
+            template = await env.get_template_async("complex.html")
             return await template.render_async(**complex_context)
 
-        result = await benchmark(render_template)
+        def run_benchmark():
+            return asyncio.run(setup_and_render())
+
+        result = benchmark(run_benchmark)
         assert "Performance Test Page" in result
 
     @pytest.mark.benchmark
-    @pytest.mark.asyncio
-    async def test_benchmark_template_cache_hit(
+    def test_benchmark_template_cache_hit(
         self, benchmark: BenchmarkFixture, dict_templates: dict[str, str]
     ) -> None:
         """Benchmark template loading with cache hits."""
-        env = AsyncEnvironment(
-            loader=AsyncDictLoader(dict_templates, AsyncPath("/virtual"))
-        )
-        env.cache = {}
 
-        # Pre-load template to populate cache
-        await env.get_template_async("simple.html")
+        async def setup_and_load():
+            env = AsyncEnvironment(
+                loader=AsyncDictLoader(dict_templates, AsyncPath("/virtual"))
+            )
+            env.cache = {}
 
-        async def load_cached_template():
+            # Pre-load template to populate cache
+            await env.get_template_async("simple.html")
+
+            # Load cached template
             return await env.get_template_async("simple.html")
 
-        result = await benchmark(load_cached_template)
+        def run_benchmark():
+            return asyncio.run(setup_and_load())
+
+        result = benchmark(run_benchmark)
         assert isinstance(result, Template)
 
     @pytest.mark.benchmark
-    @pytest.mark.asyncio
-    async def test_benchmark_template_cache_miss(
+    def test_benchmark_template_cache_miss(
         self, benchmark: BenchmarkFixture, dict_templates: dict[str, str]
     ) -> None:
         """Benchmark template loading with cache misses."""
-        env = AsyncEnvironment(
-            loader=AsyncDictLoader(dict_templates, AsyncPath("/virtual"))
-        )
-        env.cache = {}
-
         template_names = ["simple.html", "complex.html", "with_blocks.html"]
         current_name = [0]
 
         async def load_uncached_template():
+            env = AsyncEnvironment(
+                loader=AsyncDictLoader(dict_templates, AsyncPath("/virtual"))
+            )
+            env.cache = {}
+
             name = template_names[current_name[0] % len(template_names)]
             current_name[0] += 1
             # Clear cache to ensure miss
             env.cache.clear()
             return await env.get_template_async(name)
 
-        result = await benchmark(load_uncached_template)
+        def run_benchmark():
+            return asyncio.run(load_uncached_template())
+
+        result = benchmark(run_benchmark)
         assert isinstance(result, Template)
 
 
@@ -368,8 +382,7 @@ class TestCacheBenchmarks:
         assert isinstance(result, AsyncBytecodeCache)
 
     @pytest.mark.benchmark
-    @pytest.mark.asyncio
-    async def test_benchmark_cache_key_generation(
+    def test_benchmark_cache_key_generation(
         self, benchmark: BenchmarkFixture, dict_templates: dict[str, str]
     ) -> None:
         """Benchmark cache key generation."""
@@ -386,17 +399,20 @@ class TestCacheBenchmarks:
         assert result is not None
 
     @pytest.mark.benchmark
-    @pytest.mark.asyncio
-    async def test_benchmark_cache_operations(
+    def test_benchmark_cache_operations(
         self, benchmark: BenchmarkFixture, dict_templates: dict[str, str]
     ) -> None:
         """Benchmark cache get/set operations."""
-        env = AsyncEnvironment(
-            loader=AsyncDictLoader(dict_templates, AsyncPath("/virtual"))
-        )
-        env.cache = {}
 
-        template = await env.get_template_async("simple.html")
+        async def setup():
+            env = AsyncEnvironment(
+                loader=AsyncDictLoader(dict_templates, AsyncPath("/virtual"))
+            )
+            env.cache = {}
+            template = await env.get_template_async("simple.html")
+            return env, template
+
+        env, template = asyncio.run(setup())
         from weakref import ref
 
         cache_key = (ref(env.loader), "test_key")
@@ -516,8 +532,7 @@ class TestIntegrationBenchmarks:
     """End-to-end integration benchmarks."""
 
     @pytest.mark.benchmark
-    @pytest.mark.asyncio
-    async def test_benchmark_full_template_workflow(
+    def test_benchmark_full_template_workflow(
         self,
         benchmark: BenchmarkFixture,
         dict_templates: dict[str, str],
@@ -540,12 +555,14 @@ class TestIntegrationBenchmarks:
 
             return result
 
-        result = await benchmark(full_workflow)
+        def run_benchmark():
+            return asyncio.run(full_workflow())
+
+        result = benchmark(run_benchmark)
         assert "Performance Test Page" in result
 
     @pytest.mark.benchmark
-    @pytest.mark.asyncio
-    async def test_benchmark_sandboxed_workflow(
+    def test_benchmark_sandboxed_workflow(
         self, benchmark: BenchmarkFixture, dict_templates: dict[str, str]
     ) -> None:
         """Benchmark sandboxed environment workflow."""
@@ -563,12 +580,14 @@ class TestIntegrationBenchmarks:
 
             return result
 
-        result = await benchmark(sandboxed_workflow)
+        def run_benchmark():
+            return asyncio.run(sandboxed_workflow())
+
+        result = benchmark(run_benchmark)
         assert "Hello Sandbox Test!" in result
 
     @pytest.mark.benchmark
-    @pytest.mark.asyncio
-    async def test_benchmark_choice_loader_workflow(
+    def test_benchmark_choice_loader_workflow(
         self,
         benchmark: BenchmarkFixture,
         temp_templates: AsyncPath,
@@ -594,5 +613,8 @@ class TestIntegrationBenchmarks:
 
             return result
 
-        result = await benchmark(choice_loader_workflow)
+        def run_benchmark():
+            return asyncio.run(choice_loader_workflow())
+
+        result = benchmark(run_benchmark)
         assert "Hello Choice Test!" in result

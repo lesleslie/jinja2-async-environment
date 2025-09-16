@@ -1,0 +1,16 @@
+{
+  "baseline": 84.31786216596343,
+  "current_minimum": 84.31786216596343,
+  "target": 100.0,
+  "last_updated": "2025-09-03T14:09:56.155100",
+  "history": [
+    {
+      "date": "2025-09-03T14:09:56.155150",
+      "coverage": 84.31786216596343,
+      "commit": "baseline",
+      "milestone": false
+    }
+  ],
+  "milestones_achieved": [],
+  "next_milestone": 90
+}

@@ -7,9 +7,23 @@
 /dist/
 /.mypy_cache/
 /.ruff_cache/
+/.pytest_cache/
 /.pdm-build/
 /tmp/
 /__pycache__/
 /*.pyc
 /tests/__pycache__/
 /.coverage
+/.claude/
+/htmlcov/
+/.venv/
+
+# Generated analysis reports and temporary files
+*.json
+*-report.*
+*_PLAN.md
+*_SUMMARY.md
+*_FIXES.md
+*_ACTION_PLAN.md
+test-results.xml
+.benchmarks/

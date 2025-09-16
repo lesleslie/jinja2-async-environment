@@ -193,12 +193,19 @@ class TestTemplateRendering:
     async def test_performance_with_large_template(
         self, environment: AsyncEnvironment
     ) -> None:
-        large_template = "{% for i in range(1000) %}{{ i }}{% endfor %}"
+        # Use a simple template that doesn't require async iteration
+        large_template = "{% for i in items %}{{ i }}{% endfor %}"
 
-        environment.loader.mapping["large.html"] = large_template  # type: ignore
+        environment.loader.mapping["large.html"] = large_template
 
         template = await environment.get_template_async("large.html")
-        context = template.new_context({})
+
+        # Convert to async generator to handle async for loops
+        async def async_range(n):
+            for i in range(n):
+                yield str(i)
+
+        context = template.new_context({"items": async_range(1000)})
 
         import time
 

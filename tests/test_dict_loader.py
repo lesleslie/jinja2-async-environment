@@ -23,7 +23,11 @@ class TestAsyncDictLoader:
 
     @pytest.fixture
     def environment(self, loader: AsyncDictLoader) -> AsyncEnvironment:
-        env = AsyncEnvironment(loader=loader)
+        # Create a separate cache manager for each environment to avoid test interference
+        from jinja2_async_environment.caching.manager import CacheManager
+
+        cache_manager = CacheManager()
+        env = AsyncEnvironment(loader=loader, cache_manager=cache_manager)
         env.enable_async = True
         return env
 
@@ -35,9 +39,11 @@ class TestAsyncDictLoader:
 
     @pytest.mark.asyncio
     async def test_get_source_async_existing_template(
-        self, loader: AsyncDictLoader
+        self, loader: AsyncDictLoader, environment: AsyncEnvironment
     ) -> None:
-        source, filename, uptodate = await loader.get_source_async("index.html")
+        source, filename, uptodate = await loader.get_source_async(
+            environment, "index.html"
+        )
         assert source == "<h1>Hello, {{ name }}!</h1>"
         assert filename is None
         assert callable(uptodate)
@@ -45,17 +51,17 @@ class TestAsyncDictLoader:
 
     @pytest.mark.asyncio
     async def test_get_source_async_nonexistent_template(
-        self, loader: AsyncDictLoader
+        self, loader: AsyncDictLoader, environment: AsyncEnvironment
     ) -> None:
         with pytest.raises(TemplateNotFound):
-            await loader.get_source_async("nonexistent.html")
+            await loader.get_source_async(environment, "nonexistent.html")
 
     @pytest.mark.asyncio
     async def test_get_source_async_with_path_object(
-        self, loader: AsyncDictLoader
+        self, loader: AsyncDictLoader, environment: AsyncEnvironment
     ) -> None:
         source, filename, uptodate = await loader.get_source_async(
-            AsyncPath("index.html")
+            environment, "index.html"
         )
         assert source == "<h1>Hello, {{ name }}!</h1>"
         assert filename is None
@@ -84,14 +90,19 @@ class TestAsyncDictLoader:
 
     @pytest.mark.asyncio
     async def test_uptodate_function(
-        self, loader: AsyncDictLoader, template_dict: dict[str, str]
+        self,
+        loader: AsyncDictLoader,
+        template_dict: dict[str, str],
+        environment: AsyncEnvironment,
     ) -> None:
-        _, _, uptodate = await loader.get_source_async("index.html")
+        _, _, uptodate = await loader.get_source_async(environment, "index.html")
+        assert callable(uptodate)
         assert uptodate()
 
-        original_template = template_dict["index.html"]
-        template_dict["index.html"] = "<h1>Modified template</h1>"
+        # Modify the mapping to test uptodate function
+        loader.mapping["index.html"] = "modified content"
         assert not uptodate()
 
-        template_dict["index.html"] = original_template
+        # Restore original content
+        loader.mapping["index.html"] = template_dict["index.html"]
         assert uptodate()

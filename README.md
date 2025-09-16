@@ -2,6 +2,7 @@
 
 [![Code style: crackerjack](https://img.shields.io/badge/code%20style-crackerjack-000042)](https://github.com/lesleslie/crackerjack)
 [![Python: 3.13+](https://img.shields.io/badge/python-3.13%2B-green)](https://www.python.org/downloads/)
+![Coverage](https://img.shields.io/badge/coverage-0.0%25-red)
 
 ## 100% Compatible Asynchronous Jinja2 Environment
 
@@ -140,19 +141,20 @@ from jinja2_async_environment.loaders import (
     AsyncFunctionLoader,
     AsyncChoiceLoader,
 )
+from anyio import Path as AsyncPath
 
 # Load templates from filesystem
 fs_loader = AsyncFileSystemLoader("templates")
 
 # Load templates from a Python package
-package_loader = AsyncPackageLoader("your_package", "templates")
+package_loader = AsyncPackageLoader("your_package", AsyncPath("templates"))
 
 # Load templates from a dictionary
 templates_dict = {
     "hello.html": "<h1>Hello {{ name }}!</h1>",
     "goodbye.html": "<p>Goodbye {{ name }}.</p>",
 }
-dict_loader = AsyncDictLoader(templates_dict, "/virtual")
+dict_loader = AsyncDictLoader(templates_dict)
 
 
 # Load templates using a custom async function
@@ -162,7 +164,7 @@ async def load_template(name):
         return f.read(), f"templates/{name}", lambda: True
 
 
-function_loader = AsyncFunctionLoader(load_template, "templates")
+function_loader = AsyncFunctionLoader(load_template)
 
 
 # Load templates with async uptodate function
@@ -184,9 +186,7 @@ async def load_template_with_async_uptodate(name):
         return content, filepath, async_uptodate
 
 
-async_function_loader = AsyncFunctionLoader(
-    load_template_with_async_uptodate, "templates"
-)
+async_function_loader = AsyncFunctionLoader(load_template_with_async_uptodate)
 
 # Create a loader that tries multiple sources in order
 choice_loader = AsyncChoiceLoader(
@@ -209,7 +209,6 @@ env = AsyncEnvironment(loader=choice_loader)
 import asyncio
 from jinja2_async_environment.environment import AsyncEnvironment
 from jinja2_async_environment.loaders import AsyncDictLoader
-from anyio import Path as AsyncPath
 
 
 async def macro_example():
@@ -239,9 +238,7 @@ async def macro_example():
     }
 
     # Create environment with macro support
-    env = AsyncEnvironment(
-        loader=AsyncDictLoader(templates, AsyncPath(".")), enable_async=True
-    )
+    env = AsyncEnvironment(loader=AsyncDictLoader(templates), enable_async=True)
 
     # Render template with macros
     template = await env.get_template_async("page.html")
@@ -312,9 +309,7 @@ async def safe_template_execution():
     }
 
     # Create a sandboxed environment
-    sandbox_env = AsyncSandboxedEnvironment(
-        loader=AsyncDictLoader(templates, "/sandbox")
-    )
+    sandbox_env = AsyncSandboxedEnvironment(loader=AsyncDictLoader(templates))
 
     # Safe template execution
     safe_template = await sandbox_env.get_template_async("user_template.html")
@@ -353,9 +348,63 @@ For test coverage reporting:
 python -m pytest --cov=jinja2_async_environment
 ```
 
+For more verbose test output:
+
+```
+python -m pytest -v
+```
+
+To run specific test modules:
+
+```
+python -m pytest tests/test_function_loader.py
+python -m pytest tests/test_dict_loader.py
+python -m pytest tests/test_choice_loader.py
+```
+
+To run tests with benchmarking:
+
+```
+python -m pytest --benchmark-only
+```
+
+**Test Requirements:**
+
+- Python 3.13+
+- All development dependencies installed via `pip install -e ".[dev]"`
+
+**Expected Test Results:**
+
+- All unit tests should pass
+- Code coverage should be above 42%
+- No performance regressions should be detected
+
+### Development Setup
+
+To set up a development environment:
+
+```
+git clone <repository>
+cd jinja2-async-environment
+pip install -e ".[dev]"
+```
+
+**Development Dependencies:**
+
+- pytest: Testing framework
+- pytest-asyncio: Async support for pytest
+- pytest-cov: Coverage reporting
+- pytest-benchmark: Performance benchmarking
+- black: Code formatting
+- refurb: Code quality improvements
+- mypy: Static type checking
+- pylint: Code analysis
+
 ### Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+For detailed API documentation, see [API Reference](API_REFERENCE.md).
 
 ### Async Uptodate Functions
 
@@ -389,7 +438,7 @@ async def load_template_with_async_uptodate(name):
 async def main():
     # Create environment with async uptodate support
     env = AsyncEnvironment(
-        loader=AsyncFunctionLoader(load_template_with_async_uptodate, "templates"),
+        loader=AsyncFunctionLoader(load_template_with_async_uptodate),
         auto_reload=True,  # Enable auto-reload to use uptodate functions
     )
 

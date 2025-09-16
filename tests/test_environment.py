@@ -105,7 +105,7 @@ class TestAsyncEnvironment:
             side_effect=TemplateNotFound("undefined")
         )
         with pytest.raises(TemplateNotFound):
-            await environment.select_template_async(undefined)  # type: ignore[arg-type]
+            await environment.select_template_async(undefined)
         undefined._fail_with_undefined_error.assert_called_once()
 
     @pytest.mark.asyncio

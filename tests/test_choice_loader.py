@@ -56,7 +56,11 @@ class TestAsyncChoiceLoader:
 
     @pytest.fixture
     def environment(self, choice_loader: AsyncChoiceLoader) -> AsyncEnvironment:
-        env = AsyncEnvironment(loader=choice_loader)
+        # Create a separate cache manager for each environment to avoid test interference
+        from jinja2_async_environment.caching.manager import CacheManager
+
+        cache_manager = CacheManager()
+        env = AsyncEnvironment(loader=choice_loader, cache_manager=cache_manager)
         env.enable_async = True
         return env
 
@@ -74,41 +78,47 @@ class TestAsyncChoiceLoader:
 
     @pytest.mark.asyncio
     async def test_get_source_async_first_loader(
-        self, choice_loader: AsyncChoiceLoader
+        self, choice_loader: AsyncChoiceLoader, environment: AsyncEnvironment
     ) -> None:
-        source, _, uptodate = await choice_loader.get_source_async("index.html")
+        source, _, uptodate = await choice_loader.get_source_async(
+            environment, "index.html"
+        )
         assert source == "<h1>Hello from dict1</h1>"
         assert callable(uptodate)
 
     @pytest.mark.asyncio
     async def test_get_source_async_second_loader(
-        self, choice_loader: AsyncChoiceLoader
+        self, choice_loader: AsyncChoiceLoader, environment: AsyncEnvironment
     ) -> None:
-        source, _, uptodate = await choice_loader.get_source_async("about.html")
+        source, _, uptodate = await choice_loader.get_source_async(
+            environment, "about.html"
+        )
         assert source == "<h1>About page from dict2</h1>"
         assert callable(uptodate)
 
     @pytest.mark.asyncio
     async def test_get_source_async_shared_template(
-        self, choice_loader: AsyncChoiceLoader
+        self, choice_loader: AsyncChoiceLoader, environment: AsyncEnvironment
     ) -> None:
-        source, _, uptodate = await choice_loader.get_source_async("shared.html")
+        source, _, uptodate = await choice_loader.get_source_async(
+            environment, "shared.html"
+        )
         assert source == "<p>Shared template from dict1</p>"
         assert callable(uptodate)
 
     @pytest.mark.asyncio
     async def test_get_source_async_nonexistent_template(
-        self, choice_loader: AsyncChoiceLoader
+        self, choice_loader: AsyncChoiceLoader, environment: AsyncEnvironment
     ) -> None:
         with pytest.raises(TemplateNotFound):
-            await choice_loader.get_source_async("nonexistent.html")
+            await choice_loader.get_source_async(environment, "nonexistent.html")
 
     @pytest.mark.asyncio
     async def test_get_source_async_with_path_object(
-        self, choice_loader: AsyncChoiceLoader
+        self, choice_loader: AsyncChoiceLoader, environment: AsyncEnvironment
     ) -> None:
         source, _, uptodate = await choice_loader.get_source_async(
-            AsyncPath("index.html")
+            environment, "index.html"
         )
         assert source == "<h1>Hello from dict1</h1>"
         assert callable(uptodate)

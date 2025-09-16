@@ -80,7 +80,11 @@ class TestAsyncFunctionLoader:
 
     @pytest.fixture
     def environment(self, sync_loader: AsyncFunctionLoader) -> AsyncEnvironment:
-        env = AsyncEnvironment(loader=sync_loader)
+        # Create a separate cache manager for each environment to avoid test interference
+        from jinja2_async_environment.caching.manager import CacheManager
+
+        cache_manager = CacheManager()
+        env = AsyncEnvironment(loader=sync_loader, cache_manager=cache_manager)
         env.enable_async = True
         return env
 
@@ -94,9 +98,11 @@ class TestAsyncFunctionLoader:
 
     @pytest.mark.asyncio
     async def test_get_source_async_with_sync_function(
-        self, sync_loader: AsyncFunctionLoader
+        self, sync_loader: AsyncFunctionLoader, environment: AsyncEnvironment
     ) -> None:
-        source, filename, uptodate = await sync_loader.get_source_async("index.html")
+        source, filename, uptodate = await sync_loader.get_source_async(
+            environment, "index.html"
+        )
         assert source == "<h1>Hello, {{ name }}!</h1>"
         assert filename is None
         assert callable(uptodate)
@@ -104,9 +110,11 @@ class TestAsyncFunctionLoader:
 
     @pytest.mark.asyncio
     async def test_get_source_async_with_async_function(
-        self, async_loader: AsyncFunctionLoader
+        self, async_loader: AsyncFunctionLoader, environment: AsyncEnvironment
     ) -> None:
-        source, filename, uptodate = await async_loader.get_source_async("index.html")
+        source, filename, uptodate = await async_loader.get_source_async(
+            environment, "index.html"
+        )
         assert source == "<h1>Hello, {{ name }}!</h1>"
         assert filename is None
         assert callable(uptodate)
@@ -114,9 +122,11 @@ class TestAsyncFunctionLoader:
 
     @pytest.mark.asyncio
     async def test_get_source_async_with_string_function(
-        self, string_loader: AsyncFunctionLoader
+        self, string_loader: AsyncFunctionLoader, environment: AsyncEnvironment
     ) -> None:
-        source, filename, uptodate = await string_loader.get_source_async("index.html")
+        source, filename, uptodate = await string_loader.get_source_async(
+            environment, "index.html"
+        )
         assert source == "<h1>Hello, {{ name }}!</h1>"
         assert filename == "index.html"
         assert callable(uptodate)
@@ -124,17 +134,17 @@ class TestAsyncFunctionLoader:
 
     @pytest.mark.asyncio
     async def test_get_source_async_nonexistent_template(
-        self, sync_loader: AsyncFunctionLoader
+        self, sync_loader: AsyncFunctionLoader, environment: AsyncEnvironment
     ) -> None:
         with pytest.raises(TemplateNotFound):
-            await sync_loader.get_source_async("nonexistent.html")
+            await sync_loader.get_source_async(environment, "nonexistent.html")
 
     @pytest.mark.asyncio
     async def test_get_source_async_with_path_object(
-        self, sync_loader: AsyncFunctionLoader
+        self, sync_loader: AsyncFunctionLoader, environment: AsyncEnvironment
     ) -> None:
         source, filename, uptodate = await sync_loader.get_source_async(
-            AsyncPath("index.html")
+            environment, "index.html"
         )
         assert source == "<h1>Hello, {{ name }}!</h1>"
         assert filename is None
@@ -155,10 +165,10 @@ class TestAsyncFunctionLoader:
         assert template_with_globals.globals.get("name") == "World"
 
     @pytest.mark.asyncio
-    async def test_invalid_return_type(self) -> None:
+    async def test_invalid_return_type(self, environment: AsyncEnvironment) -> None:
         def invalid_load_func(template: str | AsyncPath) -> int:
             return 42
 
         loader = AsyncFunctionLoader(invalid_load_func, AsyncPath("/templates"))
         with pytest.raises(TypeError, match="Unexpected source type"):
-            await loader.get_source_async("index.html")
+            await loader.get_source_async(environment, "index.html")
