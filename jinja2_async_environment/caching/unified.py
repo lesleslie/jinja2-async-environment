@@ -26,10 +26,19 @@ class UnifiedCache:
             default_ttl: Default time-to-live in seconds
         """
         # Internal type-safe caches - using Any for backward compatibility
+        template_ttl = default_ttl * 6
+        import_ttl = default_ttl * 12
+
         self._caches: dict[str, TypedCache[t.Any]] = {
-            "package_import": TypedCache(max_size=200, default_ttl=default_ttl * 12),
-            "package_spec": TypedCache(max_size=500, default_ttl=default_ttl * 6),
-            "template_root": TypedCache(max_size=1000, default_ttl=default_ttl * 6),
+            "package_import": TypedCache(max_size=200)
+            if import_ttl == 300
+            else TypedCache(max_size=200, default_ttl=import_ttl),
+            "package_spec": TypedCache(max_size=500)
+            if template_ttl == 300
+            else TypedCache(max_size=500, default_ttl=template_ttl),
+            "template_root": TypedCache(max_size=1000)
+            if template_ttl == 300
+            else TypedCache(max_size=1000, default_ttl=template_ttl),
         }
 
         self._default_ttl = default_ttl
@@ -70,14 +79,15 @@ class UnifiedCache:
         with self._lock:
             if cache_type not in self._caches:
                 # Dynamically create cache for unknown types
-                self._caches[cache_type] = TypedCache(
-                    max_size=1000, default_ttl=ttl or self._default_ttl
-                )
+                cache_params = {"max_size": 1000}
+                if ttl is not None or self._default_ttl != 300:
+                    cache_params["default_ttl"] = ttl or self._default_ttl
+                self._caches[cache_type] = TypedCache(**cache_params)
 
             # Convert key to string for internal cache
             str_key = str(key) if not isinstance(key, str) else key
 
-            self._caches[cache_type].set(str_key, value, ttl)
+            self._caches[cache_type].set(str_key, value, ttl or None)
 
     def clear(self, cache_type: str | None = None) -> None:
         """Clear cache entries.

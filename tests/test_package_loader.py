@@ -17,21 +17,14 @@ def isolated_test_context(test_name: str):
     """Context manager for isolated test execution with proper cleanup."""
     import gc
 
-    from jinja2_async_environment.environment import AsyncEnvironment
-    from jinja2_async_environment.loaders import (
-        _unified_cache,
+    # Import test context functions
+    from jinja2_async_environment.testing.context import (
         clear_test_context,
-        set_test_context,
+        set_test_name,
     )
 
     # Set test context
-    set_test_context(test_name)
-    # Clear unified cache to prevent contamination
-    _unified_cache.clear_all()
-
-    # Clear any existing environment caches
-    if hasattr(AsyncEnvironment, "_cache_manager"):
-        delattr(AsyncEnvironment, "_cache_manager")
+    set_test_name(test_name)
 
     # Force garbage collection to clear any lingering references
     gc.collect()
@@ -41,7 +34,8 @@ def isolated_test_context(test_name: str):
     finally:
         # Always cleanup after test
         clear_test_context()
-        _unified_cache.clear_all()
+        # Force garbage collection after test
+        gc.collect()
 
         # Clear environment caches again
         if hasattr(AsyncEnvironment, "_cache_manager"):

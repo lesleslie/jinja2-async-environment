@@ -7,55 +7,28 @@ improved performance and maintainability through modular design.
 
 # Import all loader classes from their respective modules
 
+# Import testing utilities for backward compatibility
+from ..testing import fixtures as _testing_fixtures
 from .base import AsyncBaseLoader, AsyncLoaderProtocol, SourceType
 from .choice import AsyncChoiceLoader
 from .dict import AsyncDictLoader
 from .filesystem import AsyncFileSystemLoader
 from .function import AsyncFunctionLoader
-
-# Import exception classes from package module
 from .package import AsyncPackageLoader, LoaderNotFound, PackageSpecNotFound
+
+# Expose testing utilities for backward compatibility
+LoaderContext = _testing_fixtures.LoaderContext
+TestContext = _testing_fixtures.TestContext
+UnifiedCache = _testing_fixtures.UnifiedCache
+_loader_context = _testing_fixtures._loader_context
+_unified_cache = _testing_fixtures._unified_cache
+_clear_expired_cache = _testing_fixtures._clear_expired_cache
+set_test_context = _testing_fixtures.set_test_context
+clear_test_context = _testing_fixtures.clear_test_context
 
 # For backward compatibility, also import any existing exceptions and utilities
 # from the original loaders module that we need to preserve
-try:
-    # Import from original module if it still exists during transition
-    from ..loaders_old import (
-        LoaderContext as _OldLoaderContext,
-    )
-    from ..loaders_old import (
-        TestContext as _OldTestContext,
-    )
-    from ..loaders_old import (
-        UnifiedCache as _OldUnifiedCache,
-    )
-    from ..loaders_old import (
-        _clear_expired_cache as _old_clear_expired_cache,
-    )
-    from ..loaders_old import (
-        _loader_context as _old_loader_context,
-    )
-    from ..loaders_old import (
-        _unified_cache as _old_unified_cache,
-    )
-    from ..loaders_old import (
-        clear_test_context as _old_clear_test_context,
-    )
-    from ..loaders_old import (
-        set_test_context as _old_set_test_context,
-    )
-
-    # Assign to the expected names
-    LoaderContext = _OldLoaderContext
-    TestContext = _OldTestContext
-    UnifiedCache = _OldUnifiedCache
-    _clear_expired_cache = _old_clear_expired_cache
-    _loader_context = _old_loader_context
-    _unified_cache = _old_unified_cache
-    clear_test_context = _old_clear_test_context
-    set_test_context = _old_set_test_context
-except ImportError:
-    pass
+# (loaders_old.py has been removed for simplification)
 
 # Public API - maintain exact same exports as original module
 __all__ = [
@@ -69,7 +42,10 @@ __all__ = [
     "AsyncChoiceLoader",
     # Types
     "SourceType",
-    # Backward compatibility (will be moved to testing module in later phases)
+    # Exception classes
+    "PackageSpecNotFound",
+    "LoaderNotFound",
+    # Backward compatibility (testing utilities)
     "LoaderContext",
     "TestContext",
     "UnifiedCache",
@@ -78,9 +54,6 @@ __all__ = [
     "_loader_context",
     "_unified_cache",
     "_clear_expired_cache",
-    # Exception classes
-    "PackageSpecNotFound",
-    "LoaderNotFound",
 ]
 
 # Version information

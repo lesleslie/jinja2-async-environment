@@ -2,6 +2,7 @@
 
 import typing as t
 from abc import abstractmethod
+from collections import namedtuple
 
 from anyio import Path as AsyncPath
 from jinja2.loaders import BaseLoader
@@ -11,6 +12,22 @@ if t.TYPE_CHECKING:
     from jinja2 import Template
 
     from ..environment import AsyncEnvironment
+
+# Define TemplateData type for better type checking
+TemplateData = namedtuple(
+    "TemplateData", ["source", "path", "uptodate", "source_str", "name"]
+)
+
+
+class TemplateDataType(t.NamedTuple):
+    """Type definition for template data."""
+
+    source: t.Any
+    path: t.Any
+    uptodate: t.Any
+    source_str: str
+    name: str
+
 
 # Type alias for source data
 SourceType = tuple[str | bytes, str | None, t.Callable[[], bool] | None]
@@ -109,47 +126,106 @@ class AsyncBaseLoader(BaseLoader):
             ValueError: If searchpath is empty or contains invalid paths
         """
         # Validate and normalize searchpath
-        searchpath_list: list[t.Any] = []
+        searchpath_list = self._normalize_searchpath(searchpath)
+
+        # Convert to AsyncPath objects for consistency and validate
+        self.searchpath = self._convert_to_async_paths(searchpath_list)
+
+        self._initialized = False
+        self._init_lock = None  # Will be created on first use
+
+    def _normalize_searchpath(
+        self, searchpath: AsyncPath | str | t.Sequence[AsyncPath | str]
+    ) -> list[t.Any]:
+        """Normalize searchpath to a list of paths.
+
+        Args:
+            searchpath: Path or sequence of paths to normalize
+
+        Returns:
+            List of normalized paths
+
+        Raises:
+            TypeError: If searchpath is not a valid type
+            ValueError: If searchpath is empty or contains invalid paths
+        """
         if isinstance(searchpath, str) or hasattr(
             searchpath, "parts"
         ):  # AsyncPath check
-            searchpath_list = [searchpath]
-        else:
-            # Try to treat as sequence
-            try:
-                searchpath_list = list(searchpath)  # type: ignore
-                if not searchpath_list:
-                    raise ValueError("searchpath cannot be empty")
+            return [searchpath]
+        # Try to treat as sequence
+        return self._normalize_sequence_searchpath(searchpath)
 
-                # Validate each path in the sequence
-                for i, path in enumerate(searchpath_list):
-                    if not (isinstance(path, str) or hasattr(path, "parts")):
-                        raise TypeError(
-                            f"searchpath item {i} must be a string or AsyncPath, got {type(path)}"
-                        )
-            except (TypeError, ValueError) as e:
-                if isinstance(e, ValueError):
-                    raise
+    def _normalize_sequence_searchpath(
+        self, searchpath: AsyncPath | str | t.Sequence[AsyncPath | str]
+    ) -> list[t.Any]:
+        """Normalize sequence searchpath to a list of paths.
+
+        Args:
+            searchpath: Sequence of paths to normalize
+
+        Returns:
+            List of normalized paths
+
+        Raises:
+            TypeError: If searchpath is not a valid type
+            ValueError: If searchpath is empty or contains invalid paths
+        """
+        try:
+            searchpath_list = list(searchpath)  # type: ignore
+            if not searchpath_list:
+                raise ValueError("searchpath cannot be empty")
+
+            # Validate each path in the sequence
+            self._validate_sequence_paths(searchpath_list)
+            return searchpath_list
+        except (TypeError, ValueError) as e:
+            if isinstance(e, ValueError):
+                raise
+            raise TypeError(
+                "searchpath must be a string, AsyncPath, or sequence of strings/AsyncPaths"
+            ) from e
+
+    def _validate_sequence_paths(self, searchpath_list: list[t.Any]) -> None:
+        """Validate each path in a sequence.
+
+        Args:
+            searchpath_list: List of paths to validate
+
+        Raises:
+            TypeError: If any path is not a valid type
+        """
+        for i, path in enumerate(searchpath_list):
+            if not (isinstance(path, str) or hasattr(path, "parts")):
                 raise TypeError(
-                    "searchpath must be a string, AsyncPath, or sequence of strings/AsyncPaths"
-                ) from e
+                    f"searchpath item {i} must be a string or AsyncPath, got {type(path)}"
+                )
 
-        # Convert to AsyncPath objects for consistency and validate
-        self.searchpath: list[AsyncPath] = []
+    def _convert_to_async_paths(self, searchpath_list: list[t.Any]) -> list[AsyncPath]:
+        """Convert a list of paths to AsyncPath objects.
+
+        Args:
+            searchpath_list: List of paths to convert
+
+        Returns:
+            List of AsyncPath objects
+
+        Raises:
+            ValueError: If any path is an empty string
+        """
+        async_paths: list[AsyncPath] = []
         for path in searchpath_list:
             if isinstance(path, str):
                 if not path.strip():
                     raise ValueError("Empty string paths are not allowed")
-                self.searchpath.append(AsyncPath(path))
+                async_paths.append(AsyncPath(path))
             elif hasattr(path, "parts"):
                 # Already an AsyncPath-like object, convert to ensure type safety
-                self.searchpath.append(AsyncPath(str(path)))
+                async_paths.append(AsyncPath(str(path)))
             else:
                 # Fallback: convert to string then AsyncPath
-                self.searchpath.append(AsyncPath(str(path)))
-
-        self._initialized = False
-        self._init_lock = None  # Will be created on first use
+                async_paths.append(AsyncPath(str(path)))
+        return async_paths
 
     def _ensure_initialized(self) -> None:
         """Ensure the loader is properly initialized.
@@ -262,6 +338,38 @@ class AsyncBaseLoader(BaseLoader):
             env_globals = {}
 
         # Import TemplateNotFound here to avoid circular imports
+
+        # Validate inputs and get template source
+        template_data = await self._prepare_template_loading_data(environment, name)
+
+        # Handle bytecode cache and compilation
+        code = await self._handle_template_compilation(environment, template_data)
+
+        # Create template instance
+        template = environment.template_class.from_code(
+            environment,
+            code,
+            env_globals,
+            template_data.uptodate,
+        )
+
+        return template
+
+    async def _prepare_template_loading_data(
+        self, environment: "AsyncEnvironment", name: str
+    ) -> TemplateDataType:
+        """Prepare template loading data including validation and source retrieval.
+
+        Args:
+            environment: The async environment instance
+            name: Template name to load
+
+        Returns:
+            Named tuple containing source, path, and uptodate function
+
+        Raises:
+            TemplateNotFound: If template cannot be found or is invalid
+        """
         from jinja2.exceptions import TemplateNotFound
 
         # Validate inputs
@@ -274,52 +382,84 @@ class AsyncBaseLoader(BaseLoader):
         except Exception as e:
             if isinstance(e, TemplateNotFound):
                 raise
-            from jinja2.exceptions import TemplateNotFound as TNF
-
-            raise TNF(f"Failed to get template source: {e}") from e
+            raise TemplateNotFound(f"Failed to get template source: {e}") from e
 
         # Normalize source to string
         try:
             source_str = source.decode("utf-8") if isinstance(source, bytes) else source
         except UnicodeDecodeError as e:
-            from jinja2.exceptions import TemplateNotFound as TNF
+            raise TemplateNotFound(
+                f"Template {name} contains invalid UTF-8 encoding: {e}"
+            ) from e
 
-            raise TNF(f"Template {name} contains invalid UTF-8 encoding: {e}") from e
+        return TemplateDataType(source, path, uptodate, source_str, name)
 
+    async def _handle_template_compilation(
+        self, environment: "AsyncEnvironment", template_data: TemplateDataType
+    ) -> t.Any:
+        """Handle template compilation with bytecode caching.
+
+        Args:
+            environment: The async environment instance
+            template_data: Template data including source and path
+
+        Returns:
+            Compiled code object
+
+        Raises:
+            Exception: If compilation fails
+        """
         # Handle bytecode cache if available
         bcc = environment.bytecode_cache
         if bcc is not None:
-            try:
-                bucket = bcc.get_bucket(environment, name, path)  # type: ignore
-
-                # Create checksum for bytecode caching
-                import hashlib
-
-                hashlib.sha256(source_str.encode("utf-8")).hexdigest()
-
-                # Try to get existing bytecode
-                code = bucket.code
-
-                if code is None:
-                    # Compile template
-                    code = environment.compile(source_str, name, path)
-                    bucket.code = code
-            except Exception:
-                # Fallback to direct compilation if cache fails
-                code = environment.compile(source_str, name, path)
-        else:
-            # No cache, compile directly
-            code = environment.compile(source_str, name, path)
-
-        # Create template instance
-        template = environment.template_class.from_code(
-            environment,
-            code,
-            env_globals,
-            uptodate,
+            return await self._handle_bytecode_cache(environment, template_data, bcc)
+        # No cache, compile directly
+        return environment.compile(
+            template_data.source_str, template_data.name, template_data.path
         )
 
-        return template
+    async def _handle_bytecode_cache(
+        self,
+        environment: "AsyncEnvironment",
+        template_data: TemplateDataType,
+        bcc: t.Any,
+    ) -> t.Any:
+        """Handle bytecode caching.
+
+        Args:
+            environment: The async environment instance
+            template_data: Template data including source and path
+            bcc: Bytecode cache
+
+        Returns:
+            Compiled code object
+
+        Raises:
+            Exception: If cache operations fail
+        """
+        try:
+            bucket = bcc.get_bucket(environment, template_data.name, template_data.path)  # type: ignore
+
+            # Create checksum for bytecode caching
+            import hashlib
+
+            hashlib.sha256(template_data.source_str.encode("utf-8")).hexdigest()
+
+            # Try to get existing bytecode
+            code = bucket.code
+
+            if code is None:
+                # Compile template
+                code = environment.compile(
+                    template_data.source_str, template_data.name, template_data.path
+                )
+                bucket.code = code
+            return code
+        except Exception:
+            # Fallback to direct compilation if cache fails
+            return environment.compile(
+                template_data.source_str, template_data.name, template_data.path
+            )
 
     def _get_cache_manager(self, environment: "AsyncEnvironment") -> t.Any:
         """Get the cache manager from the environment.

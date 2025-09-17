@@ -320,7 +320,7 @@ class AsyncEnvironment(Environment):
             return True
         up_to_date_attr = template.is_up_to_date
         if not callable(up_to_date_attr):
-            return bool(up_to_date_attr)
+            return up_to_date_attr
         result = up_to_date_attr()
         if hasattr(result, "__await__"):
             return await result

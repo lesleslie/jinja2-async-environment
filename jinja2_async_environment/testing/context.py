@@ -1,119 +1,64 @@
-"""Test context management without production code pollution."""
+"""Test context management for jinja2-async-environment."""
 
-import typing as t
+import threading
+from collections.abc import Generator
 from contextlib import contextmanager
-from threading import local
 
 
-class TestDetector:
-    """Centralized test detection system.
-
-    This class provides a clean way to detect test contexts without
-    polluting production code with test-specific logic.
-    """
+class TestContext:
+    """Thread-local context for tracking test operations."""
 
     def __init__(self) -> None:
-        """Initialize the test detector."""
-        self._local = local()
+        self._local = threading.local()
 
-    @property
-    def is_test_mode(self) -> bool:
-        """Check if currently running in test mode."""
-        return getattr(self._local, "test_mode", False)
-
-    @property
-    def current_test(self) -> str | None:
-        """Get the name of the current test."""
-        return getattr(self._local, "test_name", None)
-
-    def set_test_context(self, test_name: str) -> None:
-        """Set the current test context.
-
-        Args:
-            test_name: Name of the test being executed
-        """
-        self._local.test_mode = True
+    def set_test_name(self, test_name: str) -> None:
+        """Set the current test name."""
         self._local.test_name = test_name
+
+    def get_test_name(self) -> str | None:
+        """Get the current test name."""
+        return getattr(self._local, "test_name", None)
 
     def clear_test_context(self) -> None:
         """Clear the current test context."""
-        self._local.test_mode = False
         if hasattr(self._local, "test_name"):
-            delattr(self._local, "test_name")
+            del self._local.test_name
 
     def is_test_case(self, test_pattern: str) -> bool:
-        """Check if current test matches a pattern.
-
-        Args:
-            test_pattern: Pattern to match against current test name
-
-        Returns:
-            True if current test matches pattern, False otherwise
-        """
-        if not self.is_test_mode:
-            return False
-
-        current_test = self.current_test
-        if current_test is None:
-            return False
-
-        return test_pattern in current_test
+        """Check if current context matches a test pattern."""
+        current_test = self.get_test_name()
+        return current_test is not None and test_pattern in current_test
 
 
-# Global test detector instance
-_test_detector = TestDetector()
+# Global test context instance
+_test_context = TestContext()
 
 
-@contextmanager
-def test_context(test_name: str) -> t.Generator[None]:
-    """Context manager for test execution.
-
-    Args:
-        test_name: Name of the test being executed
-
-    Example:
-        >>> with test_context("test_package_loader"):
-        ...     # Test code here
-        ...     loader = AsyncPackageLoader("mypackage")
-    """
-    _test_detector.set_test_context(test_name)
-    try:
-        yield
-    finally:
-        _test_detector.clear_test_context()
+def set_test_name(test_name: str) -> None:
+    """Set the current test name."""
+    _test_context.set_test_name(test_name)
 
 
-def get_test_detector() -> TestDetector:
-    """Get the global test detector instance.
-
-    Returns:
-        Global test detector
-    """
-    return _test_detector
-
-
-# Backward compatibility functions
-def set_test_context(test_name: str) -> None:
-    """Set test context (backward compatibility).
-
-    Args:
-        test_name: Name of the test
-    """
-    _test_detector.set_test_context(test_name)
+def get_test_name() -> str | None:
+    """Get the current test name."""
+    return _test_context.get_test_name()
 
 
 def clear_test_context() -> None:
-    """Clear test context (backward compatibility)."""
-    _test_detector.clear_test_context()
+    """Clear the current test context."""
+    _test_context.clear_test_context()
 
 
 def is_test_case(test_pattern: str) -> bool:
-    """Check if current test matches pattern (backward compatibility).
+    """Check if current context matches a test pattern."""
+    return _test_context.is_test_case(test_pattern)
 
-    Args:
-        test_pattern: Pattern to match
 
-    Returns:
-        True if matches, False otherwise
-    """
-    return _test_detector.is_test_case(test_pattern)
+@contextmanager
+def test_context(test_name: str) -> Generator[None]:
+    """Context manager for test execution."""
+    set_test_name(test_name)
+    try:
+        yield
+    finally:
+        clear_test_context()

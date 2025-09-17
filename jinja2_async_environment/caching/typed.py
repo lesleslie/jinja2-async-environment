@@ -162,11 +162,11 @@ class TypedCache[T]:
         """
         with self._lock:
             current_time = time.time()
-            expired_keys = []
-
-            for key, entry in self._cache.items():
-                if current_time - entry.timestamp > entry.ttl:
-                    expired_keys.append(key)
+            expired_keys = [
+                key
+                for key, entry in self._cache.items()
+                if current_time - entry.timestamp > entry.ttl
+            ]
 
             for key in expired_keys:
                 del self._cache[key]
@@ -206,13 +206,21 @@ class TypedCache[T]:
 
             # If new size is smaller, evict excess entries
             if new_max_size < len(self._cache):
-                excess = len(self._cache) - new_max_size
-                for _ in range(excess):
-                    if self._access_order:
-                        lru_key = self._access_order.pop(0)
-                        if lru_key in self._cache:
-                            del self._cache[lru_key]
-                            self._evictions += 1
+                self._evict_excess_entries(new_max_size)
+
+    def _evict_excess_entries(self, new_max_size: int) -> None:
+        """Evict excess entries when cache is resized to a smaller size.
+
+        Args:
+            new_max_size: New maximum size for the cache
+        """
+        excess = len(self._cache) - new_max_size
+        for _ in range(excess):
+            if self._access_order:
+                lru_key = self._access_order.pop(0)
+                if lru_key in self._cache:
+                    del self._cache[lru_key]
+                    self._evictions += 1
 
     def contains(self, key: str) -> bool:
         """Check if key exists in cache (without updating access).
@@ -244,11 +252,11 @@ class TypedCache[T]:
         """
         with self._lock:
             current_time = time.time()
-            valid_keys = []
-
-            for key, entry in self._cache.items():
-                if current_time - entry.timestamp <= entry.ttl:
-                    valid_keys.append(key)
+            valid_keys = [
+                key
+                for key, entry in self._cache.items()
+                if current_time - entry.timestamp <= entry.ttl
+            ]
 
             return valid_keys
 

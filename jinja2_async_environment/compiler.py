@@ -25,7 +25,3 @@ __all__ = [
     "CodeGenerator",
     "_compilation_cache",
 ]
-
-# Global compilation cache instance for backward compatibility
-# This ensures existing code that imports _compilation_cache still works
-_compilation_cache = _compilation_cache

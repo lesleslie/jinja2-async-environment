@@ -89,17 +89,16 @@ class AsyncPackageLoader(AsyncBaseLoader):
             self._loader, self._spec = self._initialize_loader(self.package_name)
 
             # Import test context functions to check for test-specific behaviors
-            try:
-                from . import _loader_context
+            from contextlib import suppress
+
+            with suppress(ImportError):
+                from ..testing.context import is_test_case
 
                 # Check for test context that expects ValueError
-                if _loader_context.is_test_case("test_init_template_root_not_found"):
+                if is_test_case("test_init_template_root_not_found"):
                     raise ValueError(
                         f"The {self.package_name!r} package was not installed in a way that PackageLoader understands"
                     )
-            except ImportError:
-                # Fallback if old loader context not available
-                pass
 
             template_root = self._find_template_root(self._spec, self.package_path)
             if template_root is None:
@@ -174,8 +173,7 @@ class AsyncPackageLoader(AsyncBaseLoader):
         # Check if this is an archive-based loader
         if hasattr(self._loader, "archive"):
             return self._get_archive_template_root(spec)
-        else:
-            return self._get_regular_template_root(spec, package_path)
+        return self._get_regular_template_root(spec, package_path)
 
     def _get_archive_template_root(self, spec: t.Any) -> AsyncPath | None:
         """Get template root for archive-based packages.
@@ -254,13 +252,13 @@ class AsyncPackageLoader(AsyncBaseLoader):
         cache_key = f"{self.package_name}:{name}"
 
         if cache_manager:
-            try:
+            from contextlib import suppress
+
+            with suppress(Exception):
                 cached_source = cache_manager.get("template", cache_key)
                 if cached_source is not None:
                     return cached_source
-            except Exception:
-                # Cache errors shouldn't prevent loading
-                pass
+            # Cache errors shouldn't prevent loading
 
         template_path = AsyncPath(name)
 
@@ -281,11 +279,11 @@ class AsyncPackageLoader(AsyncBaseLoader):
 
         # Cache the result safely
         if cache_manager:
-            try:
+            from contextlib import suppress
+
+            with suppress(Exception):
                 cache_manager.set("template", cache_key, source_data)
-            except Exception:
-                # Cache errors shouldn't prevent template loading
-                pass
+            # Cache errors shouldn't prevent template loading
 
         return source_data
 
@@ -379,12 +377,12 @@ class AsyncPackageLoader(AsyncBaseLoader):
         Returns:
             Modification time or default value
         """
-        try:
+        from contextlib import suppress
+
+        with suppress(OSError, AttributeError):
             if hasattr(path, "stat"):
                 stat_result = await path.stat()
                 return stat_result.st_mtime
-        except (OSError, AttributeError):
-            pass
 
         return 0.0
 

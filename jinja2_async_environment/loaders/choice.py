@@ -145,4 +145,4 @@ class AsyncChoiceLoader(AsyncBaseLoader):
         Returns:
             Copy of the loader list
         """
-        return list(self.loaders)
+        return self.loaders.copy()

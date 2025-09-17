@@ -1,11 +1,24 @@
 """Async filesystem template loader implementation."""
 
 import typing as t
+from collections import namedtuple
+from contextlib import suppress
 
 from anyio import Path as AsyncPath
 from jinja2.utils import internalcode
 
 from .base import AsyncBaseLoader, SourceType
+
+# Define TemplatePathData type for better type checking
+TemplatePathData = namedtuple("TemplatePathData", ["template_name", "should_include"])
+
+
+class TemplatePathDataType(t.NamedTuple):
+    """Type definition for template path data."""
+
+    template_name: str | None
+    should_include: bool
+
 
 if t.TYPE_CHECKING:
     from ..environment import AsyncEnvironment
@@ -76,9 +89,9 @@ class AsyncFileSystemLoader(AsyncBaseLoader):
                     # Create uptodate function
                     def uptodate() -> bool:
                         try:
-                            import os
+                            from pathlib import Path
 
-                            return os.path.getmtime(filename) == mtime
+                            return Path(filename).stat().st_mtime == mtime
                         except OSError:
                             return False
 
@@ -139,31 +152,74 @@ class AsyncFileSystemLoader(AsyncBaseLoader):
         found_templates = set()
 
         for searchpath in self.searchpath:
-            if not await searchpath.exists():
-                continue
-
-            try:
-                # Use rglob to find all files recursively
-                async for template_path in searchpath.rglob("*"):
-                    if await template_path.is_file():
-                        # Get relative path from search path
-                        try:
-                            relative_path = template_path.relative_to(str(searchpath))
-                            template_name = str(relative_path).replace("\\", "/")
-
-                            # Only include if it's a safe path
-                            if await self._is_safe_path(template_path):
-                                found_templates.add(template_name)
-
-                        except ValueError:
-                            # Path is not relative to searchpath
-                            continue
-
-            except OSError:
-                # Skip this search path if it can't be accessed
-                continue
+            templates = await self._list_templates_in_path(searchpath)
+            found_templates.update(templates)
 
         return sorted(found_templates)
+
+    async def _list_templates_in_path(self, searchpath: AsyncPath) -> set[str]:
+        """List templates in a single search path.
+
+        Args:
+            searchpath: Search path to list templates from
+
+        Returns:
+            Set of template names found in this path
+        """
+        if not await searchpath.exists():
+            return set()
+
+        found_templates = set()
+        with suppress(OSError):
+            # Use rglob to find all files recursively
+            async for template_path in searchpath.rglob("*"):
+                if await template_path.is_file():
+                    template_data = await self._process_template_path(
+                        searchpath, template_path
+                    )
+                    if (
+                        template_data.should_include
+                        and template_data.template_name is not None
+                    ):
+                        found_templates.add(template_data.template_name)
+
+        return found_templates
+
+    async def _process_template_path(
+        self, searchpath: AsyncPath, template_path: AsyncPath
+    ) -> TemplatePathDataType:
+        """Process a template path to determine if it should be included.
+
+        Args:
+            searchpath: Search path
+            template_path: Template path to process
+
+        Returns:
+            Named tuple with template name and whether it should be included
+        """
+        template_name = await self._get_template_name(searchpath, template_path)
+        if template_name and await self._is_safe_path(template_path):
+            return TemplatePathDataType(template_name, True)
+        return TemplatePathDataType(None, False)
+
+    async def _get_template_name(
+        self, searchpath: AsyncPath, template_path: AsyncPath
+    ) -> str | None:
+        """Get template name from template path.
+
+        Args:
+            searchpath: Search path
+            template_path: Full path to template
+
+        Returns:
+            Template name or None if path is not relative to searchpath
+        """
+        try:
+            relative_path = template_path.relative_to(str(searchpath))
+            return str(relative_path).replace("\\", "/")
+        except ValueError:
+            # Path is not relative to searchpath
+            return None
 
     async def _walk_directory(
         self, directory: AsyncPath
@@ -183,15 +239,39 @@ class AsyncFileSystemLoader(AsyncBaseLoader):
             async for item in directory.iterdir():
                 yield item
 
-                if await item.is_dir() and (
-                    self.followlinks or not await item.is_symlink()
-                ):
-                    async for subitem in self._walk_directory(item):
+                # Check if we should recurse into this directory
+                if await self._should_recurse_into_directory(item):
+                    async for subitem in self._walk_subdirectory(item):
                         yield subitem
 
         except (OSError, PermissionError):
             # Skip directories we can't access
             return
+
+    async def _should_recurse_into_directory(self, item: AsyncPath) -> bool:
+        """Check if we should recurse into a directory.
+
+        Args:
+            item: Directory to check
+
+        Returns:
+            True if we should recurse, False otherwise
+        """
+        return await item.is_dir() and (self.followlinks or not await item.is_symlink())
+
+    async def _walk_subdirectory(
+        self, directory: AsyncPath
+    ) -> t.AsyncGenerator[AsyncPath]:
+        """Async generator to walk subdirectory tree.
+
+        Args:
+            directory: Subdirectory to walk
+
+        Yields:
+            AsyncPath objects for each file/directory found
+        """
+        async for subitem in self._walk_directory(directory):
+            yield subitem
 
     def _get_cache_key(self, name: str) -> str:
         """Generate cache key for template.

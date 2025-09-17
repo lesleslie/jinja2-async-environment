@@ -136,9 +136,8 @@ class LFUCache(TypedCache[T]):
             self._statistics.hits / total_requests if total_requests > 0 else 0.0
         )
 
-        return {
-            **base_stats,
-            "access_counts": dict(self._access_counts),
+        return base_stats | {
+            "access_counts": self._access_counts.copy(),
             "avg_access_time_ms": self._statistics.avg_access_time * 1000,
             "peak_size": self._statistics.peak_size,
             "cache_efficiency": self._statistics.cache_efficiency,
@@ -186,9 +185,7 @@ class AdaptiveCache(TypedCache[T]):
             return
 
         # Calculate access frequency distribution
-        frequencies = []
-        for accesses in self._access_patterns.values():
-            frequencies.append(len(accesses))
+        frequencies = [len(accesses) for accesses in self._access_patterns.values()]
 
         if not frequencies:
             return

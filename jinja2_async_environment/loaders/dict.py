@@ -36,7 +36,7 @@ class AsyncDictLoader(AsyncBaseLoader):
         else:
             # Call parent with empty searchpath for backward compatibility
             super().__init__([])
-        self.mapping = dict(mapping)  # Create a copy for safety
+        self.mapping = mapping.copy()  # Create a copy for safety
 
     @internalcode
     async def get_source_async(
@@ -58,7 +58,7 @@ class AsyncDictLoader(AsyncBaseLoader):
 
         # Try to get from cache first
         cache_manager = self._get_cache_manager(environment)
-        cache_key = f"dict:{name}"
+        cache_key = f"dict:{id(self)}:{name}"
 
         if cache_manager:
             cached_source = cache_manager.get("template", cache_key)

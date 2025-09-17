@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.17.0] - 2025-09-17
+
+### Changed
+
+- Jinja2-async-environment (quality: 76/100) - 2025-09-16 09:11:42
+
 ## [0.14.0] - 2025-09-03
 
 ### Fixed

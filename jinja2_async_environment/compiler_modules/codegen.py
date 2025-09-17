@@ -869,30 +869,62 @@ class AsyncCodeGenerator(CodeGenerator):
 
         public_names = [x for x in vars_set if x[:1] != "_"]
 
+        # Handle single variable case
         if len(vars_set) == 1:
-            name = next(iter(vars_set))
-            ref = frame.symbols.ref(name)
-            if frame.loop_frame:
-                self.writeline(f"_loop_vars[{name!r}] = {ref}")
-                return
-            if frame.block_frame:
-                self.writeline(f"_block_vars[{name!r}] = {ref}")
-                return
-            self.writeline(f"context.vars[{name!r}] = {ref}")
+            self._handle_single_variable(frame, vars_set)
         else:
-            if frame.loop_frame:
-                self.writeline("_loop_vars.update({")
-            elif frame.block_frame:
-                self.writeline("_block_vars.update({")
-            else:
-                self.writeline("context.vars.update({")
-            for idx, name in enumerate(sorted(vars_set)):
-                if idx:
-                    self.write(", ")
-                ref = frame.symbols.ref(name)
-                self.write(f"{name!r}: {ref}")
-            self.write("})")
+            # Handle multiple variables case
+            self._handle_multiple_variables(frame, vars_set)
 
+        # Handle exported variables
+        self._handle_exported_variables(frame, public_names)
+
+    def _handle_single_variable(self, frame: AsyncFrame, vars_set: set[str]) -> None:
+        """Handle the case with a single variable.
+
+        Args:
+            frame: Current frame
+            vars_set: Set of variables
+        """
+        name = next(iter(vars_set))
+        ref = frame.symbols.ref(name)
+        if frame.loop_frame:
+            self.writeline(f"_loop_vars[{name!r}] = {ref}")
+        elif frame.block_frame:
+            self.writeline(f"_block_vars[{name!r}] = {ref}")
+        else:
+            self.writeline(f"context.vars[{name!r}] = {ref}")
+
+    def _handle_multiple_variables(self, frame: AsyncFrame, vars_set: set[str]) -> None:
+        """Handle the case with multiple variables.
+
+        Args:
+            frame: Current frame
+            vars_set: Set of variables
+        """
+        if frame.loop_frame:
+            self.writeline("_loop_vars.update({")
+        elif frame.block_frame:
+            self.writeline("_block_vars.update({")
+        else:
+            self.writeline("context.vars.update({")
+
+        for idx, name in enumerate(sorted(vars_set)):
+            if idx:
+                self.write(", ")
+            ref = frame.symbols.ref(name)
+            self.write(f"{name!r}: {ref}")
+        self.write("})")
+
+    def _handle_exported_variables(
+        self, frame: AsyncFrame, public_names: list[str]
+    ) -> None:
+        """Handle exported variables.
+
+        Args:
+            frame: Current frame
+            public_names: List of public variable names
+        """
         if not frame.block_frame and not frame.loop_frame and public_names:
             if len(public_names) == 1:
                 self.writeline(f"context.exported_vars.add({public_names[0]!r})")

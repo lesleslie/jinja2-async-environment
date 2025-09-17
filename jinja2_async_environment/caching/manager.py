@@ -1,6 +1,7 @@
 """Cache manager for dependency injection and centralized cache control."""
 
 import typing as t
+from contextlib import suppress
 from types import ModuleType
 
 from anyio import Path as AsyncPath
@@ -207,12 +208,12 @@ class CacheManager:
         stats = self.get_statistics()
 
         memory_usage = {}
-        for cache_name in [
+        for cache_name in (
             "package_cache",
             "template_cache",
             "compilation_cache",
             "module_cache",
-        ]:
+        ):
             cache_stats = stats.get(cache_name, {})
             if "size" in cache_stats:
                 size = cache_stats["size"]
@@ -409,29 +410,23 @@ class AdvancedCacheManager(CacheManager):
         }
 
         # Get advanced statistics from caches that support it
-        for cache_name, cache in [
+        for cache_name, cache in (
             ("package_cache", self.package_cache),
             ("template_cache", self.template_cache),
             ("compilation_cache", self.compilation_cache),
             ("module_cache", self.module_cache),
-        ]:
+        ):
             # Only call methods on objects that actually have them
             # Use getattr with default to avoid type checking issues
             get_extended_stats = getattr(cache, "get_extended_statistics", None)
             if callable(get_extended_stats):
-                try:
+                with suppress(Exception):
                     extended_stats[f"{cache_name}_extended"] = get_extended_stats()
-                except Exception:
-                    # Skip if method call fails
-                    pass
 
             get_strategy_info = getattr(cache, "get_strategy_info", None)
             if callable(get_strategy_info):
-                try:
+                with suppress(Exception):
                     extended_stats[f"{cache_name}_strategy"] = get_strategy_info()
-                except Exception:
-                    # Skip if method call fails
-                    pass
 
         return extended_stats
 
@@ -448,12 +443,12 @@ class AdvancedCacheManager(CacheManager):
         results["cleanup"] = cleanup_results
 
         # Trigger strategy evaluation for adaptive caches
-        for cache_name, cache in [
+        for cache_name, cache in (
             ("package_cache", self.package_cache),
             ("template_cache", self.template_cache),
             ("compilation_cache", self.compilation_cache),
             ("module_cache", self.module_cache),
-        ]:
+        ):
             if isinstance(cache, AdaptiveCache) and hasattr(
                 cache, "_evaluate_strategy"
             ):
