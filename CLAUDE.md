@@ -219,7 +219,7 @@ CompilationCache = TypedCache[str]
 
 **Coverage Status:**
 
-- Overall: **85%** coverage (above 42% requirement)
+- Overall: **85%** coverage
 - `bccache.py`: 100% ✅
 - `environment.py`: 93% ✅
 - `compiler_modules/codegen.py`: 87% ✅

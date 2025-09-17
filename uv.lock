@@ -1043,7 +1043,7 @@ wheels = [
 
 [[package]]
 name = "jinja2-async-environment"
-version = "0.17.1"
+version = "0.18.0"
 source = { editable = "." }
 dependencies = [
     { name = "anyio" },

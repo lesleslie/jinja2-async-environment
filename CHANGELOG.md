@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.18.0] - 2025-09-17
+
+### Changed
+
+- Jinja2-async-environment (quality: 76/100) - 2025-09-17 13:15:23
+
+### Documentation
+
+- config: Update CHANGELOG, pyproject
+
 ## [0.17.1] - 2025-09-17
 
 ### Fixed
