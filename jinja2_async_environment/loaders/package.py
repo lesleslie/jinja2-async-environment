@@ -255,7 +255,9 @@ class AsyncPackageLoader(AsyncBaseLoader):
             from contextlib import suppress
 
             with suppress(Exception):
-                cached_source = cache_manager.get("template", cache_key)
+                cached_source: SourceType | None = cache_manager.get(
+                    "template", cache_key
+                )
                 if cached_source is not None:
                     return cached_source
             # Cache errors shouldn't prevent loading
@@ -263,6 +265,7 @@ class AsyncPackageLoader(AsyncBaseLoader):
         template_path = AsyncPath(name)
 
         # Load from source with proper error handling
+        source_data: SourceType
         try:
             if self._archive:
                 source_data = await self._get_source_with_archive(template_path)
@@ -285,7 +288,8 @@ class AsyncPackageLoader(AsyncBaseLoader):
                 cache_manager.set("template", cache_key, source_data)
             # Cache errors shouldn't prevent template loading
 
-        return source_data
+        result: SourceType = source_data
+        return result
 
     async def _get_source_with_archive(self, template_path: AsyncPath) -> SourceType:
         """Get template source from archived package.
@@ -319,11 +323,12 @@ class AsyncPackageLoader(AsyncBaseLoader):
                 # For archived packages, files don't change
                 return True
 
-            return (
+            result: SourceType = (
                 source_bytes.decode(self.encoding),
                 str(template_full_path),
                 uptodate,
             )
+            return result
         except (OSError, FileNotFoundError) as exc:
             raise TemplateNotFound(template_path.name) from exc
 
@@ -356,11 +361,12 @@ class AsyncPackageLoader(AsyncBaseLoader):
                 except (OSError, FileNotFoundError):
                     return False
 
-            return (
+            result: SourceType = (
                 source_bytes.decode(self.encoding),
                 f"{self._template_root}/{template_path}",
                 uptodate,
             )
+            return result
         except (OSError, FileNotFoundError) as exc:
             raise TemplateNotFound(template_path.name) from exc
         except UnicodeDecodeError as exc:

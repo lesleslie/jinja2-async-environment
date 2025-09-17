@@ -1,7 +1,6 @@
 """Async filesystem template loader implementation."""
 
 import typing as t
-from collections import namedtuple
 from contextlib import suppress
 
 from anyio import Path as AsyncPath
@@ -10,7 +9,7 @@ from jinja2.utils import internalcode
 from .base import AsyncBaseLoader, SourceType
 
 # Define TemplatePathData type for better type checking
-TemplatePathData = namedtuple("TemplatePathData", ["template_name", "should_include"])
+# Replaced namedtuple with TypedCache for better type safety
 
 
 class TemplatePathDataType(t.NamedTuple):

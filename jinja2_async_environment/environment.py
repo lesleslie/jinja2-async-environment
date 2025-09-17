@@ -320,11 +320,12 @@ class AsyncEnvironment(Environment):
             return True
         up_to_date_attr = template.is_up_to_date
         if not callable(up_to_date_attr):
-            return up_to_date_attr
+            return bool(up_to_date_attr)
         result = up_to_date_attr()
         if hasattr(result, "__await__"):
-            return await result
-        return result
+            awaited_result = await result
+            return bool(awaited_result)
+        return bool(result)
 
     def _has_uptodate_attribute(self, template: Template) -> bool:
         from contextlib import suppress
@@ -389,8 +390,12 @@ class AsyncEnvironment(Environment):
         if self.loader is None:
             raise TypeError("No loader configured for this environment")
         if hasattr(self.loader, "load_async"):
-            return await self.loader.load_async(self, name, globals_dict)
-        return self.loader.load(self, name, globals_dict)
+            template_result: Template = await self.loader.load_async(
+                self, name, globals_dict
+            )
+            return template_result
+        sync_result: Template = self.loader.load(self, name, globals_dict)
+        return sync_result
 
 
 class AsyncSandboxedEnvironment(SandboxedEnvironment, AsyncEnvironment):

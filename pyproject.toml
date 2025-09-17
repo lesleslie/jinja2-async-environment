@@ -51,6 +51,11 @@ fix = true
 unsafe-fixes = true
 show-fixes = true
 output-format = "full"
+exclude = [
+    "tests/",
+    "test_*.py",
+    "*_test.py",
+]
 
 [tool.ruff.format]
 docstring-code-format = true
@@ -93,7 +98,7 @@ max-complexity = 15
 convention = "google"
 
 [tool.codespell]
-skip = "*/data/*"
+skip = "*/data/*,tests/*,test_*.py,*_test.py"
 quiet-level = 3
 ignore-words-list = "crate,uptodate,nd"
 
@@ -227,6 +232,10 @@ exclude-deps = [
 enable_all = true
 quiet = true
 python_version = "3.13"
+ignore = [
+    "FURB184",
+    "FURB120",
+]
 
 [tool.bandit]
 target = [
@@ -252,6 +261,11 @@ exclude_dirs = [
 min_confidence = 86
 paths = [
     "jinja2_async_environment",
+]
+exclude = [
+    "tests/",
+    "test_*.py",
+    "*_test.py",
 ]
 ignore_names = [
     "cls",

@@ -22,7 +22,7 @@ except ImportError:
     # Handle case where compiler hasn't been refactored yet
     from .manager import CompilationCache
 
-    _compilation_cache = None  # type: ignore
+    _compilation_cache = None
 
 __all__ = [
     "CacheManager",

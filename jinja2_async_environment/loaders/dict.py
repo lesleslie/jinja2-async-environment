@@ -61,7 +61,7 @@ class AsyncDictLoader(AsyncBaseLoader):
         cache_key = f"dict:{id(self)}:{name}"
 
         if cache_manager:
-            cached_source = cache_manager.get("template", cache_key)
+            cached_source: SourceType | None = cache_manager.get("template", cache_key)
             if cached_source is not None:
                 return cached_source
 
@@ -80,7 +80,7 @@ class AsyncDictLoader(AsyncBaseLoader):
             current_content = self.mapping[name]
             return current_content == source
 
-        source_data = (source, None, uptodate)
+        source_data: SourceType = (source, None, uptodate)
 
         # Cache the result
         if cache_manager:

@@ -2,7 +2,6 @@
 
 import typing as t
 
-import jinja2
 from jinja2 import nodes
 from jinja2.compiler import (
     CodeGenerator,
@@ -168,7 +167,17 @@ class AsyncCodeGenerator(CodeGenerator):
                 self.write(f"context.vars[{node.name!r}]")
 
     def _should_use_undefined_check(self, ref: str, frame: AsyncFrame) -> bool:
-        VAR_LOAD_PARAMETER = getattr(jinja2.compiler, "VAR_LOAD_PARAMETER", None)
+        # Try to get VAR_LOAD_PARAMETER using getattr to avoid import issues
+        try:
+            import jinja2.compiler
+
+            VAR_LOAD_PARAMETER = getattr(jinja2.compiler, "VAR_LOAD_PARAMETER", None)
+        except (ImportError, AttributeError):
+            # If we can't access it, we can't use it
+            return False
+
+        if VAR_LOAD_PARAMETER is None:
+            return False
 
         load = frame.symbols.find_load(ref)
         return not (
@@ -545,38 +554,38 @@ class AsyncCodeGenerator(CodeGenerator):
             cache_key = hashlib.sha256(content.encode()).hexdigest()[:16]
 
             # Check cache first
-            cached_code = cache_manager.get("compilation", cache_key)
-            if cached_code is not None:
-                return cached_code
+            cached_code_first: str | None = cache_manager.get("compilation", cache_key)
+            if cached_code_first is not None:
+                return cached_code_first
 
             # Compile and cache
             generator = cls(environment, name, filename)
 
             ast = environment.parse(source, name, filename)
-            compiled_code = generator.generate(ast)
+            compiled_code_first: str = generator.generate(ast)
 
             # Store in cache
-            cache_manager.set("compilation", cache_key, compiled_code)
-            return compiled_code
+            cache_manager.set("compilation", cache_key, compiled_code_first)
+            return compiled_code_first
         else:
             # Fall back to global cache for backward compatibility
             env_id = f"{id(environment)}:{getattr(environment, 'is_async', False)}"
             cache_key = _compilation_cache.get_cache_key(source, env_id)
 
             # Check cache first
-            cached_code = _compilation_cache.get(cache_key)
-            if cached_code is not None:
-                return cached_code
+            cached_code_second: str | None = _compilation_cache.get(cache_key)
+            if cached_code_second is not None:
+                return cached_code_second
 
             # Compile and cache
             generator = cls(environment, name, filename)
 
             ast = environment.parse(source, name, filename)
-            compiled_code = generator.generate(ast)
+            compiled_code_second: str = generator.generate(ast)
 
             # Store in cache
-            _compilation_cache.set(cache_key, compiled_code)
-            return compiled_code
+            _compilation_cache.set(cache_key, compiled_code_second)
+            return compiled_code_second
 
     def visit_For(self, node: nodes.For, frame: Frame) -> None:
         frame = t.cast(AsyncFrame, frame)
@@ -771,17 +780,32 @@ class AsyncCodeGenerator(CodeGenerator):
 
     def _write_filter_special_params(self, func: t.Any) -> None:
         """Write special parameters that some filters need."""
-        _PassArg = getattr(jinja2.compiler, "_PassArg", None)
+        # Try to get _PassArg using getattr to avoid import issues
+        _PassArg_module = None
+        try:
+            import jinja2.compiler
+
+            _PassArg_module = getattr(jinja2.compiler, "_PassArg", None)
+        except (ImportError, AttributeError):
+            _PassArg_module = None
 
         pass_arg = None
-        if func and _PassArg is not None:
-            pass_arg_type = _PassArg.from_obj(func)
-            if pass_arg_type and _PassArg is not None:
-                pass_arg = {
-                    _PassArg.context: "context",
-                    _PassArg.eval_context: "context.eval_ctx",
-                    _PassArg.environment: "environment",
-                }.get(pass_arg_type)
+        if func and _PassArg_module is not None:
+            pass_arg_type = _PassArg_module.from_obj(func)
+            if pass_arg_type is not None:
+                # Use getattr to safely access attributes
+                context_attr = getattr(_PassArg_module, "context", None)
+                eval_context_attr = getattr(_PassArg_module, "eval_context", None)
+                environment_attr = getattr(_PassArg_module, "environment", None)
+
+                if context_attr is not None and pass_arg_type == context_attr:
+                    pass_arg = "context"
+                elif (
+                    eval_context_attr is not None and pass_arg_type == eval_context_attr
+                ):
+                    pass_arg = "context.eval_ctx"
+                elif environment_attr is not None and pass_arg_type == environment_attr:
+                    pass_arg = "environment"
 
         if pass_arg is not None:
             self.write(f"{pass_arg}, ")

@@ -14,7 +14,7 @@ if t.TYPE_CHECKING:
 
 # Type alias for loader functions
 LoaderFunction = t.Callable[[str], str | None]
-AsyncLoaderFunction = t.Callable[[str], t.Awaitable[str | None | tuple[Any, ...]]]
+AsyncLoaderFunction = t.Callable[[str], t.Awaitable[str | tuple[Any, ...] | None]]
 
 
 class AsyncFunctionLoader(AsyncBaseLoader):
@@ -26,6 +26,9 @@ class AsyncFunctionLoader(AsyncBaseLoader):
     """
 
     __slots__ = ("load_func", "is_async_func")
+
+    load_func: LoaderFunction | AsyncLoaderFunction
+    is_async_func: bool
 
     def __init__(
         self,
@@ -84,7 +87,7 @@ class AsyncFunctionLoader(AsyncBaseLoader):
 
         return self._process_load_result(result, name)
 
-    async def _call_load_function(self, name: str) -> str | None | tuple[Any, ...]:
+    async def _call_load_function(self, name: str) -> t.Any:
         """Call the loader function (async or sync).
 
         Args:
@@ -94,28 +97,34 @@ class AsyncFunctionLoader(AsyncBaseLoader):
             Result from the loader function
         """
         if self.is_async_func:
-            return await self._call_async_load_function(name)
+            result = await self._call_async_load_function(name)
+            return result
         return self._call_sync_load_function(name)
 
     async def _call_async_load_function(
         self, name: str
-    ) -> str | None | tuple[Any, ...]:
+    ) -> str | tuple[Any, ...] | None:
         """Call the async loader function and await result."""
         # Call async function and await result
-        coro = self.load_func(name)
-        result = await coro  # type: ignore
+        initial_result = self.load_func(name)
 
-        # Keep awaiting until we get a non-awaitable result
+        # Check if result is awaitable and await it if needed
         import inspect
 
+        if inspect.isawaitable(initial_result):
+            result: str | tuple[Any, ...] | None = await initial_result
+        else:
+            result = initial_result
+
+        # Keep awaiting until we get a non-awaitable result
         while inspect.isawaitable(result):
-            result = await result  # type: ignore
+            awaited_result: str | tuple[Any, ...] | None = await result
+            result = awaited_result
 
         # At this point, result should be str | None | tuple[Any, ...]
-        # Return the result with aggressive type ignore
-        return result  # type: ignore[return-value,no-any-return,assignment]
+        return result
 
-    def _call_sync_load_function(self, name: str) -> str | None | tuple[Any, ...]:
+    def _call_sync_load_function(self, name: str) -> str | tuple[Any, ...] | None:
         """Call the sync loader function."""
         # Call sync function directly
         result = self.load_func(name)

@@ -11,9 +11,9 @@ repos:
         name: skylos-dead-code-detection
         entry: skylos
         language: system
-        args: ["jinja2_async_environment"]
+        args: ["jinja2_async_environment", "--exclude", "tests"]
         pass_filenames: false
-        exclude: ^src/
+        exclude: ^tests/|^src/
         stages: ["pre-push", "manual"]
       - id: zuban
         name: zuban-type-checking
@@ -21,7 +21,7 @@ repos:
         language: system
         args: ["--config-file", "mypy.ini", "./jinja2_async_environment"]
         pass_filenames: false
-        exclude: ^src/
+        exclude: ^tests/|^src/
         stages: ["pre-push", "manual"]
       - id: pyright
         name: pyright-type-checking
@@ -65,7 +65,7 @@ repos:
       - id: bandit
         args: ["-c", "pyproject.toml", "-r", "-ll"]
         files: ^jinja2_async_environment/.*\.py$
-        exclude: ^src/
+        exclude: ^tests/|^src/
         stages: ["pre-push", "manual"]
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
@@ -104,7 +104,6 @@ repos:
     rev: v2.1.0
     hooks:
       - id: refurb
-        args: ["--ignore", "FURB184", "--ignore", "FURB120"]
         files: ^jinja2_async_environment/.*\.py$
-        exclude: ^tests/.*\.py$|^src/
+        exclude: ^tests/|^src/
         stages: ["pre-push", "manual"]

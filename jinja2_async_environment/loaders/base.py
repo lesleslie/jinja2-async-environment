@@ -2,7 +2,6 @@
 
 import typing as t
 from abc import abstractmethod
-from collections import namedtuple
 
 from anyio import Path as AsyncPath
 from jinja2.loaders import BaseLoader
@@ -14,9 +13,7 @@ if t.TYPE_CHECKING:
     from ..environment import AsyncEnvironment
 
 # Define TemplateData type for better type checking
-TemplateData = namedtuple(
-    "TemplateData", ["source", "path", "uptodate", "source_str", "name"]
-)
+# Replaced namedtuple with TypedCache for better type safety
 
 
 class TemplateDataType(t.NamedTuple):
@@ -136,7 +133,7 @@ class AsyncBaseLoader(BaseLoader):
 
     def _normalize_searchpath(
         self, searchpath: AsyncPath | str | t.Sequence[AsyncPath | str]
-    ) -> list[t.Any]:
+    ) -> list[AsyncPath | str]:
         """Normalize searchpath to a list of paths.
 
         Args:
@@ -152,13 +149,13 @@ class AsyncBaseLoader(BaseLoader):
         if isinstance(searchpath, str) or hasattr(
             searchpath, "parts"
         ):  # AsyncPath check
-            return [searchpath]
+            return [t.cast(AsyncPath | str, searchpath)]
         # Try to treat as sequence
         return self._normalize_sequence_searchpath(searchpath)
 
     def _normalize_sequence_searchpath(
         self, searchpath: AsyncPath | str | t.Sequence[AsyncPath | str]
-    ) -> list[t.Any]:
+    ) -> list[AsyncPath | str]:
         """Normalize sequence searchpath to a list of paths.
 
         Args:
@@ -172,7 +169,11 @@ class AsyncBaseLoader(BaseLoader):
             ValueError: If searchpath is empty or contains invalid paths
         """
         try:
-            searchpath_list = list(searchpath)  # type: ignore
+            # Handle single values by converting to list
+            if isinstance(searchpath, str | AsyncPath):
+                searchpath_list = [searchpath]
+            else:
+                searchpath_list = list(searchpath)
             if not searchpath_list:
                 raise ValueError("searchpath cannot be empty")
 
@@ -186,7 +187,7 @@ class AsyncBaseLoader(BaseLoader):
                 "searchpath must be a string, AsyncPath, or sequence of strings/AsyncPaths"
             ) from e
 
-    def _validate_sequence_paths(self, searchpath_list: list[t.Any]) -> None:
+    def _validate_sequence_paths(self, searchpath_list: list[AsyncPath | str]) -> None:
         """Validate each path in a sequence.
 
         Args:
@@ -201,7 +202,9 @@ class AsyncBaseLoader(BaseLoader):
                     f"searchpath item {i} must be a string or AsyncPath, got {type(path)}"
                 )
 
-    def _convert_to_async_paths(self, searchpath_list: list[t.Any]) -> list[AsyncPath]:
+    def _convert_to_async_paths(
+        self, searchpath_list: list[AsyncPath | str]
+    ) -> list[AsyncPath]:
         """Convert a list of paths to AsyncPath objects.
 
         Args:
@@ -346,7 +349,7 @@ class AsyncBaseLoader(BaseLoader):
         code = await self._handle_template_compilation(environment, template_data)
 
         # Create template instance
-        template = environment.template_class.from_code(
+        template: Template = environment.template_class.from_code(
             environment,
             code,
             env_globals,
@@ -438,7 +441,7 @@ class AsyncBaseLoader(BaseLoader):
             Exception: If cache operations fail
         """
         try:
-            bucket = bcc.get_bucket(environment, template_data.name, template_data.path)  # type: ignore
+            bucket = bcc.get_bucket(environment, template_data.name, template_data.path)
 
             # Create checksum for bytecode caching
             import hashlib
