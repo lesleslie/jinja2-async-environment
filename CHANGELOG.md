@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.18.2] - 2025-09-18
+
+### Documentation
+
+- config: Update CHANGELOG, pyproject, uv
+
 ## [0.18.1] - 2025-09-17
 
 ### Testing
