@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "jinja2-async-environment"
-version = "0.18.2"
+version = "0.18.3"
 description = "Provides asynchronous alternatives to Jinja2's standard template environment and loaders"
 readme = "README.md"
 authors = [
@@ -125,7 +125,7 @@ markers = [
 ]
 timeout = 300
 timeout_method = "thread"
-addopts = "--cov=jinja2_async_environment --cov-report=term --cov-fail-under=42"
+addopts = "--cov=jinja2_async_environment --cov-report=term --cov-fail-under= 69"
 filterwarnings = [
     "ignore::pytest_benchmark.logger.PytestBenchmarkWarning",
 ]

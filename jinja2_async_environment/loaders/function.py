@@ -1,6 +1,7 @@
 # mypy: disable-error-code="return-value"
 """Async function template loader implementation."""
 
+import inspect
 import typing as t
 from typing import Any
 
@@ -128,7 +129,11 @@ class AsyncFunctionLoader(AsyncBaseLoader):
         """Call the sync loader function."""
         # Call sync function directly
         result = self.load_func(name)
-        return result
+        # Ensure we're not returning an awaitable for sync calls
+        if inspect.isawaitable(result):
+            raise RuntimeError("Sync loader function returned an awaitable")
+        # Type assertion: at this point result cannot be awaitable
+        return t.cast(str | tuple[Any, ...] | None, result)
 
     def _process_load_result(
         self, result: str | tuple[Any, ...], name: str
