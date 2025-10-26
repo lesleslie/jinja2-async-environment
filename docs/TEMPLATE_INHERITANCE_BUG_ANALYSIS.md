@@ -16,30 +16,37 @@ Template inheritance in jinja2-async-environment fails with `TypeError: 'async f
 **Location**: `jinja2_async_environment/compiler_modules/codegen.py:304`
 
 **Current Code**:
+
 ```python
 # Line 304 - INCORRECT
 self.writeline(f"{async_prefix}for event in {block_func_name}({context}):")
 ```
 
 **Problem**: When `async_prefix = "async "`, this generates:
+
 ```python
 async for event in block_content(context):  # ❌ WRONG - creates "async for" not "async for"
 ```
 
 But it actually generates:
+
 ```python
 for event in block_content(context):  # ❌ Tries to iterate over coroutine synchronously
 ```
 
 **Root Cause**: The `async_prefix` is being concatenated with `"for"`, creating `"async for"` literally as a string, but this doesn't work because:
+
 1. The function `block_func_name` is defined as `async def` (line 273)
-2. Calling `block_func_name(context)` returns a **coroutine**, not an async generator
-3. You need `async for` to iterate over async generators, but you first need to **await** the coroutine
+1. Calling `block_func_name(context)` returns a **coroutine**, not an async generator
+1. You need `async for` to iterate over async generators, but you first need to **await** the coroutine
 
 **Correct Fix**:
+
 ```python
 # Option 1: If block functions should be async generators
-self.writeline(f"{'async ' if self.environment.enable_async else ''}for event in {block_func_name}({context}):")
+self.writeline(
+    f"{'async ' if self.environment.enable_async else ''}for event in {block_func_name}({context}):"
+)
 
 # Option 2: If block functions return coroutines (current behavior)
 if self.environment.enable_async:
@@ -53,6 +60,7 @@ else:
 **Location**: `jinja2_async_environment/compiler_modules/codegen.py:271-277`
 
 **Current Code**:
+
 ```python
 async_prefix = self.choose_async()
 self.writeline(f"{async_prefix}def {block_func_name}(context):")
@@ -61,18 +69,21 @@ self.writeline("yield ''")  # Line 277
 ```
 
 **Problem**:
+
 - Line 273 creates `async def block_xxx(context):`
 - Line 277 uses `yield` which makes it an **async generator** function
 - But async generators need to be iterated with `async for`, not just `for`
 
 **Expected Behavior**:
+
 ```python
 async def block_content(context):
-    yield ''
+    yield ""
     # ... block content ...
 ```
 
 Should be called with:
+
 ```python
 async for event in block_content(context):
     yield event
@@ -85,27 +96,32 @@ async for event in block_content(context):
 **Issue**: Missing variables render as "None" instead of empty strings.
 
 **Current Behavior**:
+
 ```python
-{{ missing_var }}  # Renders: "None"
+{{missing_var}}  # Renders: "None"
 ```
 
 **Expected Behavior**:
+
 ```python
-{{ missing_var }}  # Should render: ""
+{{missing_var}}  # Should render: ""
 ```
 
 **Fix Required**:
+
 ```python
 # In AsyncEnvironment initialization
 from jinja2 import Undefined
 
+
 class SilentUndefined(Undefined):
     def _fail_with_undefined_error(self, *args, **kwargs):
-        return ''
+        return ""
 
     __str__ = _fail_with_undefined_error
     __iter__ = _fail_with_undefined_error
     __len__ = _fail_with_undefined_error
+
 
 # Then in environment:
 self.undefined = SilentUndefined
@@ -118,14 +134,15 @@ self.undefined = SilentUndefined
 ### Failing Tests (5 total)
 
 1. **test_basic_inheritance** - Block iteration fails with async coroutine error
-2. **test_email_template_inheritance** - Same async iteration issue
-3. **test_deeply_nested_inheritance** - Cascading async iteration failures
-4. **test_template_with_missing_variable** - Undefined variable renders as "None"
-5. **test_empty_template** - Edge case with empty async rendering
+1. **test_email_template_inheritance** - Same async iteration issue
+1. **test_deeply_nested_inheritance** - Cascading async iteration failures
+1. **test_template_with_missing_variable** - Undefined variable renders as "None"
+1. **test_empty_template** - Edge case with empty async rendering
 
 ### Passing Tests (69 total - 93%)
 
 All core functionality works:
+
 - ✅ Async template rendering (`render_async`)
 - ✅ Async string templates (`from_string` + `render_async`)
 - ✅ Auto-escaping with `select_autoescape(default=True)`
@@ -140,11 +157,13 @@ All core functionality works:
 **File**: `jinja2_async_environment/compiler_modules/codegen.py`
 
 **Line 304** - Change from:
+
 ```python
 self.writeline(f"{async_prefix}for event in {block_func_name}({context}):")
 ```
 
 To:
+
 ```python
 if self.environment.enable_async:
     self.writeline(f"async for event in {block_func_name}({context}):")
@@ -159,6 +178,7 @@ else:
 **File**: `jinja2_async_environment/compiler_modules/codegen.py`
 
 **Line 383** - Already correct:
+
 ```python
 f"async for event in template.root_render_func(...):"
 ```
@@ -170,6 +190,7 @@ This is correct - the issue is only in block functions.
 **File**: `jinja2_async_environment/environment.py`
 
 Add `undefined` parameter to AsyncEnvironment:
+
 ```python
 def __init__(
     self,
@@ -205,6 +226,7 @@ rendered = await render_template(template.root_render_func, context)
 ```
 
 Where `render_template` is:
+
 ```python
 async def render_template(render_func, context):
     result = []
@@ -218,14 +240,15 @@ async def render_template(render_func, context):
 ### Why This Matters
 
 1. **Jinja2's `render_async()`** (in core jinja2/environment.py) expects templates to work a certain way
-2. **jinja2-async-environment's async generators** don't match that expectation when using inheritance
-3. **The library's own tests bypass `render_async()`** entirely and call `root_render_func` directly
+1. **jinja2-async-environment's async generators** don't match that expectation when using inheritance
+1. **The library's own tests bypass `render_async()`** entirely and call `root_render_func` directly
 
 ### Implications for ACB
 
 Two options for ACB templates adapter:
 
 #### Option A: Change ACB to Use root_render_func Directly ✅ RECOMMENDED
+
 ```python
 # In TemplatesAdapter.render()
 async def render(self, template_name: str, context: dict | None = None, **kwargs):
@@ -241,26 +264,32 @@ async def render(self, template_name: str, context: dict | None = None, **kwargs
 ```
 
 **Pros**:
+
 - Will work with template inheritance
 - Matches how jinja2-async-environment is designed
 - Simple fix in ACB code
 
 **Cons**:
+
 - Not using "standard" Jinja2 API
 - Bypasses Jinja2's exception handling
 
 #### Option B: Fix jinja2-async-environment to Support render_async() ⚠️ COMPLEX
+
 This would require:
+
 1. Fixing the async block iteration (already done)
-2. Overriding `Template.render_async()` in jinja2-async-environment
-3. Making it compatible with Jinja2's expectations
-4. Extensive testing
+1. Overriding `Template.render_async()` in jinja2-async-environment
+1. Making it compatible with Jinja2's expectations
+1. Extensive testing
 
 **Pros**:
+
 - Standard Jinja2 API works
 - More "correct" long-term
 
 **Cons**:
+
 - Complex, requires deep understanding of Jinja2 internals
 - May break existing jinja2-async-environment code
 - Time-consuming
@@ -270,9 +299,9 @@ This would require:
 ### For This Session: **Option A - Fix ACB's Usage Pattern** ✅
 
 1. **Keep the codegen.py fix** (line 304) - it's still correct and necessary
-2. **Change ACB templates adapter** to use `root_render_func` directly
-3. **Test with ACB test suite** - should fix inheritance issues
-4. **Document the pattern** in ACB templates adapter
+1. **Change ACB templates adapter** to use `root_render_func` directly
+1. **Test with ACB test suite** - should fix inheritance issues
+1. **Document the pattern** in ACB templates adapter
 
 **Time**: ~10 minutes
 **Risk**: Low
@@ -291,14 +320,16 @@ Create a proper `render_async()` override that works with template inheritance, 
 ### Why The Bug Exists
 
 The original implementation assumed that:
+
 1. `async_prefix` could be concatenated with `"for"` to create `"async for"`
-2. This would work because blocks return async generators
+1. This would work because blocks return async generators
 
 But actually:
+
 1. `f"{async_prefix}for"` creates `"async for"` as a **string literal**, not Python syntax
-2. The code generator writes this string to the output, resulting in `"async for event in ..."`
-3. However, Python interprets `async for` as two separate tokens
-4. The actual generated code becomes `for event in ...` (without the async)
+1. The code generator writes this string to the output, resulting in `"async for event in ..."`
+1. However, Python interprets `async for` as two separate tokens
+1. The actual generated code becomes `for event in ...` (without the async)
 
 ### Proper Pattern
 
@@ -311,6 +342,7 @@ else:
 ```
 
 Not:
+
 ```python
 # WRONG - string concatenation doesn't create Python syntax
 async_prefix = "async " if enable_async else ""
@@ -322,6 +354,7 @@ self.writeline(f"{async_prefix}for event in func(ctx):")
 The codebase has similar patterns that work correctly:
 
 **Good Example** (line 273):
+
 ```python
 async_prefix = self.choose_async()
 self.writeline(f"{async_prefix}def {block_func_name}(context):")
@@ -329,6 +362,7 @@ self.writeline(f"{async_prefix}def {block_func_name}(context):")
 ```
 
 **Bad Example** (line 304):
+
 ```python
 self.writeline(f"{async_prefix}for event in {block_func_name}({context}):")
 # ❌ This doesn't work because "async for" needs conditional logic
@@ -339,10 +373,12 @@ self.writeline(f"{async_prefix}for event in {block_func_name}({context}):")
 ### Fixes Applied
 
 1. **Line 304 fix (async block iteration)** ✅ WORKING
+
    - Changed from string concatenation to conditional: `if self.environment.enable_async: async for...`
    - This fix is confirmed working
 
-2. **Line 107 fix (func() method)** ✅ PARTIALLY WORKING
+1. **Line 107 fix (func() method)** ✅ PARTIALLY WORKING
+
    - Changed from `return f"def {name}"` to `return f"{self.choose_async()}def {name}"`
    - Generated source code NOW correctly shows `async def root(...)`
    - **BUT**: Python's `compile()` still creates a coroutine function instead of async generator!
@@ -350,11 +386,13 @@ self.writeline(f"{async_prefix}for event in {block_func_name}({context}):")
 ### The Deeper Issue: Coroutine vs Async Generator
 
 **Problem**: Despite generating correct source code (`async def root` with `yield` statements), the compiled function has:
+
 - `inspect.iscoroutinefunction() = True` (should be False)
 - `inspect.isasyncgenfunction() = False` (should be True)
 - `Code flags: 131` (CO_COROUTINE) instead of `515` (CO_ASYNC_GENERATOR)
 
 **Evidence**:
+
 ```python
 # Manual compilation of EXACT same source → WORKS ✓
 code = compile(generated_source, "<template>", "exec")
@@ -367,13 +405,15 @@ template = await env.get_template_async("child.html")
 ```
 
 **Investigation Results**:
+
 1. Generated source is CORRECT (verified via `codegen.stream.getvalue()`)
-2. Manual `compile()` of same source WORKS
-3. jinja2-async-environment's `_compile()` method looks correct
-4. No caching or bytecode optimization issues found
-5. Problem persists across fresh Python sessions
+1. Manual `compile()` of same source WORKS
+1. jinja2-async-environment's `_compile()` method looks correct
+1. No caching or bytecode optimization issues found
+1. Problem persists across fresh Python sessions
 
 **Current Hypothesis**: There's either:
+
 - A hidden code transformation happening between generation and compilation
 - A Python compiler optimization that's not recognizing the yields
 - A Jinja2 internal compilation step we haven't found yet
@@ -392,7 +432,8 @@ The ACB templates adapter (acb/adapters/templates/jinja2.py) includes comprehens
 rendering = template.root_render_func(ctx)
 
 if hasattr(rendering, "__aiter__"):
-    async for chunk in rendering: result.append(chunk)
+    async for chunk in rendering:
+        result.append(chunk)
 elif hasattr(rendering, "__await__"):
     awaited_result = await rendering
     # Handle awaited result...
@@ -405,12 +446,13 @@ This pattern allows ACB to work even though the function type is wrong. However,
 The jinja2-async-environment library has TWO critical bugs:
 
 1. **Block iteration bug** (line 304) - **FIXED** ✅
-2. **Root function compilation issue** - **PARTIALLY FIXED** ⚠️
+1. **Root function compilation issue** - **PARTIALLY FIXED** ⚠️
    - Source generation is now correct
    - Compilation step still produces wrong function type
    - Requires deeper investigation or upstream fix
 
 **Recommendation**:
+
 - Keep the fixes we've made (they improve the situation)
 - Document this as a known limitation
 - Consider opening an upstream issue with jinja2-async-environment project

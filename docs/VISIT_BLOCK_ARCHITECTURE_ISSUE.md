@@ -7,8 +7,9 @@
 ## Executive Summary
 
 Template inheritance in jinja2-async-environment fails because `visit_Block()` conflates two separate responsibilities that base Jinja2 keeps distinct:
+
 1. **Block function DEFINITION** (should happen after root function)
-2. **Block function CALLING** (should happen during template body processing)
+1. **Block function CALLING** (should happen during template body processing)
 
 This architectural difference prevents child templates from properly overriding parent blocks.
 
@@ -38,6 +39,7 @@ for name, block in self.blocks.items():
 ```
 
 **visit_Block in base Jinja2**: ONLY handles calling blocks
+
 ```python
 def visit_Block(self, node, frame):
     # Call the block from context.blocks (allows overrides)
@@ -66,28 +68,35 @@ def visit_Block(self, node, frame):
 ```
 
 **Problem**: When a template with inheritance processes, visit_Block:
+
 1. Defines the child's block function
-2. Immediately tries to call it
-3. But the block hasn't been registered to context.blocks yet
-4. Results in empty block content
+1. Immediately tries to call it
+1. But the block hasn't been registered to context.blocks yet
+1. Results in empty block content
 
 ## Fixes Attempted
 
 ### 1. func() Method Fix ✅ **WORKING**
+
 **File**: `codegen.py:107`
+
 ```python
 # Before
 def func(self, name: str) -> str:
     return f"def {name}"
 
+
 # After
 def func(self, name: str) -> str:
     return f"{self.choose_async()}def {name}"
 ```
+
 **Impact**: Root functions now correctly generate as `async def root(...)` instead of `def root(...)`
 
 ### 2. frame.require_output_check Fix ✅ **WORKING**
+
 **File**: `codegen.py:261`
+
 ```python
 # Before
 frame.require_output_check = False
@@ -96,19 +105,24 @@ frame.require_output_check = False
 have_extends = node.find(nodes.Extends) is not None
 frame.require_output_check = have_extends and not self.has_known_extends
 ```
+
 **Impact**: Extends handling code now properly generated when templates use inheritance
 
 ### 3. Parent Template Iteration ⚠️ **PARTIALLY WORKING**
+
 **File**: `codegen.py:264-279`
 Added async parent template iteration code inside root function.
 
 **Impact**:
+
 - Templates ARE now async generators (correct function type)
 - Parent iteration code IS generated
 - But blocks return empty because visit_Block architecture is broken
 
 ### 4. context.blocks Changes ❌ **NOT HELPFUL**
+
 Attempted to:
+
 - Initialize context.blocks in root function
 - Register blocks to context.blocks in visit_Block
 - Use `context.blocks[name][0](context)` for calls
@@ -122,6 +136,7 @@ To fix template inheritance properly, jinja2-async-environment needs to:
 ### 1. Separate Block Definition from Block Calling
 
 **Create new method for block definitions**:
+
 ```python
 def _generate_block_functions(self, node):
     """Generate all block function definitions AFTER root function."""
@@ -134,6 +149,7 @@ def _generate_block_functions(self, node):
 ```
 
 **Update visit_Block to ONLY handle calling**:
+
 ```python
 def visit_Block(self, node, frame):
     """Call a block from context.blocks - allows inheritance overrides."""
@@ -148,6 +164,7 @@ def visit_Block(self, node, frame):
 ```
 
 **Update generate() to call block generator**:
+
 ```python
 def generate(self, node):
     # ... existing root function generation ...
@@ -164,12 +181,14 @@ def generate(self, node):
 ### 2. Ensure Proper Block Registration
 
 Blocks must be registered in BOTH places:
+
 - **Template-level `blocks` dict**: For parent template lookup during extends
 - **`context.blocks` dict**: For runtime override resolution
 
 ### 3. Handle Block Discovery
 
 Like base Jinja2's visit_Template:
+
 ```python
 # Find and store all blocks before processing
 for block in node.find_all(nodes.Blocks):
@@ -181,6 +200,7 @@ for block in node.find_all(nodes.Blocks):
 ## Comparison: Current vs. Needed
 
 ### Current (Broken)
+
 ```
 AsyncCodeGenerator.generate():
   └─ blockvisit(node.body)
@@ -192,6 +212,7 @@ AsyncCodeGenerator.generate():
 ```
 
 ### Needed (Like Base Jinja2)
+
 ```
 AsyncCodeGenerator.generate():
   ├─ Discover all blocks first
@@ -206,40 +227,47 @@ AsyncCodeGenerator.generate():
 ## Impact Assessment
 
 ### ACB Project
+
 - **Current**: 71/74 tests (95.9%)
 - **With fix**: Would achieve 74/74 (100%)
 - **Workaround**: ACB's render() method handles both coroutines and async generators gracefully
 
 ### FastBlocks
-- **Impact**: Medium - affects _render_standard() and _render_block()
+
+- **Impact**: Medium - affects \_render_standard() and \_render_block()
 - **Workaround**: Can use same pattern as ACB
 
 ### starlette-async-jinja
+
 - **Impact**: High - affects primary public API (TemplateResponse)
 - **Workaround**: Apply root_render_func pattern like ACB
 
 ## Recommendations
 
 ### Immediate (This Session)
+
 1. ✅ Keep func() method fix (line 107) - proven improvement
-2. ✅ Keep frame.require_output_check fix (line 261) - enables extends
-3. ❌ Revert context.blocks changes - adds complexity without benefit
-4. ✅ Document findings for upstream
+1. ✅ Keep frame.require_output_check fix (line 261) - enables extends
+1. ❌ Revert context.blocks changes - adds complexity without benefit
+1. ✅ Document findings for upstream
 
 ### Short-term (Next Session)
+
 1. Apply ACB's workaround pattern to FastBlocks and starlette-async-jinja
-2. Create upstream issue with jinja2-async-environment project
-3. Include this analysis and proposed redesign
+1. Create upstream issue with jinja2-async-environment project
+1. Include this analysis and proposed redesign
 
 ### Long-term (Upstream)
+
 1. Implement architectural redesign in jinja2-async-environment
-2. Separate block definition from block calling
-3. Align with base Jinja2's two-phase approach
-4. Add comprehensive inheritance tests
+1. Separate block definition from block calling
+1. Align with base Jinja2's two-phase approach
+1. Add comprehensive inheritance tests
 
 ## Files Modified
 
 ### jinja2-async-environment
+
 - `jinja2_async_environment/compiler_modules/codegen.py`: Multiple fixes attempted
   - Line 107: func() method ✅
   - Line 261: frame.require_output_check ✅
@@ -248,25 +276,26 @@ AsyncCodeGenerator.generate():
   - Lines 326, 334: context.blocks usage in visit_Block (revert recommended)
 
 ### ACB
+
 - `tests/adapters/templates/test_rendering.py:74-78`: Fixed undefined variable test ✅
 
 ## Lessons Learned
 
 1. **Generated code ≠ Compiled behavior**: Source can look correct but behave wrong
-2. **Architecture matters**: Conflating responsibilities creates subtle bugs
-3. **Base implementation is a guide**: When extending Jinja2, follow its patterns
-4. **Separation of concerns**: Definition vs. execution should be distinct phases
-5. **Test the pattern**: jinja2-async-environment's own tests bypass render_async()
+1. **Architecture matters**: Conflating responsibilities creates subtle bugs
+1. **Base implementation is a guide**: When extending Jinja2, follow its patterns
+1. **Separation of concerns**: Definition vs. execution should be distinct phases
+1. **Test the pattern**: jinja2-async-environment's own tests bypass render_async()
 
 ## Next Steps
 
 1. User decision: Keep experimental changes or revert to minimal fix?
-2. Update SESSION_SUMMARY_2025-10-26.md with visit_Block findings
-3. Commit changes to jinja2-async-environment (either full or minimal)
-4. Consider creating upstream PR with architectural redesign
-5. Apply workarounds to FastBlocks and starlette-async-jinja
+1. Update SESSION_SUMMARY_2025-10-26.md with visit_Block findings
+1. Commit changes to jinja2-async-environment (either full or minimal)
+1. Consider creating upstream PR with architectural redesign
+1. Apply workarounds to FastBlocks and starlette-async-jinja
 
----
+______________________________________________________________________
 
 **Session Time**: ~4-5 hours of deep investigation
 **Outcome**: Identified root cause requiring architectural redesign
