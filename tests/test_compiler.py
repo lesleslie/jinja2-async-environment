@@ -87,11 +87,14 @@ class TestAsyncCodeGenerator:
         code_generator.indent = MagicMock()
         code_generator.outdent = MagicMock()
         code_generator.get_context_ref = MagicMock(return_value="context")
-        code_generator.choose_async = MagicMock(return_value="async ")
+        code_generator.simple_write = MagicMock()
         block_node = nodes.Block("test_block", [], False, False)
         code_generator.visit_Block(block_node, async_frame)
-        code_generator.choose_async.assert_called_once()
+        # visit_Block should generate code to call the block from context.blocks
         assert code_generator.writeline.call_count >= 1
+        # It should generate async for loop code
+        writeline_calls = [call[0][0] for call in code_generator.writeline.call_args_list]
+        assert any("async for" in str(call) for call in writeline_calls)
 
     def test_visit_extends_exit_on_no_output_check(
         self, code_generator: AsyncCodeGenerator, async_frame: AsyncFrame

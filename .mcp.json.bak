@@ -1,0 +1,184 @@
+{
+  "mcpServers": {
+    "crackerjack": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "/Users/les/Projects/crackerjack",
+        "crackerjack",
+        "--start-mcp-server"
+      ],
+      "env": {
+        "UV_KEYRING_PROVIDER": "subprocess",
+        "EDITOR": "code --wait"
+      }
+    },
+    "macos_automator": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@steipete/macos-automator-mcp@latest"
+      ]
+    },
+    "peekaboo": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@steipete/peekaboo-mcp@beta"
+      ],
+      "env": {
+        "PEEKABOO_AI_PROVIDERS": "anthropic/claude-opus-4,anthropic/claude-sonnet-4"
+      }
+    },
+    "git": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@cyanheads/git-mcp-server"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@executeautomation/playwright-mcp-server"
+      ]
+    },
+    "claude-prompts": {
+      "command": "node",
+      "args": [
+        "/Users/les/Desktop/mcp-manual-setup/claude-prompts-mcp/server/dist/index.js"
+      ]
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ]
+    },
+    "obsidian": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "http://localhost:27123/sse"
+      ]
+    },
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "filesystem": {
+      "command": "rust-mcp-filesystem",
+      "args": [
+        "/Users/les"
+      ]
+    },
+    "jetbrains": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@jetbrains/mcp-proxy"
+      ]
+    },
+    "gemini-cli": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "gemini-mcp-tool"
+      ]
+    },
+    "pandoc": {
+      "command": "uvx",
+      "args": [
+        "mcp-pandoc"
+      ]
+    },
+    "redis": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/redis/mcp-redis.git",
+        "redis-mcp-server",
+        "--url",
+        "redis://localhost:6379/0"
+      ]
+    },
+    "sqlite-local": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-sqlite",
+        "/Users/les/databases/crackerjack.db"
+      ]
+    },
+    "upstash": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/mcp-server",
+        "run"
+      ]
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ]
+    },
+    "cloud-run": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "https://github.com/GoogleCloudPlatform/cloud-run-mcp"
+      ]
+    },
+    "logfire": {
+      "command": "uvx",
+      "args": [
+        "logfire-mcp@latest"
+      ]
+    },
+    "raindrop": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "raindrop-mcp"
+      ]
+    },
+    "mysql": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@benborla29/mcp-server-mysql@2.0.2"
+      ]
+    },
+    "turso-cloud": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-turso-cloud"
+      ]
+    },
+    "claude-session-management": {
+      "command": "python",
+      "args": [
+        "/Users/les/Projects/claude/mcp-servers/claude-session-management/server.py"
+      ],
+      "description": "Claude session management with initialization, checkpoints, and cleanup"
+    }
+  }
+}

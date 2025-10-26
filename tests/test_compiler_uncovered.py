@@ -90,9 +90,9 @@ class TestAsyncCodeGenerator:
         env = AsyncEnvironment()
         generator = AsyncCodeGenerator(env, "test", "test.html")
 
-        # Test func method
+        # Test func method - AsyncCodeGenerator generates async functions
         result = generator.func("test_function")
-        assert result == "def test_function"
+        assert result == "async def test_function"
 
     def test_enter_leave_frame(self):
         """Test AsyncCodeGenerator enter_frame and leave_frame methods."""
