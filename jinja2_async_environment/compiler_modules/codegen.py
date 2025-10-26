@@ -100,12 +100,34 @@ class AsyncCodeGenerator(CodeGenerator):
         return "async def" if async_frame.is_async else "def"
 
     def func(self, name: str) -> str:
-        """Generate a function declaration for the given name."""
-        return f"def {name}"
+        """Generate a function declaration for the given name.
+
+        Properly handles async functions by checking environment.is_async.
+        """
+        return f"{self.choose_async()}def {name}"
 
     def enter_frame(self, frame: Frame) -> None:
-        """Enter a new frame context."""
-        pass
+        """Enter a new frame context and load variables from context.
+
+        This method generates code to resolve template variables from the
+        context and assign them to local frame variables (e.g., l_0_name).
+        """
+        from jinja2.compiler import VAR_LOAD_PARAMETER, VAR_LOAD_RESOLVE, VAR_LOAD_ALIAS, VAR_LOAD_UNDEFINED
+
+        undefs = []
+        for target, (action, param) in frame.symbols.loads.items():
+            if action == VAR_LOAD_PARAMETER:
+                pass
+            elif action == VAR_LOAD_RESOLVE:
+                self.writeline(f"{target} = {self.get_resolve_func()}({param!r})")
+            elif action == VAR_LOAD_ALIAS:
+                self.writeline(f"{target} = {param}")
+            elif action == VAR_LOAD_UNDEFINED:
+                undefs.append(target)
+            else:
+                raise NotImplementedError("unknown load instruction")
+        if undefs:
+            self.writeline(f"{' = '.join(undefs)} = missing")
 
     def leave_frame(self, frame: Frame, with_python_scope: bool = False) -> None:
         """Leave a frame context."""
@@ -145,7 +167,11 @@ class AsyncCodeGenerator(CodeGenerator):
         if node.name in self._COMMON_VARS and node.ctx == "load":
             try:
                 ref = frame.symbols.ref(node.name)
-                self.write(ref)
+                # Add undefined check for ALL variables, including common ones
+                # This ensures proper undefined variable handling
+                self.write(
+                    f"(undefined(name={node.name!r}) if {ref} is missing else {ref})"
+                )
                 return
             except AssertionError:
                 self.write(f"context.get({node.name!r})")
@@ -154,7 +180,9 @@ class AsyncCodeGenerator(CodeGenerator):
         # Standard path for other variables
         try:
             ref = frame.symbols.ref(node.name)
-            if node.ctx == "load" and self._should_use_undefined_check(ref, frame):
+            if node.ctx == "load":
+                # ALWAYS use undefined check for variables loaded from context
+                # This ensures missing variables render as Undefined() instead of "missing"
                 self.write(
                     f"(undefined(name={node.name!r}) if {ref} is missing else {ref})"
                 )
@@ -204,14 +232,41 @@ class AsyncCodeGenerator(CodeGenerator):
             self._dependency_resolver.setup_test_dependency(name)
 
     def generate(self, node: nodes.Template) -> str:
-        self.writeline(f"name = {self.name!r}")
-        self.writeline("blocks = {}")
-        self.writeline("debug_info = None")
+        """Generate template code following base Jinja2 architecture.
 
+        Architecture (matching base Jinja2):
+        1. Pre-discover all blocks and store in self.blocks
+        2. Generate imports and module-level setup
+        3. Generate root function with block CALLS
+        4. After root exits, generate all block DEFINITIONS
+        5. Generate module-level blocks dict
+
+        This separation of block calling vs. definition is CRITICAL for
+        template inheritance to work correctly.
+        """
+        from jinja2.nodes import EvalContext
+
+        if self.eval_ctx is None:
+            self.eval_ctx = EvalContext(self.environment, self.name)
+
+        # PHASE 1: Pre-discover all blocks (like base Jinja2)
+        # This must happen BEFORE any code generation so blocks are known
+        for block in node.find_all(nodes.Block):
+            if block.name in self.blocks:
+                self.fail(f"block {block.name!r} defined twice", block.lineno)
+            self.blocks[block.name] = block
+
+        # Check if template has extends (for proper frame configuration)
+        have_extends = node.find(nodes.Extends) is not None
+
+        # PHASE 2: Module-level setup
         # Use optimized cached imports for better performance
         for import_line in CompiledPatterns.get_optimized_imports().split("\n"):
             self.writeline(import_line)
 
+        self.writeline(f"name = {self.name!r}")
+
+        # Helper functions
         self.writeline("def undefined(name=None, **_):")
         self.indent()
         self.writeline("return Undefined(name=name)")
@@ -228,87 +283,193 @@ class AsyncCodeGenerator(CodeGenerator):
 
         self.writeline("filters = DEFAULT_FILTERS.copy()")
         self.writeline("filters['escape'] = escape")
+
+        # PHASE 3: Generate root render function
         self.writeline("async def root(context):")
         self.indent()
-        self.writeline("parent_template = None")
-        self.writeline("environment = context.environment")
-        self.writeline("eval_ctx = context.eval_ctx")
+
+        # CRITICAL: Write commons sets up resolve, undefined, concat, etc.
+        # AND includes "if 0: yield None" to make function an async generator
+        self.writeline("resolve = context.resolve_or_missing")
         self.writeline("undefined = environment.undefined")
+        self.writeline("concat = environment.concat")
+        self.writeline("cond_expr_undefined = Undefined")
+        self.writeline("if 0: yield None")  # Makes function an async generator
 
-        from jinja2.nodes import EvalContext
-
-        if self.eval_ctx is None:
-            self.eval_ctx = EvalContext(self.environment, self.name)
-
+        # Create frame for root processing
         frame = self.root_frame_class(eval_ctx=self.eval_ctx)
+
+        # Check for 'self' usage BEFORE analyzing
+        if "self" in find_undeclared(node.body, ("self",)):
+            ref = frame.symbols.declare_parameter("self")
+            self.writeline(f"{ref} = TemplateReference(context)")
+
+        # Analyze node to discover variables
+        frame.symbols.analyze_node(node)
+
+        # Set frame flags AFTER analysis
         frame.toplevel = frame.rootlevel = True
-        frame.require_output_check = False
-        frame.buffer = None
+        frame.require_output_check = have_extends and not self.has_known_extends
 
-        for macro in node.find_all(nodes.Macro):
-            frame.symbols.store(macro.name)
+        # Initialize parent_template for extends
+        if have_extends:
+            self.writeline("parent_template = None")
 
-        # Pull dependencies for filters and tests
+        # Enter frame and process template body
+        # visit_Block will be called during blockvisit, but now it only CALLS blocks
+        self.enter_frame(frame)
         self.pull_dependencies(node.body)
         self.blockvisit(node.body, frame)
-        self.outdent()
+        self.leave_frame(frame, with_python_scope=True)
+        self.outdent()  # Exit root function
+
+        # PHASE 4: Parent template iteration (if extends present)
+        if have_extends:
+            if not self.has_known_extends:
+                self.indent()
+                self.writeline("if parent_template is not None:")
+            self.indent()
+            # Generate async parent template iteration
+            self.writeline("agen = parent_template.root_render_func(context)")
+            self.writeline("try:")
+            self.indent()
+            self.writeline("async for event in agen:")
+            self.indent()
+            self.writeline("yield event")
+            self.outdent()
+            self.outdent()
+            self.writeline("finally: await agen.aclose()")
+            self.outdent(1 + (not self.has_known_extends))
+
+        # PHASE 5: Generate all block function DEFINITIONS
+        # This happens AFTER root function exits
+        self._generate_block_functions()
+
+        # PHASE 6: Generate module-level blocks dict
+        blocks_kv_str = ", ".join(f"{name!r}: block_{name}" for name in self.blocks)
+        self.writeline(f"blocks = {{{blocks_kv_str}}}", extra=1)
+        self.writeline("debug_info = None")
 
         # Apply pattern-based optimizations to generated code
         generated_code = self.stream.getvalue()
         return CompiledPatterns.optimize_generated_code(generated_code)
 
-    def visit_Block(self, node: nodes.Block, frame: Frame) -> None:
-        """Visit a block node with proper async handling."""
-        # Frame is already cast to AsyncFrame through method signature compatibility
+    def _generate_block_functions(self) -> None:
+        """Generate all block function definitions.
 
-        # Get block name
+        This is called AFTER the root function exits, following base Jinja2's
+        architecture. Block functions are defined separately from where they're
+        called to enable proper template inheritance.
+
+        For each block in self.blocks:
+        - Creates async def block_NAME(context) function
+        - Adds write_commons() for generator setup
+        - Processes block body with proper frame
+        - Handles 'self' and 'super' references
+        """
+        from jinja2.nodes import EvalContext
+
+        for name, block_node in self.blocks.items():
+            # Start block function definition
+            self.writeline(
+                f"async def block_{name}(context):",
+                block_node,
+                1,
+            )
+            self.indent()
+
+            # Write commons (includes "if 0: yield None" for generator)
+            self.writeline("resolve = context.resolve_or_missing")
+            self.writeline("undefined = environment.undefined")
+            self.writeline("concat = environment.concat")
+            self.writeline("cond_expr_undefined = Undefined")
+            self.writeline("if 0: yield None")  # Makes function an async generator
+
+            # Create block frame (NOT a child of toplevel frame)
+            block_frame = self.root_frame_class(eval_ctx=self.eval_ctx)
+            block_frame.block_frame = True
+
+            # Check for 'self' and 'super' usage
+            undeclared = find_undeclared(block_node.body, ("self", "super"))
+            if "self" in undeclared:
+                ref = block_frame.symbols.declare_parameter("self")
+                self.writeline(f"{ref} = TemplateReference(context)")
+            if "super" in undeclared:
+                ref = block_frame.symbols.declare_parameter("super")
+                self.writeline(f"{ref} = context.super({name!r}, block_{name})")
+
+            # Analyze block body
+            block_frame.symbols.analyze_node(block_node)
+            block_frame.block = name
+
+            # Block-level variables dict
+            self.writeline("_block_vars = {}")
+
+            # Enter frame, process block body, leave frame
+            self.enter_frame(block_frame)
+            self.pull_dependencies(block_node.body)
+            self.blockvisit(block_node.body, block_frame)
+            self.leave_frame(block_frame, with_python_scope=True)
+
+            self.outdent()  # Exit block function
+
+    def visit_Block(self, node: nodes.Block, frame: Frame) -> None:
+        """Call a block and register it for the template.
+
+        This method ONLY handles CALLING blocks from context.blocks.
+        Block DEFINITIONS are generated separately in _generate_block_functions().
+
+        This separation is CRITICAL for template inheritance to work:
+        - Child templates can override parent blocks via context.blocks
+        - Blocks are discovered and defined after root function exits
+        - During root execution, blocks are called from context.blocks[name][0]
+
+        Architecture matches base Jinja2's CodeGenerator.visit_Block.
+        """
         block_name = node.name
 
-        # Initialize block storage
-        self.writeline(f"blocks[{block_name!r}] = []")
-
-        # Define block function with async prefix
-        block_func_name = f"block_{block_name}"
-        async_prefix = self.choose_async()
-        self.writeline(f"{async_prefix}def {block_func_name}(context):")
-        self.indent()
-
-        # Empty block content placeholder
-        self.writeline("yield ''")
-
-        # Process block body if it exists
-        if node.body:
-            self.blockvisit(node.body, frame)
-
-        # End function and register block
-        self.outdent()
-        self.writeline(f"blocks[{block_name!r}].append({block_func_name})")
-
-        # Handle inheritance cases
+        # Handle inheritance conditional
         level = 0
         if frame.toplevel:
+            # If we know we're a child template, no need to check
             if self.has_known_extends:
                 return
+            # If we've seen extends before, add conditional
             if self.extends_so_far > 0:
                 self.writeline("if parent_template is None:")
                 self.indent()
                 level += 1
 
-        # Handle scoped blocks
+        # Determine context reference (scoped blocks use derived context)
         if node.scoped:
             context = self.derive_context(frame)
         else:
             context = self.get_context_ref()
 
-        # Generate block call with proper async handling
-        self.writeline(f"{async_prefix}for event in {block_func_name}({context}):")
-        self.indent()
-        self.writeline("yield event")
-        self.outdent()
-
-        # Close conditional blocks
-        for _ in range(level):
+        # Check if block is required
+        if node.required:
+            self.writeline(f"if len(context.blocks[{block_name!r}]) <= 1:", node)
+            self.indent()
+            self.writeline(
+                f'raise TemplateRuntimeError("Required block {block_name!r} not found")',
+                node,
+            )
             self.outdent()
+
+        # CRITICAL: Call block from context.blocks (enables inheritance)
+        # context.blocks[name] is a list, [0] gets the first (child's override or base)
+        self.writeline(f"gen = context.blocks[{block_name!r}][0]({context})")
+        self.writeline("try:")
+        self.indent()
+        self.writeline("async for event in gen:")
+        self.indent()
+        self.simple_write("event", frame)
+        self.outdent()
+        self.outdent()
+        self.writeline("finally: await gen.aclose()")
+
+        # Close inheritance conditional if needed
+        self.outdent(level)
 
     def visit_Extends(self, node: nodes.Extends, frame: Frame) -> None:
         """Visit an extends node with proper async handling."""

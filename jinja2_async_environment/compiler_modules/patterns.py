@@ -66,7 +66,8 @@ class CompiledPatterns:
         # Fast string replacements for common patterns
         optimizations = [
             ("yield from context.blocks", "pass  # yield from replaced"),
-            ("undefined(name='item') if l_0_item is missing else l_0_item", "item"),
+            # NOTE: Do NOT optimize away "undefined(name='x') if l_0_x is missing else l_0_x"
+            # This pattern is CRITICAL for proper undefined variable handling
             ("undefined(name=None)", "Undefined()"),
             ("escape(escape(", "escape("),  # Remove double escaping
             (
