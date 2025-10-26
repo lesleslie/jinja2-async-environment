@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.18.4] - 2025-10-26
+
+### Added
+
+- test-coverage: Achieve 80% test coverage with comprehensive edge case tests
+
+### Changed
+
+- Jinja2-async-environment (quality: 68/100) - 2025-10-26 03:12:01
+
+### Fixed
+
+- config: Remove space in cov-fail-under pytest argument to fix validation error
+- Implement proper template inheritance following base Jinja2 architecture
+- Suppress zuban type checking warnings for jinja2 compiler imports
+
+### Testing
+
+- Comprehensive caching test coverage improvements (69% → 79%)
+- core: Update 7 files
+
 ## [0.18.3] - 2025-09-18
 
 ### Testing
