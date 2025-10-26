@@ -112,7 +112,12 @@ class AsyncCodeGenerator(CodeGenerator):
         This method generates code to resolve template variables from the
         context and assign them to local frame variables (e.g., l_0_name).
         """
-        from jinja2.compiler import VAR_LOAD_PARAMETER, VAR_LOAD_RESOLVE, VAR_LOAD_ALIAS, VAR_LOAD_UNDEFINED
+        from jinja2.compiler import (
+            VAR_LOAD_ALIAS,  # type: ignore[attr-defined]
+            VAR_LOAD_PARAMETER,  # type: ignore[attr-defined]
+            VAR_LOAD_RESOLVE,  # type: ignore[attr-defined]
+            VAR_LOAD_UNDEFINED,  # type: ignore[attr-defined]
+        )
 
         undefs = []
         for target, (action, param) in frame.symbols.loads.items():
@@ -367,8 +372,6 @@ class AsyncCodeGenerator(CodeGenerator):
         - Processes block body with proper frame
         - Handles 'self' and 'super' references
         """
-        from jinja2.nodes import EvalContext
-
         for name, block_node in self.blocks.items():
             # Start block function definition
             self.writeline(
