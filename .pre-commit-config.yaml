@@ -23,13 +23,6 @@ repos:
         pass_filenames: false
         exclude: ^tests/|^src/
         stages: ["pre-push", "manual"]
-      - id: pyright
-        name: pyright-type-checking
-        entry: uv run pyright
-        language: system
-        files: ^jinja2_async_environment/.*\.py$
-        exclude: ^crackerjack/(mcp|plugins)/.*\.py$|crackerjack/code_cleaner\.py$|^src/
-        stages: ["pre-push", "manual"]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
@@ -49,7 +42,7 @@ repos:
         name: check-added-large-files
         exclude: ^\.venv/|^src/
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.8.15
+    rev: 0.9.0
     hooks:
       - id: uv-lock
         files: ^ pyproject\.toml$
@@ -58,7 +51,7 @@ repos:
     rev: v8.28.0
     hooks:
       - id: gitleaks
-        exclude: uv\.lock|pyproject\.toml|tests/.*|docs/.*|.*\.md|^src/
+        exclude: uv\.lock|pyproject\.toml|tests/.*|docs/.*|\.claude/.*|.*\.md|^src/
   - repo: https://github.com/PyCQA/bandit
     rev: 1.8.6
     hooks:
@@ -74,7 +67,7 @@ repos:
         exclude: ^\.venv/|^src/
         additional_dependencies: ["tomli"]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.12
+    rev: v0.14.0
     hooks:
       - id: ruff-check
         exclude: ^\.venv/|^src/
@@ -101,7 +94,7 @@ repos:
         exclude: ^(\.venv/|tests/)|^src/
         stages: ["pre-push", "manual"]
   - repo: https://github.com/dosisod/refurb
-    rev: v2.1.0
+    rev: v2.2.0
     hooks:
       - id: refurb
         files: ^jinja2_async_environment/.*\.py$
