@@ -125,7 +125,7 @@ markers = [
 ]
 timeout = 300
 timeout_method = "thread"
-addopts = "--cov=jinja2_async_environment --cov-report=term --cov-fail-under= 79"
+addopts = "--cov=jinja2_async_environment --cov-report=term --cov-fail-under= 80"
 filterwarnings = [
     "ignore::pytest_benchmark.logger.PytestBenchmarkWarning",
 ]
