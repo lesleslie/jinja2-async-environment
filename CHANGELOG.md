@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.18.6] - 2025-11-26
+
+### Changed
+
+- Update config, core, deps, docs, tests
+
+### Documentation
+
+- config: Update 4 files
+
 ## [0.18.5] - 2025-10-26
 
 ### Fixed
