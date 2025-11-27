@@ -113,7 +113,10 @@ def test_visit_block(async_code_generator: AsyncCodeGenerator) -> None:
     async_code_generator.visit_Block(block_node, frame)
 
     # Verify writeline was called to generate code
-    assert async_code_generator.writeline.called or async_code_generator.simple_write.called
+    assert (
+        async_code_generator.writeline.called
+        or async_code_generator.simple_write.called
+    )
 
 
 def test_visit_extends(async_code_generator: AsyncCodeGenerator) -> None:
@@ -396,4 +399,7 @@ def test_visit_asyncblock(async_code_generator: AsyncCodeGenerator) -> None:
     async_code_generator.visit_Block(block_node, frame)
 
     # Verify the method generated code (either through writeline or simple_write)
-    assert async_code_generator.writeline.called or async_code_generator.simple_write.called
+    assert (
+        async_code_generator.writeline.called
+        or async_code_generator.simple_write.called
+    )

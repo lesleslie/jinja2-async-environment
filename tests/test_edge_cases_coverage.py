@@ -1,18 +1,17 @@
 """Edge case tests to improve coverage of critical paths."""
 
 import time
-import pytest
-from unittest.mock import MagicMock, AsyncMock, patch
-from jinja2_async_environment.caching.typed import TypedCache
+
 from jinja2_async_environment.caching.strategies import (
-    LFUCache,
     AdaptiveCache,
     HierarchicalCache,
+    LFUCache,
 )
+from jinja2_async_environment.caching.typed import TypedCache
 from jinja2_async_environment.testing.fixtures import (
-    isolated_test_context,
     UnifiedCache,
     _clear_expired_cache,
+    isolated_test_context,
 )
 
 

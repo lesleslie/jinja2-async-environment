@@ -30,12 +30,13 @@ class AsyncDictLoader(AsyncBaseLoader):
             mapping: Dictionary mapping template names to template source
             searchpath: Path or sequence of paths for compatibility
         """
-        # Call parent with provided searchpath
+        # Call parent with a default path since searchpath cannot be empty
+        # For DictLoader, we use a virtual path since templates are in memory
         if searchpath is not None:
             super().__init__(searchpath)
         else:
-            # Call parent with empty searchpath for backward compatibility
-            super().__init__([])
+            # Use a virtual path for dictionary loader since no actual filesystem path is needed
+            super().__init__(["/virtual_dict_path"])
         self.mapping = mapping.copy()  # Create a copy for safety
 
     @internalcode

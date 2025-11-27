@@ -26,9 +26,9 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "anyio>=4.9",
+    "anyio>=4.11.0",
     "jinja2>=3.1.6",
-    "redis>=3.5.3",
+    "redis>=7.1.0",
 ]
 
 [project.license]
@@ -37,10 +37,11 @@ text = "BSD-3-Clause"
 [dependency-groups]
 dev = [
     "codespell>=2.4.1",
-    "complexipy>=3.3",
-    "crackerjack>=0.22.5",
-    "session-mgmt-mcp>=0.1.3",
-    "twine>=6.1",
+    "complexipy>=5.0.0",
+    "crackerjack>=0.44.36",
+    "session-mgmt-mcp>=0.9.6",
+    "twine>=6.2.0",
+    "uv-bump>=0.3.1",
 ]
 
 [tool.ruff]
@@ -125,12 +126,12 @@ markers = [
 ]
 timeout = 300
 timeout_method = "thread"
-addopts = "--cov=jinja2_async_environment --cov-report=term --cov-fail-under=80"
+addopts = "--cov=jinja2_async_environment --cov-report=term --cov-fail-under=83"
 filterwarnings = [
     "ignore::pytest_benchmark.logger.PytestBenchmarkWarning",
 ]
 
-[tool.pytest.benchmark]
+[tool.pytest-benchmark]
 disable_gc = true
 warmup = false
 warmup_iterations = 0
@@ -275,6 +276,7 @@ keyring-provider = "subprocess"
 index-url = "https://pypi.org/simple/"
 publish-url = "https://upload.pypi.org/legacy/"
 check-url = "https://pypi.org/simple/"
+prerelease = "allow"
 
 [tool.uv.sources]
 

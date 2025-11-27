@@ -1,18 +1,16 @@
 """Comprehensive tests for caching module to improve coverage."""
 
-import pytest
 import time
-from unittest.mock import MagicMock, patch
 
-from jinja2_async_environment.caching.typed import TypedCache
+from jinja2_async_environment.caching.manager import AdvancedCacheManager, CacheManager
 from jinja2_async_environment.caching.strategies import (
-    LFUCache,
     AdaptiveCache,
-    HierarchicalCache,
     CacheStatistics,
     CacheWarmer,
+    HierarchicalCache,
+    LFUCache,
 )
-from jinja2_async_environment.caching.manager import CacheManager, AdvancedCacheManager
+from jinja2_async_environment.caching.typed import TypedCache
 
 
 class TestTypeVCache:

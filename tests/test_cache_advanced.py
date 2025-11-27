@@ -1,14 +1,11 @@
 """Advanced tests for cache manager and strategies to improve coverage."""
 
-import pytest
-import time
-
-from jinja2_async_environment.caching.manager import CacheManager, AdvancedCacheManager
+from jinja2_async_environment.caching.manager import AdvancedCacheManager, CacheManager
 from jinja2_async_environment.caching.strategies import (
-    LFUCache,
     AdaptiveCache,
-    HierarchicalCache,
     CacheStatistics,
+    HierarchicalCache,
+    LFUCache,
 )
 
 

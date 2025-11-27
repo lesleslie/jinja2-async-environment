@@ -79,7 +79,7 @@ class AsyncFileSystemLoader(AsyncBaseLoader):
 
                     # Read the template file
                     source = await template_path.read_text(encoding=self.encoding)
-                    filename = str(template_path.resolve())
+                    filename = str(await template_path.resolve())
 
                     # Get the modification time for uptodate check
                     stat_result = await template_path.stat()

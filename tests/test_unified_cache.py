@@ -1,6 +1,5 @@
 """Comprehensive tests for unified cache module to improve coverage."""
 
-import pytest
 import time
 
 from jinja2_async_environment.caching.unified import UnifiedCache
