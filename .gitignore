@@ -1,30 +1,96 @@
-# Created by .ignore support plugin (hsz.mobi)
-/.idea
-/.pdm-python
-/.pdm.toml
-/build/
-/__pypackages__/
-/dist/
-/.mypy_cache/
-/.ruff_cache/
-/.pytest_cache/
-/.pdm-build/
-/tmp/
-/__pycache__/
-/*.pyc
-/tests/__pycache__/
-/.coverage
-/.claude/
-/htmlcov/
-/.venv/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-# Generated analysis reports and temporary files
-*.json
-*-report.*
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.pdm-python/
+.pdm.toml
+.pdm-build/
+/__pypackages__/
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage*
+htmlcov/
+test-results.xml
+.tox/
+.nox/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Type checking & Linting
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# Caches
+*.cache
+.cache/
+/tmp/
+.tmp/
+
+# Claude Code
+.claude/
+.oneiric_cache/
+
+# Crackerjack
+.crackerjack/
+.crackerjack-*
+crackerjack-debug-*.log
+crackerjack-ai-debug-*.log
+.benchmarks/
+
+# Generated documentation/reports
 *_PLAN.md
 *_SUMMARY.md
 *_FIXES.md
 *_ACTION_PLAN.md
-test-results.xml
-.benchmarks/
-/.crackerjack/
+*-report.*
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.bak
+*.swp

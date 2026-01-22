@@ -225,7 +225,7 @@ class AsyncFunctionLoader(AsyncBaseLoader):
             current_source = current_result[0]
         else:
             current_source = current_result
-        return current_source == source
+        return bool(current_source == source)
 
     @internalcode
     async def list_templates_async(self) -> list[str]:

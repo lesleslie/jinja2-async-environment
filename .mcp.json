@@ -1,56 +1,14 @@
 {
   "mcpServers": {
-    "context7": {
-      "args": [
-        "-y",
-        "@upstash/context7-mcp@1.0.20"
-      ],
-      "command": "npx",
-      "type": "stdio"
-    },
     "crackerjack": {
+      "env": {
+        "BASH_DEFAULT_TIMEOUT_MS": "300000",
+        "BASH_MAX_TIMEOUT_MS": "1800000",
+        "MCP_TIMEOUT": "60000",
+        "MCP_TOOL_TIMEOUT": "1800000"
+      },
       "type": "http",
       "url": "http://localhost:8676/mcp"
-    },
-    "excalidraw": {
-      "type": "http",
-      "url": "http://localhost:3032/mcp"
-    },
-    "gitlab": {
-      "args": [
-        "-y",
-        "@zereight/mcp-gitlab@2.0.6"
-      ],
-      "command": "npx",
-      "type": "stdio"
-    },
-    "macos_automator": {
-      "args": [
-        "-y",
-        "@steipete/macos-automator-mcp@0.4.1"
-      ],
-      "command": "npx",
-      "type": "stdio"
-    },
-    "memory": {
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-memory@2025.9.25"
-      ],
-      "command": "npx",
-      "type": "stdio"
-    },
-    "mermaid": {
-      "type": "http",
-      "url": "http://localhost:3033/mcp"
-    },
-    "peekaboo": {
-      "args": [
-        "-y",
-        "@steipete/peekaboo-mcp@2.0.3"
-      ],
-      "command": "npx",
-      "type": "stdio"
     },
     "session-mgmt": {
       "type": "http",

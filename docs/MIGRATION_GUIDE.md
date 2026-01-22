@@ -274,9 +274,9 @@ print(f"Cache hit rate: {cache_stats['hit_rate']:.2%}")
 
 For migration support:
 
-1. Check the [GitHub Issues](https://github.com/your-repo/issues)
+1. Check the [GitHub Issues](https://github.com/lesleslie/jinja2-async-environment/issues)
 1. Review the [REFACTORING_PLAN.md](./REFACTORING_PLAN.md)
-1. See complete [API Documentation](./api/index.html)
+1. See complete [API Documentation](./API_REFERENCE.md)
 
 ## Summary
 

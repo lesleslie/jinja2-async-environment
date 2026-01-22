@@ -125,7 +125,7 @@ Attempted to:
 
 - Initialize context.blocks in root function
 - Register blocks to context.blocks in visit_Block
-- Use `context.blocks[name][0](context)` for calls
+- Use `context.blocks[name][0]` with context parameter for calls
 
 **Result**: Made situation more complex without fixing the core issue.
 

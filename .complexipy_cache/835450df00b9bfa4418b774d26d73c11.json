@@ -1,0 +1,1700 @@
+{
+  "functions": [
+    {
+      "complexity": 0,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::_is_mock_template",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::cache_manager",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::get_or_select_template",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::get_template",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::select_template",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::set_cache_manager",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "environment.py",
+      "function_name": "AsyncSandboxedEnvironment::compile_expression",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "environment.py",
+      "function_name": "TemplateResolver::__init__",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "environment.py",
+      "function_name": "TemplateResolver::load_single_template",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::_get_uptodate_attribute",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "environment.py",
+      "function_name": "AsyncSandboxedEnvironment::__init__",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "environment.py",
+      "function_name": "TemplateResolver::is_template_or_mock",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "environment.py",
+      "function_name": "TemplateResolver::resolve_template_name",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "environment.py",
+      "function_name": "TemplateResolver::try_load_template",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::_load_template_from_loader",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::_update_template_globals",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::get_template_async",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::__init__",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::_generate",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::_get_template_async",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::_handle_mock_template_uptodate",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::_is_template_up_to_date",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::get_or_select_template_async",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::_async_yield_from",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::_get_from_cache",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::select_template_async",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::_compile",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::_load_template_async",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::_evaluate_uptodate_attribute",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 11,
+      "file_name": "environment.py",
+      "function_name": "AsyncEnvironment::_has_uptodate_attribute",
+      "path": "environment.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "bccache.py",
+      "function_name": "AsyncBytecodeCache::clear",
+      "path": "bccache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "bccache.py",
+      "function_name": "AsyncBytecodeCache::dump_bytecode",
+      "path": "bccache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "bccache.py",
+      "function_name": "AsyncBytecodeCache::get_bucket_async",
+      "path": "bccache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "bccache.py",
+      "function_name": "AsyncBytecodeCache::get_source_checksum",
+      "path": "bccache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "bccache.py",
+      "function_name": "AsyncBytecodeCache::load_bytecode",
+      "path": "bccache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "bccache.py",
+      "function_name": "AsyncBytecodeCache::set_bucket_async",
+      "path": "bccache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "bccache.py",
+      "function_name": "AsyncRedisBytecodeCache::dump_bytecode",
+      "path": "bccache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "bccache.py",
+      "function_name": "AsyncRedisBytecodeCache::get_bucket_async",
+      "path": "bccache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "bccache.py",
+      "function_name": "AsyncRedisBytecodeCache::get_source_checksum",
+      "path": "bccache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "bccache.py",
+      "function_name": "AsyncRedisBytecodeCache::set_bucket",
+      "path": "bccache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "bccache.py",
+      "function_name": "AsyncRedisBytecodeCache::set_bucket_async",
+      "path": "bccache.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "bccache.py",
+      "function_name": "AsyncBytecodeCache::get_cache_key",
+      "path": "bccache.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "bccache.py",
+      "function_name": "AsyncRedisBytecodeCache::__init__",
+      "path": "bccache.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "bccache.py",
+      "function_name": "AsyncRedisBytecodeCache::get_bucket",
+      "path": "bccache.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "bccache.py",
+      "function_name": "AsyncRedisBytecodeCache::get_bucket_name",
+      "path": "bccache.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "bccache.py",
+      "function_name": "AsyncRedisBytecodeCache::get_cache_key",
+      "path": "bccache.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "bccache.py",
+      "function_name": "AsyncRedisBytecodeCache::load_bytecode",
+      "path": "bccache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "patterns.py",
+      "function_name": "CompiledPatterns::_optimize_with_regex",
+      "path": "patterns.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "patterns.py",
+      "function_name": "CompiledPatterns::get_optimized_imports",
+      "path": "patterns.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "patterns.py",
+      "function_name": "CompiledPatterns::optimize_generated_code",
+      "path": "patterns.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "patterns.py",
+      "function_name": "CompiledPatterns::_deduplicate_imports",
+      "path": "patterns.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cache.py",
+      "function_name": "CompilationCache::__init__",
+      "path": "cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cache.py",
+      "function_name": "CompilationCache::clear",
+      "path": "cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cache.py",
+      "function_name": "CompilationCache::get",
+      "path": "cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cache.py",
+      "function_name": "CompilationCache::get_cache_key",
+      "path": "cache.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "cache.py",
+      "function_name": "CompilationCache::set",
+      "path": "cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "loops.py",
+      "function_name": "LoopCodeGenerator::__init__",
+      "path": "loops.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "loops.py",
+      "function_name": "LoopCodeGenerator::generate_async_for_header",
+      "path": "loops.py"
+    },
+    {
+      "complexity": 11,
+      "file_name": "loops.py",
+      "function_name": "LoopCodeGenerator::generate_loop_iterator",
+      "path": "loops.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "frame.py",
+      "function_name": "AsyncFrame::copy",
+      "path": "frame.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "frame.py",
+      "function_name": "AsyncFrame::find_break",
+      "path": "frame.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "frame.py",
+      "function_name": "AsyncFrame::find_continue",
+      "path": "frame.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "frame.py",
+      "function_name": "AsyncFrame::inner",
+      "path": "frame.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "frame.py",
+      "function_name": "AsyncFrame::pop_scope",
+      "path": "frame.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "frame.py",
+      "function_name": "AsyncFrame::push_scope",
+      "path": "frame.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "frame.py",
+      "function_name": "AsyncFrame::__init__",
+      "path": "frame.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "frame.py",
+      "function_name": "AsyncFrame::inspect",
+      "path": "frame.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_import_common",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_setup_for_frames",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::func",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::leave_frame",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::push_assign_tracking",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::simple_write",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::visit_AsyncCall",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::visit_Macro",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::__init__",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_analyze_for_nodes",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_get_filter_reference",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_handle_special_names",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_setup_for_filter",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::choose_async",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::func_code_generator",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::return_buffer_contents",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::visit_For",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::visit_Name",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_cleanup_for_assignments",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_generate_for_loop",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_handle_for_else",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_setup_for_loop_context",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_write_filter_input",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::visit_AsyncFilterBlock",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::visit_Filter",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_handle_single_variable",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_should_use_undefined_check",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_write_buffer_content",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::pull_dependencies",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::visit_Assign",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::visit_AsyncBlock",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_write_filter_arguments",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_generate_block_functions",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_handle_exported_variables",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::visit_Include",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_handle_multiple_variables",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_setup_for_variables",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::compile_with_cache",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::pop_assign_tracking",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_handle_assignment_tracking",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::enter_frame",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::visit_Block",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::visit_Extends",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 10,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_handle_symbol_name",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 11,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::generate",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::visit_AsyncFor",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 14,
+      "file_name": "codegen.py",
+      "function_name": "AsyncCodeGenerator::_write_filter_special_params",
+      "path": "codegen.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "dependencies.py",
+      "function_name": "DependencyResolver::__init__",
+      "path": "dependencies.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "dependencies.py",
+      "function_name": "DependencyResolver::setup_filter_dependency",
+      "path": "dependencies.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "dependencies.py",
+      "function_name": "DependencyResolver::setup_test_dependency",
+      "path": "dependencies.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "context.py",
+      "function_name": "TestContext::__init__",
+      "path": "context.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "context.py",
+      "function_name": "TestContext::get_test_name",
+      "path": "context.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "context.py",
+      "function_name": "TestContext::set_test_name",
+      "path": "context.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "context.py",
+      "function_name": "clear_test_context",
+      "path": "context.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "context.py",
+      "function_name": "get_test_name",
+      "path": "context.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "context.py",
+      "function_name": "is_test_case",
+      "path": "context.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "context.py",
+      "function_name": "set_test_name",
+      "path": "context.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "context.py",
+      "function_name": "test_context",
+      "path": "context.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "context.py",
+      "function_name": "TestContext::clear_test_context",
+      "path": "context.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "context.py",
+      "function_name": "TestContext::is_test_case",
+      "path": "context.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "fixtures.py",
+      "function_name": "UnifiedCache::__init__",
+      "path": "fixtures.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "fixtures.py",
+      "function_name": "UnifiedCache::clear_all",
+      "path": "fixtures.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "fixtures.py",
+      "function_name": "UnifiedCache::get",
+      "path": "fixtures.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "fixtures.py",
+      "function_name": "UnifiedCache::set",
+      "path": "fixtures.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "fixtures.py",
+      "function_name": "_clear_expired_cache",
+      "path": "fixtures.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "fixtures.py",
+      "function_name": "isolated_test_context",
+      "path": "fixtures.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "typed.py",
+      "function_name": "TypedCache::__contains__",
+      "path": "typed.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "typed.py",
+      "function_name": "TypedCache::__init__",
+      "path": "typed.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "typed.py",
+      "function_name": "TypedCache::__len__",
+      "path": "typed.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "typed.py",
+      "function_name": "TypedCache::clear",
+      "path": "typed.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "typed.py",
+      "function_name": "TypedCache::keys",
+      "path": "typed.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "typed.py",
+      "function_name": "TypedCache::get_statistics",
+      "path": "typed.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "typed.py",
+      "function_name": "TypedCache::resize",
+      "path": "typed.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "typed.py",
+      "function_name": "TypedCache::contains",
+      "path": "typed.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "typed.py",
+      "function_name": "TypedCache::cleanup_expired",
+      "path": "typed.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "typed.py",
+      "function_name": "TypedCache::delete",
+      "path": "typed.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "typed.py",
+      "function_name": "TypedCache::set",
+      "path": "typed.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "typed.py",
+      "function_name": "TypedCache::_evict_excess_entries",
+      "path": "typed.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "typed.py",
+      "function_name": "TypedCache::_evict_lru",
+      "path": "typed.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "typed.py",
+      "function_name": "TypedCache::get",
+      "path": "typed.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "strategies.py",
+      "function_name": "AdaptiveCache::__init__",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "strategies.py",
+      "function_name": "AdaptiveCache::get_strategy_info",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "strategies.py",
+      "function_name": "CacheWarmer::__init__",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "strategies.py",
+      "function_name": "CacheWarmer::clear_warmed_tracking",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "strategies.py",
+      "function_name": "CacheWarmer::get_warmed_keys",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "strategies.py",
+      "function_name": "HierarchicalCache::__init__",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "strategies.py",
+      "function_name": "HierarchicalCache::__len__",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "strategies.py",
+      "function_name": "HierarchicalCache::_default_ttl",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "strategies.py",
+      "function_name": "HierarchicalCache::_default_ttl",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "strategies.py",
+      "function_name": "HierarchicalCache::cleanup_expired",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "strategies.py",
+      "function_name": "HierarchicalCache::clear",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "strategies.py",
+      "function_name": "HierarchicalCache::resize",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "strategies.py",
+      "function_name": "HierarchicalCache::set",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "strategies.py",
+      "function_name": "LFUCache::__init__",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "strategies.py",
+      "function_name": "HierarchicalCache::delete",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "strategies.py",
+      "function_name": "LFUCache::get_extended_statistics",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "strategies.py",
+      "function_name": "AdaptiveCache::_evict_lru",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "strategies.py",
+      "function_name": "HierarchicalCache::_consider_promotion",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "strategies.py",
+      "function_name": "LFUCache::_evict_lfu",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "strategies.py",
+      "function_name": "LFUCache::_update_avg_access_time",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "strategies.py",
+      "function_name": "HierarchicalCache::get_statistics",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "strategies.py",
+      "function_name": "AdaptiveCache::_evict_lfu_adaptive",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "strategies.py",
+      "function_name": "AdaptiveCache::get",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "strategies.py",
+      "function_name": "HierarchicalCache::get",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "strategies.py",
+      "function_name": "CacheWarmer::warm_template_cache",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "strategies.py",
+      "function_name": "CacheWarmer::warm_package_cache",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "strategies.py",
+      "function_name": "LFUCache::set",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "strategies.py",
+      "function_name": "AdaptiveCache::_evaluate_strategy",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "strategies.py",
+      "function_name": "LFUCache::get",
+      "path": "strategies.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "unified.py",
+      "function_name": "UnifiedCache::__len__",
+      "path": "unified.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "unified.py",
+      "function_name": "UnifiedCache::__repr__",
+      "path": "unified.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "unified.py",
+      "function_name": "UnifiedCache::clear_all",
+      "path": "unified.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "unified.py",
+      "function_name": "UnifiedCache::contains",
+      "path": "unified.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "unified.py",
+      "function_name": "UnifiedCache::get_cache_types",
+      "path": "unified.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "unified.py",
+      "function_name": "UnifiedCache::cleanup_expired",
+      "path": "unified.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "unified.py",
+      "function_name": "UnifiedCache::get_statistics",
+      "path": "unified.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "unified.py",
+      "function_name": "UnifiedCache::resize_cache",
+      "path": "unified.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "unified.py",
+      "function_name": "UnifiedCache::__init__",
+      "path": "unified.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "unified.py",
+      "function_name": "UnifiedCache::_is_valid",
+      "path": "unified.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "unified.py",
+      "function_name": "UnifiedCache::clear",
+      "path": "unified.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "unified.py",
+      "function_name": "UnifiedCache::get",
+      "path": "unified.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "unified.py",
+      "function_name": "UnifiedCache::set",
+      "path": "unified.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "manager.py",
+      "function_name": "AdvancedCacheManager::__init__",
+      "path": "manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "manager.py",
+      "function_name": "CacheManager::__init__",
+      "path": "manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "manager.py",
+      "function_name": "CacheManager::__repr__",
+      "path": "manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "manager.py",
+      "function_name": "CacheManager::cleanup_expired",
+      "path": "manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "manager.py",
+      "function_name": "CacheManager::clear_all",
+      "path": "manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "manager.py",
+      "function_name": "CacheManager::create_cache_warmer",
+      "path": "manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "manager.py",
+      "function_name": "CacheManager::get_statistics",
+      "path": "manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "manager.py",
+      "function_name": "CacheManager::set_default",
+      "path": "manager.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "manager.py",
+      "function_name": "CacheManager::delete",
+      "path": "manager.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "manager.py",
+      "function_name": "CacheManager::get",
+      "path": "manager.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "manager.py",
+      "function_name": "CacheManager::get_default",
+      "path": "manager.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "manager.py",
+      "function_name": "CacheManager::set",
+      "path": "manager.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "manager.py",
+      "function_name": "AdvancedCacheManager::_create_caches",
+      "path": "manager.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "manager.py",
+      "function_name": "AdvancedCacheManager::optimize_caches",
+      "path": "manager.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "manager.py",
+      "function_name": "CacheManager::create_scoped_manager",
+      "path": "manager.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "manager.py",
+      "function_name": "CacheManager::resize_caches",
+      "path": "manager.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "manager.py",
+      "function_name": "AdvancedCacheManager::get_extended_statistics",
+      "path": "manager.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "manager.py",
+      "function_name": "AdvancedCacheManager::get_memory_efficiency_report",
+      "path": "manager.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "manager.py",
+      "function_name": "CacheManager::get_memory_usage_estimate",
+      "path": "manager.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "package.py",
+      "function_name": "AsyncPackageLoader::__init__",
+      "path": "package.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "package.py",
+      "function_name": "AsyncPackageLoader::_find_template_root",
+      "path": "package.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "package.py",
+      "function_name": "AsyncPackageLoader::_get_archive_template_root",
+      "path": "package.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "package.py",
+      "function_name": "AsyncPackageLoader::_get_mtime",
+      "path": "package.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "package.py",
+      "function_name": "AsyncPackageLoader::_get_source_regular",
+      "path": "package.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "package.py",
+      "function_name": "AsyncPackageLoader::_initialize_loader",
+      "path": "package.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "package.py",
+      "function_name": "AsyncPackageLoader::_get_regular_template_root",
+      "path": "package.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "package.py",
+      "function_name": "AsyncPackageLoader::_perform_initialization",
+      "path": "package.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "package.py",
+      "function_name": "AsyncPackageLoader::list_templates_async",
+      "path": "package.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "package.py",
+      "function_name": "AsyncPackageLoader::_get_source_with_archive",
+      "path": "package.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "package.py",
+      "function_name": "AsyncPackageLoader::_list_templates_archive",
+      "path": "package.py"
+    },
+    {
+      "complexity": 10,
+      "file_name": "package.py",
+      "function_name": "AsyncPackageLoader::_list_templates_regular",
+      "path": "package.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "package.py",
+      "function_name": "AsyncPackageLoader::get_source_async",
+      "path": "package.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "filesystem.py",
+      "function_name": "AsyncFileSystemLoader::__init__",
+      "path": "filesystem.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "filesystem.py",
+      "function_name": "AsyncFileSystemLoader::_get_cache_key",
+      "path": "filesystem.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "filesystem.py",
+      "function_name": "AsyncFileSystemLoader::_get_template_name",
+      "path": "filesystem.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "filesystem.py",
+      "function_name": "AsyncFileSystemLoader::_walk_subdirectory",
+      "path": "filesystem.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "filesystem.py",
+      "function_name": "AsyncFileSystemLoader::list_templates_async",
+      "path": "filesystem.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "filesystem.py",
+      "function_name": "AsyncFileSystemLoader::_process_template_path",
+      "path": "filesystem.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "filesystem.py",
+      "function_name": "AsyncFileSystemLoader::_should_recurse_into_directory",
+      "path": "filesystem.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "filesystem.py",
+      "function_name": "AsyncFileSystemLoader::_is_safe_path",
+      "path": "filesystem.py"
+    },
+    {
+      "complexity": 10,
+      "file_name": "filesystem.py",
+      "function_name": "AsyncFileSystemLoader::get_source_async",
+      "path": "filesystem.py"
+    },
+    {
+      "complexity": 11,
+      "file_name": "filesystem.py",
+      "function_name": "AsyncFileSystemLoader::_list_templates_in_path",
+      "path": "filesystem.py"
+    },
+    {
+      "complexity": 11,
+      "file_name": "filesystem.py",
+      "function_name": "AsyncFileSystemLoader::_walk_directory",
+      "path": "filesystem.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "choice.py",
+      "function_name": "AsyncChoiceLoader::add_loader",
+      "path": "choice.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "choice.py",
+      "function_name": "AsyncChoiceLoader::clear_loaders",
+      "path": "choice.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "choice.py",
+      "function_name": "AsyncChoiceLoader::get_loader_count",
+      "path": "choice.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "choice.py",
+      "function_name": "AsyncChoiceLoader::get_loaders",
+      "path": "choice.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "choice.py",
+      "function_name": "AsyncChoiceLoader::insert_loader",
+      "path": "choice.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "choice.py",
+      "function_name": "AsyncChoiceLoader::remove_loader",
+      "path": "choice.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "choice.py",
+      "function_name": "AsyncChoiceLoader::__init__",
+      "path": "choice.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "choice.py",
+      "function_name": "AsyncChoiceLoader::list_templates_async",
+      "path": "choice.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "choice.py",
+      "function_name": "AsyncChoiceLoader::get_source_async",
+      "path": "choice.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "dict.py",
+      "function_name": "AsyncDictLoader::add_template",
+      "path": "dict.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "dict.py",
+      "function_name": "AsyncDictLoader::clear_templates",
+      "path": "dict.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "dict.py",
+      "function_name": "AsyncDictLoader::has_template",
+      "path": "dict.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "dict.py",
+      "function_name": "AsyncDictLoader::list_templates_async",
+      "path": "dict.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "dict.py",
+      "function_name": "AsyncDictLoader::remove_template",
+      "path": "dict.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "dict.py",
+      "function_name": "AsyncDictLoader::update_mapping",
+      "path": "dict.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "dict.py",
+      "function_name": "AsyncDictLoader::__init__",
+      "path": "dict.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "dict.py",
+      "function_name": "AsyncDictLoader::get_source_async",
+      "path": "dict.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base.py",
+      "function_name": "AsyncBaseLoader::__init__",
+      "path": "base.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base.py",
+      "function_name": "AsyncBaseLoader::_get_cache_manager",
+      "path": "base.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base.py",
+      "function_name": "AsyncBaseLoader::_handle_template_not_found",
+      "path": "base.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base.py",
+      "function_name": "AsyncBaseLoader::_perform_initialization",
+      "path": "base.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base.py",
+      "function_name": "AsyncBaseLoader::get_source_async",
+      "path": "base.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base.py",
+      "function_name": "AsyncBaseLoader::list_templates_async",
+      "path": "base.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base.py",
+      "function_name": "AsyncLoaderProtocol::get_source_async",
+      "path": "base.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base.py",
+      "function_name": "AsyncLoaderProtocol::list_templates_async",
+      "path": "base.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "base.py",
+      "function_name": "AsyncLoaderProtocol::load_async",
+      "path": "base.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base.py",
+      "function_name": "AsyncBaseLoader::_handle_template_compilation",
+      "path": "base.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "base.py",
+      "function_name": "AsyncBaseLoader::load_async",
+      "path": "base.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "base.py",
+      "function_name": "AsyncBaseLoader::_normalize_searchpath",
+      "path": "base.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "base.py",
+      "function_name": "AsyncBaseLoader::_handle_bytecode_cache",
+      "path": "base.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "base.py",
+      "function_name": "AsyncBaseLoader::_validate_sequence_paths",
+      "path": "base.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "base.py",
+      "function_name": "AsyncBaseLoader::_convert_to_async_paths",
+      "path": "base.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "base.py",
+      "function_name": "AsyncBaseLoader::_ensure_initialized",
+      "path": "base.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "base.py",
+      "function_name": "AsyncBaseLoader::_normalize_sequence_searchpath",
+      "path": "base.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "base.py",
+      "function_name": "AsyncBaseLoader::_prepare_template_loading_data",
+      "path": "base.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "function.py",
+      "function_name": "AsyncFunctionLoader::list_templates_async",
+      "path": "function.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "function.py",
+      "function_name": "AsyncFunctionLoader::update_function",
+      "path": "function.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "function.py",
+      "function_name": "AsyncFunctionLoader::__init__",
+      "path": "function.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "function.py",
+      "function_name": "AsyncFunctionLoader::_call_load_function",
+      "path": "function.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "function.py",
+      "function_name": "AsyncFunctionLoader::_call_sync_load_function",
+      "path": "function.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "function.py",
+      "function_name": "AsyncFunctionLoader::get_source_async",
+      "path": "function.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "function.py",
+      "function_name": "AsyncFunctionLoader::_process_tuple_result",
+      "path": "function.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "function.py",
+      "function_name": "AsyncFunctionLoader::_call_async_load_function",
+      "path": "function.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "function.py",
+      "function_name": "AsyncFunctionLoader::_check_sync_template_update",
+      "path": "function.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "function.py",
+      "function_name": "AsyncFunctionLoader::_process_load_result",
+      "path": "function.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "function.py",
+      "function_name": "AsyncFunctionLoader::_process_string_result",
+      "path": "function.py"
+    }
+  ],
+  "targets": [
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/__init__.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/bccache.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/caching/__init__.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/caching/manager.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/caching/strategies.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/caching/typed.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/caching/unified.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/compiler.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/compiler_modules/__init__.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/compiler_modules/cache.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/compiler_modules/codegen.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/compiler_modules/dependencies.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/compiler_modules/frame.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/compiler_modules/loops.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/compiler_modules/patterns.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/environment.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/loaders/__init__.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/loaders/base.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/loaders/choice.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/loaders/dict.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/loaders/filesystem.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/loaders/function.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/loaders/package.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/testing/__init__.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/testing/context.py",
+    "/Users/les/Projects/jinja2-async-environment/jinja2_async_environment/testing/fixtures.py"
+  ]
+}
