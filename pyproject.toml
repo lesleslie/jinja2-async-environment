@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "jinja2-async-environment"
-version = "0.18.6"
+version = "0.18.7"
 description = "Provides asynchronous alternatives to Jinja2's standard template environment and loaders"
 readme = "README.md"
 authors = [

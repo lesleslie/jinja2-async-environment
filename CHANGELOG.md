@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.18.7] - 2026-01-22
+
+### Changed
+
+- Update config, core, deps, docs
+
 ## [0.18.6] - 2025-11-26
 
 ### Changed
