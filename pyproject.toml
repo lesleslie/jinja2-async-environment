@@ -32,7 +32,7 @@ dependencies = [
 ]
 
 [project.license]
-text = "BSD-3-Clause"
+text = "BSD-3-CLAUSE"
 
 [dependency-groups]
 dev = [
