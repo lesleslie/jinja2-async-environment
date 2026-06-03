@@ -151,3 +151,17 @@ complexipy_results*.json
 # Generic cache directory (crackerjack hooks: gitleaks, etc.)
 # ============================================================================
 .cache/
+
+# ============================================================================
+# Session / linter / crackerjack scratch artifacts
+# ============================================================================
+# Coverage data files (the .coverage* glob covers `.coverage`, `.coverage-ratchet.json`, etc.)
+.coverage*
+# Oneiric (crackerjack-adjacent) runtime cache
+.oneiric_cache/
+# Backup files produced by linters, agents, or manual `cp file file.backup`
+.backup*
+*.bak
+*.backup*
+# Per-run backup directories (e.g. `docs/.backups/20260603-003420/`)
+docs/.backups/
