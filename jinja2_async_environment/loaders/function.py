@@ -118,9 +118,14 @@ class AsyncFunctionLoader(AsyncBaseLoader):
             result = initial_result
 
         # Keep awaiting until we get a non-awaitable result
-        while inspect.isawaitable(result):
-            awaited_result: str | tuple[Any, ...] | None = await result
-            result = awaited_result
+        # Use isinstance with Awaitable ABC (not inspect.isawaitable) for reliable
+        # type narrowing under zuban. inspect.isawaitable is duck-typed and zuban
+        # cannot narrow result: str | tuple[Any, ...] | None through it.
+        # The cast is needed because zuban's narrowing for the Awaitable ABC is
+        # broken — it computes an impossible intersection (str & Awaitable) | ...
+        # despite the isinstance guard. Cast tells the checker the runtime type.
+        while isinstance(result, t.Awaitable):
+            result = await t.cast("t.Awaitable[str | tuple[Any, ...] | None]", result)
 
         # At this point, result should be str | None | tuple[Any, ...]
         return result

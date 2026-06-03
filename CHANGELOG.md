@@ -105,7 +105,7 @@
 ### Changed
 
 - Updated loader constructors to maintain backward compatibility while fixing API inconsistencies
-- Improved test coverage from ~41% to ~28% (significant progress toward 42% goal)
+- Improved test coverage from ~41% to ~79% (significant progress toward the 80%+ floor)
 - Enhanced documentation accuracy and completeness
 
 ## [0.13.0] - 2025-07-10
@@ -146,7 +146,7 @@
 
 ### Changed
 
-- Updated dependency from `aiopath` to `anyio>=4.9`
+- Updated dependency from `aiopath` to `anyio>=4.11.0` (current)
 - **BREAKING CHANGE**: AsyncPath imports are now optional - all loaders accept string paths directly
 - Improved code style and consistency with refurb suggestions
 - Enhanced documentation with updated API usage examples showing string path support

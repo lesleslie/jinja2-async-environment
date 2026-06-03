@@ -64,7 +64,21 @@ class AsyncRedisBytecodeCache(AsyncBytecodeCache):
         return filename or name
 
     def get_source_checksum(self, source: str) -> str:
-        return str(hash(source))
+        """Generate SHA-256 checksum for template source.
+
+        Uses cryptographic hash function (SHA-256) instead of Python's built-in
+        hash() to prevent collision attacks and ensure consistent checksums across
+        different Python versions and platforms.
+
+        Args:
+            source: Template source code
+
+        Returns:
+            Hexadecimal SHA-256 checksum
+        """
+        import hashlib
+
+        return hashlib.sha256(source.encode("utf-8")).hexdigest()
 
     def get_bucket_name(self, key: str) -> str:
         return f"{self.prefix}:{key}" if self.prefix else key

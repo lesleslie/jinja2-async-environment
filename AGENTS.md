@@ -14,7 +14,7 @@ Code targets Python 3.13+ with standard four-space indentation and exhaustive ty
 
 ## Testing Guidelines
 
-Pytest discovers files named `test_*.py` or `*_test.py`; align helper modules under the same patterns when practical. Mark tests with `@pytest.mark.unit`, `@pytest.mark.integration`, or `@pytest.mark.benchmark` to integrate with existing selection flags. The default run enforces coverage via `--cov-fail-under=69`; do not regress this threshold. Prefer async fixtures and the `asyncio` event loop provided by `pytest-asyncio` instead of manual loop management.
+Pytest discovers files named `test_*.py` or `*_test.py`; align helper modules under the same patterns when practical. Mark tests with `@pytest.mark.unit`, `@pytest.mark.integration`, or `@pytest.mark.benchmark` to integrate with existing selection flags. The default run enforces coverage via `--cov-fail-under=83`; do not regress this threshold. Prefer async fixtures and the `asyncio` event loop provided by `pytest-asyncio` instead of manual loop management.
 
 ## Commit & Pull Request Guidelines
 
