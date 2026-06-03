@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "jinja2-async-environment"
-version = "0.19.0"
+version = "0.19.1"
 description = "Provides asynchronous alternatives to Jinja2's standard template environment and loaders"
 readme = "README.md"
 authors = [
@@ -26,9 +26,9 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "anyio>=4.11.0",
+    "anyio>=4.13.0",
     "jinja2>=3.1.6",
-    "redis>=7.1.0",
+    "redis>=8.0.0",
 ]
 
 [project.license]
@@ -36,12 +36,12 @@ text = "BSD-3-CLAUSE"
 
 [dependency-groups]
 dev = [
-    "codespell>=2.4.1",
-    "complexipy>=5.0.0",
-    "crackerjack>=0.44.36",
-    "session-mgmt-mcp>=0.9.6",
+    "codespell>=2.4.2",
+    "complexipy>=5.5.0",
+    "crackerjack>=0.64.0",
+    "session-mgmt-mcp>=0.9.9",
     "twine>=6.2.0",
-    "uv-bump>=0.3.1",
+    "uv-bump>=0.5.0",
 ]
 
 [tool.ruff]

@@ -816,7 +816,7 @@ wheels = [
 
 [[package]]
 name = "crackerjack"
-version = "0.64.0"
+version = "0.64.1"
 source = { registry = "https://pypi.org/simple/" }
 dependencies = [
     { name = "aiofiles" },
@@ -877,9 +877,9 @@ dependencies = [
     { name = "websockets" },
     { name = "zuban" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/38/4a/edf2cf98689a54197dacbe4c51200f5e1fb87984bd65ca0ac0055a65b78b/crackerjack-0.64.0.tar.gz", hash = "sha256:07720c3018a5e28b1192595e9f553d325b09e43309d67ad983d00bb75f900f14", size = 4047826, upload-time = "2026-06-03T09:58:46.795Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/15/34/e9e2654efcf8a55ce8911122eb5d6d89bc8505fbc34d3e1982f09b1c878f/crackerjack-0.64.1.tar.gz", hash = "sha256:e24f203ab2fee4ac67e377d7809fa670d2b30df4a386ffff7b1ac0b53810eed6", size = 4048263, upload-time = "2026-06-03T11:42:07.826Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/10/f0/ba0cd88cfae437d59822de4ed74c515d17c1bf9a1e1c35a2358613c443e5/crackerjack-0.64.0-py3-none-any.whl", hash = "sha256:eec56a7d47326d49cee3d89db30c1135caace3f2528d7ea4ffbd54567d376574", size = 1398955, upload-time = "2026-06-03T09:58:44.572Z" },
+    { url = "https://files.pythonhosted.org/packages/53/ec/c7cef7aff079d96ba373c08e3459da4aee090678d302de35ae325b9d60b9/crackerjack-0.64.1-py3-none-any.whl", hash = "sha256:6e970b09f0a72153fbe4163cd91203153a45088b6aff29277847df53661ca1c4", size = 1399074, upload-time = "2026-06-03T11:42:10.663Z" },
 ]
 
 [[package]]
@@ -1964,7 +1964,7 @@ wheels = [
 
 [[package]]
 name = "jinja2-async-environment"
-version = "0.18.7"
+version = "0.19.0"
 source = { editable = "." }
 dependencies = [
     { name = "anyio" },
@@ -1984,19 +1984,19 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "anyio", specifier = ">=4.11.0" },
+    { name = "anyio", specifier = ">=4.13.0" },
     { name = "jinja2", specifier = ">=3.1.6" },
-    { name = "redis", specifier = ">=7.1.0" },
+    { name = "redis", specifier = ">=8.0.0" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "codespell", specifier = ">=2.4.1" },
-    { name = "complexipy", specifier = ">=5.0.0" },
-    { name = "crackerjack", specifier = ">=0.44.36" },
-    { name = "session-mgmt-mcp", specifier = ">=0.9.6" },
+    { name = "codespell", specifier = ">=2.4.2" },
+    { name = "complexipy", specifier = ">=5.5.0" },
+    { name = "crackerjack", specifier = ">=0.64.0" },
+    { name = "session-mgmt-mcp", specifier = ">=0.9.9" },
     { name = "twine", specifier = ">=6.2.0" },
-    { name = "uv-bump", specifier = ">=0.3.1" },
+    { name = "uv-bump", specifier = ">=0.5.0" },
 ]
 
 [[package]]
@@ -4373,7 +4373,7 @@ wheels = [
 
 [[package]]
 name = "skylos"
-version = "4.22.1"
+version = "4.23.0"
 source = { registry = "https://pypi.org/simple/" }
 dependencies = [
     { name = "ca9" },
@@ -4395,9 +4395,9 @@ dependencies = [
     { name = "tree-sitter-rust" },
     { name = "tree-sitter-typescript" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/53/25/9d89259d7a2c817ac3e3b8c4f80d045ae50fbdba4e077ec053cb4b67cc93/skylos-4.22.1.tar.gz", hash = "sha256:e71d51efa9c02de802a7df364cafcdc001a38432bbbb4c3d41701208be48eef4", size = 1176983, upload-time = "2026-05-30T16:09:18.855Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/13/79/437013e92218620bd614a32a5aaacb033bc8fc546a365ec9e4e146c1971e/skylos-4.23.0.tar.gz", hash = "sha256:8be66a2c6ebcb231e694009648b4188b4e1ef40a0f01a6a6c63884a888be63c2", size = 1214763, upload-time = "2026-06-03T11:39:23.889Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/33/73/ecb96e9b245bd1fe562c15b6e11e616a078e41a39dbf5b97a835b75472ee/skylos-4.22.1-py3-none-any.whl", hash = "sha256:e7534c10e768c8723ee9658cb07122460489c637baa884bd3b3457fe5fcd88c7", size = 918971, upload-time = "2026-05-30T16:09:17.167Z" },
+    { url = "https://files.pythonhosted.org/packages/e7/5c/5eaaeba19f3b00c67e7253f15ce1143505162eb169e256d1d7d21531485b/skylos-4.23.0-py3-none-any.whl", hash = "sha256:e21c8794368f0f6ca4613cd4df0e1247d5183db0b5908e923e4ca91552551149", size = 953098, upload-time = "2026-06-03T11:39:22.586Z" },
 ]
 
 [[package]]
