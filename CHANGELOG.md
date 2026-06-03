@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.19.0] - 2026-06-03
+
+### Changed
+
+- Jinja2-async-environment (quality: 68/100) - 2026-06-03 01:24:18
+
+### Internal
+
+- gitignore: Untrack session and coverage artifacts
+- Update LICENSE copyright to 2026, standardize license field
+
 ## [0.18.7] - 2026-01-22
 
 ### Changed
