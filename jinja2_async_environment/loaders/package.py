@@ -236,9 +236,7 @@ class AsyncPackageLoader(AsyncBaseLoader):
 
         return loader, spec
 
-    def _find_template_root(
-        self, spec: t.Any, package_path: AsyncPath
-    ) -> AsyncPath:
+    def _find_template_root(self, spec: t.Any, package_path: AsyncPath) -> AsyncPath:
         """Find the root directory for templates in the package.
 
         Dispatches to the archive-based or regular-filesystem helper
@@ -566,8 +564,7 @@ class AsyncPackageLoader(AsyncBaseLoader):
         def uptodate() -> bool:
             try:
                 return (
-                    sync_full_path.is_file()
-                    and sync_full_path.stat().st_mtime == mtime
+                    sync_full_path.is_file() and sync_full_path.stat().st_mtime == mtime
                 )
             except OSError:
                 return False

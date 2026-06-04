@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.19.2] - 2026-06-03
+
+### Fixed
+
+- 3-phase AsyncPackageLoader refactor
+
 ## [0.19.1] - 2026-06-03
 
 ### Fixed
