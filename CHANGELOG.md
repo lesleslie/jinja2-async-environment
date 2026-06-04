@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.19.1] - 2026-06-03
+
+### Fixed
+
+- `AsyncPackageLoader.get_source_async`: read template files directly via `anyio.Path.read_bytes()` instead of routing through `self._loader.get_data(...)`. The previous call assumed the loader's path was a directory and only worked for zip-imported packages; for regular filesystem-installed packages the loader's path is the `__init__.py` file, so any `templates/...` lookup raised `FileNotFoundError`. `uptodate()` is now a synchronous `Path.stat()`-based closure matching upstream `jinja2.PackageLoader` semantics.
+- A test-only backdoor in `_perform_initialization` that branched on the active test name was removed. Internal-only with no user-visible effect.
+- `AsyncPackageLoader` now defends against path-traversal and symlink-escape attacks via a new `_is_safe_path` helper (mirrors `AsyncFileSystemLoader._is_safe_path`). The `..` containment check and the default `followlinks=False` together prevent an attacker-controlled template name from reading arbitrary files outside the package root. Exception wrapping was narrowed to `raise TemplateNotFound(name) from e` so absolute filesystem paths no longer leak into the user-facing error message.
+
+### Changed
+
+- `AsyncPackageLoader` now raises `ValueError` (not `RuntimeError`) when a package's `templates/` subdirectory is missing, with the message `"The {package_name!r} package was not installed in a way that PackageLoader understands."` This matches upstream `jinja2.PackageLoader`. Callers catching `RuntimeError` around construction or first `get_source_async` should switch to `ValueError` (or a broader catch).
+- `AsyncPackageLoader.__init__` signature changed: the unused `searchpath` parameter was removed. Existing callers passing it positionally will need to drop the second argument (e.g. `AsyncPackageLoader("mypkg", "templates")` becomes `AsyncPackageLoader("mypkg")`).
+- New keyword-only `followlinks: bool = False` parameter on `AsyncPackageLoader.__init__`. Set to `True` only for trusted packages that need legitimate in-tree symlinks; the default `False` is the safe setting.
+- New `PackageLoaderError` exception class re-exported from `jinja2_async_environment.loaders` as the common base of `LoaderNotFound` and `PackageSpecNotFound`. Callers can now write a single `except PackageLoaderError` to catch both. The existing `LoaderNotFound` and `PackageSpecNotFound` names are preserved for backward compatibility.
+
 ## [0.19.0] - 2026-06-03
 
 ### Changed

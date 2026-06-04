@@ -91,11 +91,12 @@ async def test_async_package_loader_error_handling() -> None:
     with pytest.raises(PackageSpecNotFound):
         await loader.get_source_async(AsyncEnvironment(), "test.html")
 
-    # Test with a valid package but non-existent template
-    loader = AsyncPackageLoader("jinja2_async_environment", "tests")
-
-    with pytest.raises(TemplateNotFound):
-        await loader.get_source_async(AsyncEnvironment(), "non_existent.html")
+    # Test with a valid package but no templates subdirectory. The async
+    # loader mirrors jinja2.PackageLoader and raises the same user-facing
+    # ValueError when the package is not installed in a way it understands.
+    loader = AsyncPackageLoader("jinja2_async_environment", "no_such_subdir_xyz")
+    with pytest.raises(ValueError, match="was not installed"):
+        await loader.get_source_async(AsyncEnvironment(), "test.html")
 
 
 @pytest.mark.asyncio
@@ -192,8 +193,14 @@ async def test_async_filesystem_loader_with_encoding() -> None:
 @pytest.mark.asyncio
 async def test_async_package_loader_with_encoding() -> None:
     """Test AsyncPackageLoader with different encodings."""
-    # Create a loader with a specific encoding - just test that it initializes properly
-    loader = AsyncPackageLoader("jinja2_async_environment", "tests", encoding="latin1")
+    # Create a loader with a specific encoding - just test that it initializes
+    # without errors. After the searchpath removal, AsyncPackageLoader's
+    # second positional is package_path (no longer searchpath).
+    loader = AsyncPackageLoader(
+        "jinja2_async_environment",
+        package_path="testing",
+        encoding="latin1",
+    )
 
     # Verify the encoding was set
     assert loader.encoding == "latin1"

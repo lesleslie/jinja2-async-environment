@@ -15,16 +15,29 @@ if t.TYPE_CHECKING:
     from ..environment import AsyncEnvironment
 
 
-class PackageSpecNotFound(Exception):
+class PackageLoaderError(Exception):
+    """Base class for all AsyncPackageLoader resolution failures.
+
+    Catching this exception catches every package-loader-specific
+    error raised by :class:`AsyncPackageLoader` and its helpers
+    (import / spec lookup / loader lookup failures).
+
+    The ``package_name`` attribute, when present, carries the package
+    name that triggered the failure, allowing callers to log or
+    surface it without parsing the message string.
+    """
+
+    def __init__(self, message: str, *, package_name: str | None = None) -> None:
+        super().__init__(message)
+        self.package_name = package_name
+
+
+class PackageSpecNotFound(PackageLoaderError):
     """Raised when a package spec cannot be found."""
 
-    pass
 
-
-class LoaderNotFound(Exception):
+class LoaderNotFound(PackageLoaderError):
     """Raised when a package loader cannot be found."""
-
-    pass
 
 
 class AsyncPackageLoader(AsyncBaseLoader):
@@ -38,6 +51,7 @@ class AsyncPackageLoader(AsyncBaseLoader):
         "package_path",
         "package_name",
         "encoding",
+        "followlinks",
         "_loader",
         "_spec",
         "_archive",
@@ -45,35 +59,106 @@ class AsyncPackageLoader(AsyncBaseLoader):
         "_init_lock",  # Added for thread safety
     )
 
+    # Class-level annotations matching AsyncBaseLoader's style. They
+    # give IDEs / mypy / pyright a real type to chase instead of
+    # falling back to ``Any`` for every attribute. ``_template_root``
+    # is technically ``AsyncPath | None`` only during the lazy-init
+    # window; the ``template_root`` property below exposes a
+    # non-Optional ``AsyncPath`` for read sites.
+    package_path: AsyncPath
+    package_name: str
+    encoding: str
+    followlinks: bool
+    _loader: t.Any
+    _spec: t.Any
+    _archive: t.Any
+    _template_root: AsyncPath | None
+    _initialized: bool
+    _init_lock: t.Any | None
+
     def __init__(
         self,
         package_name: str,
-        searchpath: AsyncPath | str | t.Sequence[AsyncPath | str],
         package_path: AsyncPath | str = "templates",
         encoding: str = "utf-8",
+        *,
+        followlinks: bool = False,
     ) -> None:
         """Initialize the package loader.
 
         Args:
-            package_name: Name of the Python package containing templates
-            searchpath: Template search path within the package
-            package_path: Path within package where templates are stored
-            encoding: File encoding for template files
+            package_name: Name of the Python package containing templates.
+            package_path: Path within the package where templates are stored.
+                Defaults to ``"templates"`` (matches :class:`jinja2.PackageLoader`).
+            encoding: File encoding for template files.
+            followlinks: If True, follow symbolic links within the package's
+                template directory. Defaults to False so a symlink placed
+                inside the templates dir cannot be used to escape the
+                package root and read arbitrary files on disk.
+
+                .. warning::
+
+                    Setting ``followlinks=True`` disables the symlink-rejection
+                    check. Only enable this for packages you trust — a
+                    compromised dependency could ship
+                    ``templates/config.html → /etc/secrets`` and an operator
+                    who flipped this switch to support a legitimate
+                    in-tree symlink would happily serve its content into
+                    the template cache. Do not enable it for packages
+                    installed from untrusted sources or that pull in
+                    untrusted transitive dependencies.
+
+        Note:
+            :class:`AsyncBaseLoader.__init__` is intentionally not called.
+            The package loader resolves templates relative to
+            ``self._template_root`` and ``self.package_path``; it never
+            uses ``self.searchpath``. Calling ``super().__init__`` here
+            would only populate a dead ``self.searchpath`` slot.
         """
-        super().__init__(searchpath)
+        self._initialized = False
+        self._init_lock = None
+        self.followlinks = followlinks
         self.package_path = (
             AsyncPath(package_path) if isinstance(package_path, str) else package_path
         )
         self.package_name = package_name
         self.encoding = encoding
 
-        # Use lazy initialization to avoid import issues during testing
+        # Use lazy initialization to avoid import issues during testing.
+        # ``_template_root`` is ``None`` only during the lazy-init
+        # window — read sites should prefer the ``template_root``
+        # property (which raises if accessed before init) to get a
+        # non-Optional type.
         self._loader: t.Any = None
         self._spec: t.Any = None
         self._archive: t.Any = None
         self._template_root: AsyncPath | None = None
-        self._initialized = False
-        self._init_lock: t.Any = None  # Will be created on first use
+
+    @property
+    def template_root(self) -> AsyncPath:
+        """Resolved template root, guaranteed non-None after init.
+
+        The internal ``_template_root`` slot is ``AsyncPath | None``
+        because of lazy initialization, but every read site that
+        runs after ``_ensure_initialized()`` succeeds can use this
+        property to get a non-Optional ``AsyncPath``.
+
+        Raises:
+            RuntimeError: If accessed before ``_perform_initialization``
+                has completed successfully (i.e. the loader is in a
+                "not initialized" state). This replaces the
+                ``if self._template_root is None: raise RuntimeError(...)``
+                checks that used to live in
+                ``_get_source_with_archive`` and
+                ``_get_source_regular`` — the property raises the
+                same error naturally on its own.
+        """
+        if self._template_root is None:
+            raise RuntimeError(
+                "AsyncPackageLoader.template_root accessed before "
+                "_perform_initialization() completed successfully"
+            )
+        return self._template_root
 
     def _perform_initialization(self) -> None:
         """Perform the actual initialization work for the package loader.
@@ -81,36 +166,23 @@ class AsyncPackageLoader(AsyncBaseLoader):
         Raises:
             PackageSpecNotFound: If package cannot be found
             LoaderNotFound: If package loader cannot be found
-            RuntimeError: If template root cannot be located
-            ValueError: For test-specific error scenarios
+            ValueError: If the package is not installed in a way that
+                PackageLoader understands, or if no template directory
+                can be found. Matches :class:`jinja2.PackageLoader`'s
+                user-facing error for compatibility.
         """
         try:
             # Initialize package loader and spec
             self._loader, self._spec = self._initialize_loader(self.package_name)
-
-            # Import test context functions to check for test-specific behaviors
-            from contextlib import suppress
-
-            with suppress(ImportError):
-                from ..testing.context import is_test_case
-
-                # Check for test context that expects ValueError
-                if is_test_case("test_init_template_root_not_found"):
-                    raise ValueError(
-                        f"The {self.package_name!r} package was not installed in a way that PackageLoader understands"
-                    )
-
-            template_root = self._find_template_root(self._spec, self.package_path)
-            if template_root is None:
-                # Provide better error message when template root cannot be found
-                raise RuntimeError(
-                    f"Could not locate template directory in package {self.package_name!r}. "
-                    f"Searched for path: {self.package_path}"
-                )
-
-            self._template_root = template_root
+            # _find_template_root raises the user-facing ValueError
+            # directly when no valid root exists, so the caller no
+            # longer needs a None check on the returned value.
+            self._template_root = self._find_template_root(
+                self._spec, self.package_path
+            )
         except Exception as e:
-            # Reset initialization state on failure
+            # Reset initialization state on failure so a re-attempt
+            # (e.g. from the test suite) sees a clean loader.
             self._template_root = None
             self._loader = None
             self._spec = None
@@ -131,14 +203,18 @@ class AsyncPackageLoader(AsyncBaseLoader):
         """
         # Additional validation during initialization
         if not package_name.strip():
-            raise PackageSpecNotFound(f"Invalid package name: {package_name!r}")
+            raise PackageSpecNotFound(
+                f"Invalid package name: {package_name!r}",
+                package_name=package_name,
+            )
 
         # Import the package
         try:
             import_module(package_name)
         except ImportError as e:
             raise PackageSpecNotFound(
-                f"Package {package_name!r} not found or cannot be imported: {e}"
+                f"Package {package_name!r} not found or cannot be imported",
+                package_name=package_name,
             ) from e
 
         # Find the package spec
@@ -146,37 +222,65 @@ class AsyncPackageLoader(AsyncBaseLoader):
         if not spec:
             raise PackageSpecNotFound(
                 f"Import spec was not found for package {package_name!r}. "
-                "The package may not be properly installed."
+                "The package may not be properly installed.",
+                package_name=package_name,
             )
 
         loader = spec.loader
         if not loader:
             raise LoaderNotFound(
                 f"No loader found for package {package_name!r}. "
-                "The package may be malformed or corrupted."
+                "The package may be malformed or corrupted.",
+                package_name=package_name,
             )
 
         return loader, spec
 
     def _find_template_root(
         self, spec: t.Any, package_path: AsyncPath
-    ) -> AsyncPath | None:
+    ) -> AsyncPath:
         """Find the root directory for templates in the package.
+
+        Dispatches to the archive-based or regular-filesystem helper
+        depending on the loader type, and raises the user-facing
+        ``ValueError`` itself when no valid root can be found.
 
         Args:
             spec: Package spec
             package_path: Path within package for templates
 
         Returns:
-            Template root path or None if not found
+            The resolved template root (never None).
+
+        Raises:
+            ValueError: If the package is not installed in a way that
+                PackageLoader understands (matches
+                :class:`jinja2.PackageLoader`'s user-facing error for
+                compatibility).
         """
         # Check if this is an archive-based loader
         if hasattr(self._loader, "archive"):
-            return self._get_archive_template_root(spec)
-        return self._get_regular_template_root(spec, package_path)
+            result: AsyncPath | None = self._get_archive_template_root(spec)
+        else:
+            result = self._get_regular_template_root(spec, package_path)
+
+        if result is None:
+            # Match jinja2.PackageLoader's user-facing ValueError so
+            # callers migrating from jinja2 see the same error type
+            # and message.
+            raise ValueError(
+                f"The {self.package_name!r} package was not installed in a"
+                f" way that PackageLoader understands."
+            )
+        return result
 
     def _get_archive_template_root(self, spec: t.Any) -> AsyncPath | None:
         """Get template root for archive-based packages.
+
+        Private implementation detail of :meth:`_find_template_root`;
+        kept as ``AsyncPath | None`` so the helper itself can stay
+        simple. The caller raises the user-facing ``ValueError`` when
+        this returns ``None``.
 
         Args:
             spec: Package spec
@@ -198,12 +302,18 @@ class AsyncPackageLoader(AsyncBaseLoader):
     ) -> AsyncPath | None:
         """Get template root for regular filesystem packages.
 
+        Mirrors :class:`jinja2.PackageLoader.__init__`: returns the
+        package root (containing ``package_path``) only when that
+        templates subdirectory actually exists, otherwise ``None`` so
+        :meth:`_find_template_root` raises the user-facing
+        ``ValueError``.
+
         Args:
             spec: Package spec
             package_path: Path within package
 
         Returns:
-            Template root path or None
+            Template root path or None if no templates directory exists.
         """
         roots: list[Path] = []
 
@@ -217,11 +327,55 @@ class AsyncPackageLoader(AsyncBaseLoader):
             if candidate.is_dir():
                 return AsyncPath(root)
 
-        # If no template directory found, use first root
-        if roots:
-            return AsyncPath(roots[0])
-
+        # No root has a templates directory — let the caller surface
+        # a user-facing ValueError rather than silently using a wrong
+        # root.
         return None
+
+    def _is_safe_path(self, target: Path) -> bool:
+        """Check that ``target`` lies within ``self._template_root``.
+
+        Defends against two escape routes for an attacker-controlled
+        template name:
+
+        1. ``..`` containment: a name like ``../../etc/passwd`` must not
+           resolve outside the package's templates directory.
+        2. Symlink escape: a symlink placed inside the templates dir
+           that points outside the root must be rejected unless
+           ``followlinks`` is True.
+
+        Mirrors :meth:`AsyncFileSystemLoader._is_safe_path`.
+
+        Note:
+            This method intentionally reads ``self._template_root``
+            (the slot) directly rather than the ``template_root``
+            property. The defensive ``None`` branch must return
+            ``False`` (not raise): tests such as
+            ``TestAsyncPackageLoaderIsSafePathUnit`` set the slot to
+            ``None`` to exercise this branch, and a raise would
+            convert a "not initialized" state into a misleading
+            user-facing error.
+
+        Args:
+            target: The fully-joined path to validate (sync ``Path``).
+
+        Returns:
+            True if the path is safe to load, False otherwise.
+        """
+        if self._template_root is None:
+            return False
+        try:
+            target_resolved = target.resolve()
+            root_resolved = Path(str(self._template_root)).resolve()
+            # Containment check: raises ValueError if target_resolved
+            # is not under root_resolved.
+            target_resolved.relative_to(root_resolved)
+        except (ValueError, OSError):
+            return False
+        # When not following links, reject any symlinked path.
+        if not self.followlinks and target.is_symlink():
+            return False
+        return True
 
     @internalcode
     async def get_source_async(
@@ -275,10 +429,14 @@ class AsyncPackageLoader(AsyncBaseLoader):
             # Re-raise template not found as-is
             raise
         except Exception as e:
-            # Wrap other exceptions with context
-            raise TemplateNotFound(
-                f"Failed to load template {name} from package {self.package_name!r}: {e}"
-            ) from e
+            # Wrap other exceptions with context. Only include the
+            # template name in the user-facing message: an ``OSError``
+            # or ``PermissionError`` interpolates the absolute
+            # filesystem path into its ``str()``, which we must not
+            # echo back to callers (or to HTTP 500 pages). The full
+            # context is still available via the ``__cause__`` chain
+            # for server-side tracebacks.
+            raise TemplateNotFound(name) from e
 
         # Cache the result safely
         if cache_manager:
@@ -294,6 +452,12 @@ class AsyncPackageLoader(AsyncBaseLoader):
     async def _get_source_with_archive(self, template_path: AsyncPath) -> SourceType:
         """Get template source from archived package.
 
+        Reads ``self.template_root`` (the property), which raises
+        :class:`RuntimeError` if the loader has not been initialized
+        yet. Callers are expected to invoke
+        :meth:`AsyncBaseLoader._ensure_initialized` before reaching
+        here.
+
         Args:
             template_path: Path to template within package
 
@@ -304,23 +468,28 @@ class AsyncPackageLoader(AsyncBaseLoader):
             TemplateNotFound: If template cannot be found
             RuntimeError: If template root is not initialized
         """
-        if self._template_root is None:
-            raise RuntimeError("Template root not properly initialized")
+        template_full_path = (
+            self.template_root / str(self.package_path) / str(template_path)
+        )
+
+        # Defend against path traversal and symlink escape BEFORE any
+        # I/O. Treat the same as "not found" — the loader's contract
+        # is to raise TemplateNotFound for any failure to load.
+        sync_full_path = Path(str(template_full_path))
+        if not self._is_safe_path(sync_full_path):
+            raise TemplateNotFound(str(template_path))
 
         try:
-            template_full_path = (
-                self._template_root / str(self.package_path) / str(template_path)
-            )
-
             if hasattr(template_full_path, "is_file"):
                 if not await template_full_path.is_file():
-                    raise TemplateNotFound(template_path.name)
+                    raise TemplateNotFound(str(template_path))
 
             source_bytes = await template_full_path.read_bytes()
-            await self._get_mtime(template_full_path)
 
+            # For archived packages, files don't change at runtime (the
+            # archive is loaded once by importlib). Mirror jinja2.PackageLoader
+            # by reporting the template as always current.
             def uptodate() -> bool:
-                # For archived packages, files don't change
                 return True
 
             result: SourceType = (
@@ -330,10 +499,25 @@ class AsyncPackageLoader(AsyncBaseLoader):
             )
             return result
         except (OSError, FileNotFoundError) as exc:
-            raise TemplateNotFound(template_path.name) from exc
+            raise TemplateNotFound(str(template_path)) from exc
 
     async def _get_source_regular(self, template_path: AsyncPath) -> SourceType:
-        """Get template source from regular package.
+        """Get template source from regular (filesystem-installed) package.
+
+        Mirrors :class:`jinja2.PackageLoader.get_source` for the
+        non-archive branch: builds a full filesystem path
+        ``template_root / package_path / template_path`` and reads
+        the file directly. The previous implementation called
+        ``self._loader.get_data(package_relative_path)`` which only
+        works for zip-imported packages — for regular packages the
+        loader's path is the ``__init__.py`` file, so
+        ``get_data("templates/foo.html")`` raised ``FileNotFoundError``.
+
+        Reads ``self.template_root`` (the property), which raises
+        :class:`RuntimeError` if the loader has not been initialized
+        yet. Callers are expected to invoke
+        :meth:`AsyncBaseLoader._ensure_initialized` before reaching
+        here.
 
         Args:
             template_path: Path to template within package
@@ -345,52 +529,55 @@ class AsyncPackageLoader(AsyncBaseLoader):
             TemplateNotFound: If template cannot be found
             RuntimeError: If template root is not initialized
         """
-        if self._template_root is None:
-            raise RuntimeError("Template root not properly initialized")
+        template_full_path = (
+            self.template_root / str(self.package_path) / str(template_path)
+        )
+
+        # Defend against path traversal and symlink escape BEFORE any
+        # I/O. Treat the same as "not found" — the loader's contract
+        # is to raise TemplateNotFound for any failure to load.
+        sync_full_path = Path(str(template_full_path))
+        if not self._is_safe_path(sync_full_path):
+            raise TemplateNotFound(str(template_path))
 
         try:
-            # Use the loader's get_data method to read the file
-            template_pkg_path = str(self.package_path / str(template_path))
-            source_bytes = self._loader.get_data(template_pkg_path)
-
-            def uptodate() -> bool:
-                # For regular packages, check if file still exists
-                try:
-                    self._loader.get_data(template_pkg_path)
-                    return True
-                except (OSError, FileNotFoundError):
-                    return False
-
-            result: SourceType = (
-                source_bytes.decode(self.encoding),
-                f"{self._template_root}/{template_path}",
-                uptodate,
-            )
-            return result
+            if not await template_full_path.is_file():
+                raise TemplateNotFound(str(template_path))
         except (OSError, FileNotFoundError) as exc:
-            raise TemplateNotFound(template_path.name) from exc
+            raise TemplateNotFound(str(template_path)) from exc
+
+        # Capture mtime synchronously at load time so the uptodate() closure
+        # can be a cheap, synchronous function (matches jinja2.PackageLoader).
+        try:
+            mtime = sync_full_path.stat().st_mtime
+        except OSError:
+            mtime = 0.0
+
+        try:
+            source_bytes = await template_full_path.read_bytes()
+            source_text = source_bytes.decode(self.encoding)
+        except (OSError, FileNotFoundError) as exc:
+            raise TemplateNotFound(str(template_path)) from exc
         except UnicodeDecodeError as exc:
             raise TemplateNotFound(
                 f"Template {template_path.name} contains invalid {self.encoding} encoding"
             ) from exc
 
-    async def _get_mtime(self, path: AsyncPath) -> float:
-        """Get modification time of a file.
+        def uptodate() -> bool:
+            try:
+                return (
+                    sync_full_path.is_file()
+                    and sync_full_path.stat().st_mtime == mtime
+                )
+            except OSError:
+                return False
 
-        Args:
-            path: Path to check
-
-        Returns:
-            Modification time or default value
-        """
-        from contextlib import suppress
-
-        with suppress(OSError, AttributeError):
-            if hasattr(path, "stat"):
-                stat_result = await path.stat()
-                return stat_result.st_mtime
-
-        return 0.0
+        result: SourceType = (
+            source_text,
+            str(template_full_path),
+            uptodate,
+        )
+        return result
 
     @internalcode
     async def list_templates_async(self) -> list[str]:
@@ -451,14 +638,19 @@ class AsyncPackageLoader(AsyncBaseLoader):
     async def _list_templates_regular(self) -> list[str]:
         """List templates from regular package.
 
+        Reads ``self.template_root`` (the property) once, which
+        raises :class:`RuntimeError` if the loader has not been
+        initialized. The previous ``if self._template_root is None:
+        return []`` branch is dead: by the time
+        :meth:`list_templates_async` reaches this method,
+        ``_ensure_initialized`` has set the slot to a real
+        ``AsyncPath``.
+
         Returns:
             List of template names
         """
-        if self._template_root is None:
-            return []
-
         try:
-            template_dir = self._template_root / str(self.package_path)
+            template_dir = self.template_root / str(self.package_path)
             if not await template_dir.exists():
                 return []
 

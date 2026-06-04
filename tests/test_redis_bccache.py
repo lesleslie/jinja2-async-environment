@@ -50,10 +50,14 @@ class TestAsyncRedisBytecodeCache:
         assert cache.get_cache_key("name") == "name"
 
     def test_get_source_checksum(self, cache: AsyncRedisBytecodeCache) -> None:
+        import hashlib
+
         source = "template source"
         checksum = cache.get_source_checksum(source)
         assert isinstance(checksum, str)
-        assert checksum == str(hash(source))
+        # AsyncRedisBytecodeCache uses SHA-256 (not Python's hash()) so checksums
+        # are stable across processes and resistant to collision attacks.
+        assert checksum == hashlib.sha256(source.encode("utf-8")).hexdigest()
 
         different_source = "different template source"
         different_checksum = cache.get_source_checksum(different_source)
@@ -113,6 +117,8 @@ class TestAsyncRedisBytecodeCache:
         environment: Environment,
         mock_redis_client: MagicMock,
     ) -> None:
+        import hashlib
+
         mock_redis_client.get.return_value = b"bytecode_data"
 
         with patch("jinja2_async_environment.bccache.Bucket") as mock_bucket_class:
@@ -123,8 +129,11 @@ class TestAsyncRedisBytecodeCache:
                 environment, "template_name", "filename", "source"
             )
 
+            # Bucket is keyed by the SHA-256 checksum of the source.
             mock_bucket_class.assert_called_once_with(
-                environment, "filename", str(hash("source"))
+                environment,
+                "filename",
+                hashlib.sha256(b"source").hexdigest(),
             )
             mock_redis_client.get.assert_awaited_once()
             assert result is mock_bucket

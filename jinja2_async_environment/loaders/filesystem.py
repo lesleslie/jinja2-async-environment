@@ -37,6 +37,7 @@ class AsyncFileSystemLoader(AsyncBaseLoader):
         self,
         searchpath: AsyncPath | str | t.Sequence[AsyncPath | str],
         encoding: str = "utf-8",
+        *,
         followlinks: bool = False,
     ) -> None:
         """Initialize the filesystem loader.
@@ -44,7 +45,9 @@ class AsyncFileSystemLoader(AsyncBaseLoader):
         Args:
             searchpath: Path or sequence of paths to search for templates
             encoding: File encoding to use when reading templates
-            followlinks: Whether to follow symbolic links
+            followlinks: Whether to follow symbolic links. Keyword-only
+                parameter to mirror :class:`AsyncPackageLoader` and prevent
+                accidental positional misuse.
         """
         super().__init__(searchpath)
         self.encoding = encoding

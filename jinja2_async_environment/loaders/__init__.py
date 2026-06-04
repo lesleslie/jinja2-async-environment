@@ -14,7 +14,12 @@ from .choice import AsyncChoiceLoader
 from .dict import AsyncDictLoader
 from .filesystem import AsyncFileSystemLoader
 from .function import AsyncFunctionLoader
-from .package import AsyncPackageLoader, LoaderNotFound, PackageSpecNotFound
+from .package import (
+    AsyncPackageLoader,
+    LoaderNotFound,
+    PackageLoaderError,
+    PackageSpecNotFound,
+)
 
 # Expose testing utilities for backward compatibility
 LoaderContext = _testing_fixtures.LoaderContext
@@ -43,6 +48,7 @@ __all__ = [
     # Types
     "SourceType",
     # Exception classes
+    "PackageLoaderError",
     "PackageSpecNotFound",
     "LoaderNotFound",
     # Backward compatibility (testing utilities)
